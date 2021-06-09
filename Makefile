@@ -58,14 +58,14 @@ BUILD		:=	build
 UNIVCORE	:= 	Universal-Core
 SOURCES		:=	$(UNIVCORE) \
 				source source/Data source/Components source/Components/HexEditor source/Components/Inputs \
-				source/Components/Selectors source/Components/TextEditor \
+				source/Components/Selectors \
 				lua
 
 
 DATA		:=	data
 INCLUDES	:=	$(UNIVCORE) \
 				include include/Data include/Components include/Components/HexEditor include/Components/Inputs \
-				include/Components/Selectors include/Components/TextEditor \
+				include/Components/Selectors \
 				lua
 
 GRAPHICS	:=	assets/gfx

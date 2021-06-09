@@ -72,6 +72,7 @@ void FileHandler::LoadFile() {
 
 	if (EditFile != "") {
 		Utils::ProgressMessage(Utils::GetStr("LOADING_FILE"));
+
 		/* If nullptr, initialize the unique_ptr. */
 		if (!UniversalEdit::UE->CurrentFile) UniversalEdit::UE->CurrentFile = std::make_unique<Data>(EditFile);
 		else UniversalEdit::UE->CurrentFile->Load(EditFile); // Otherwise load.
@@ -80,7 +81,6 @@ void FileHandler::LoadFile() {
 			HexEditor::CursorIdx = 0; // After sucessful loading, also reset the Hex Editor cursor.
 			HexEditor::OffsIdx = 0;
 			FileHandler::Loaded = true;
-			UniversalEdit::UE->HexEditMode = true;
 			UniversalEdit::UE->ActiveTab = UniversalEdit::Tabs::HexEditor;
 
 		} else {
@@ -106,7 +106,6 @@ void FileHandler::NewFile() {
 	HexEditor::CursorIdx = 0; // After sucessful loading, also reset the Hex Editor cursor.
 	HexEditor::OffsIdx = 0;
 	FileHandler::Loaded = true;
-	UniversalEdit::UE->HexEditMode = true;
 	UniversalEdit::UE->ActiveTab = UniversalEdit::Tabs::HexEditor;
 	HexEditor::Mode = HexEditor::SubMode::Sub;
 };

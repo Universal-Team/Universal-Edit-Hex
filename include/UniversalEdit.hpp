@@ -39,11 +39,10 @@
 #include "HexEditor.hpp"
 #include "Settings.hpp"
 #include "Tab.hpp"
-#include "TextEditor.hpp"
 
 class UniversalEdit {
 public:
-	enum class Tabs : uint8_t { FileHandler = 0, HexEditor = 1, TextEditor = 2, Settings = 3, Credits = 4 };
+	enum class Tabs : uint8_t { FileHandler = 0, HexEditor = 1, Settings = 2, Credits = 3 };
 	UniversalEdit();
 	int Handler();
 
@@ -57,7 +56,6 @@ public:
 	Tabs ActiveTab = Tabs::FileHandler;
 	void DrawTop();
 	void DrawBottom(const bool OnlyTab = false);
-	bool HexEditMode = true;
 
 	uint32_t Down = 0, Repeat = 0;
 	touchPosition T;
@@ -70,7 +68,6 @@ private:
 	std::unique_ptr<HexEditor> HE = nullptr;
 	std::unique_ptr<Settings> SE = nullptr;
 	std::unique_ptr<Tab> _Tab = nullptr;
-	std::unique_ptr<TextEditor> TE = nullptr;
 };
 
 #endif

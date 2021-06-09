@@ -48,12 +48,6 @@ UniversalEdit::UniversalEdit() {
 	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor/Scripts", 0777);
 	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor/Encodings", 0777);
 
-	/* Text Editor related. */
-	mkdir("sdmc:/3ds/Universal-Edit/Text-Editor", 0777);
-	mkdir("sdmc:/3ds/Universal-Edit/Text-Editor/Keyboard", 0777);
-	mkdir("sdmc:/3ds/Universal-Edit/Text-Editor/Phrases", 0777);
-	mkdir("sdmc:/3ds/Universal-Edit/Text-Editor/Syntax", 0777);
-
 	this->CData = std::make_unique<ConfigData>();
 	this->GData = std::make_unique<GFXData>();
 	this->TData = std::make_unique<ThemeData>();
@@ -69,7 +63,6 @@ UniversalEdit::UniversalEdit() {
 	this->HE = std::make_unique<HexEditor>();
 	this->SE = std::make_unique<Settings>();
 	this->_Tab = std::make_unique<Tab>();
-	this->TE = std::make_unique<TextEditor>();
 
 	this->ThemeNames = this->TData->ThemeNames();
 };
@@ -78,19 +71,13 @@ void UniversalEdit::DrawTop() {
 	UniversalEdit::GData->DrawTop();
 
 	if (FileHandler::Loaded) {
-		if (this->HexEditMode) { // Hex Edit mode.
-			if (this->CurrentFile && this->CurrentFile->IsGood()) {
-				this->HE->DrawTop();
-
-			};
-
-		} else { // Text Editor.
-			this->TE->DrawTop();
+		if (this->CurrentFile && this->CurrentFile->IsGood()) {
+			this->HE->DrawTop();
+			return;
 		};
-
-	} else {
-		Gui::DrawStringCentered(0, 1, 0.55f, this->TData->TextColor(), "Universal-Edit");
 	};
+
+	Gui::DrawStringCentered(0, 1, 0.55f, this->TData->TextColor(), "Universal-Edit");
 };
 
 void UniversalEdit::DrawBottom(const bool OnlyTab) {
@@ -105,10 +92,6 @@ void UniversalEdit::DrawBottom(const bool OnlyTab) {
 
 		case Tabs::HexEditor:
 			this->HE->DrawBottom();
-			break;
-
-		case Tabs::TextEditor:
-			this->TE->DrawBottom();
 			break;
 
 		case Tabs::Settings:
@@ -157,10 +140,6 @@ int UniversalEdit::Handler() {
 
 			case Tabs::HexEditor:
 				this->HE->Handler();
-				break;
-
-			case Tabs::TextEditor:
-				this->TE->Handler();
 				break;
 
 			case Tabs::Settings:

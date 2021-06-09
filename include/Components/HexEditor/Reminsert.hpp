@@ -41,7 +41,6 @@ private:
 	void SetSize();
 	void SetVal();
 
-
 	void Remove();
 	void Insert();
 	void Back();
@@ -51,24 +50,25 @@ private:
 	uint32_t Size = 0x0;
 
 	const std::vector<Structs::ButtonPos> Menu = {
-		{ 58, 38, 200, 30 }, // Offset.
-		{ 58, 78, 200, 30 }, // Size.
-		{ 58, 118, 200, 30 }, // Value to insert.
+		{ 88, 38, 200, 30 }, // Offset.
+		{ 88, 78, 200, 30 }, // Size.
+		{ 88, 118, 200, 30 }, // Value to insert.
 
-
-		{ 70, 170, 100, 30 }, // Insert.
-		{ 200, 170, 100, 30 }, // Remove
+		{ 70, 170, 100, 30 }, // Remove.
+		{ 200, 170, 100, 30 }, // Insert.
+		
 		{ 50, 0, 20, 20 } // Back.
 	};
 
-	const std::vector<std::string> MenuOptions = { "INSERT", "REMOVE" };
+	const std::vector<std::string> MenuOptions = { "REMOVE", "INSERT" };
 	const std::vector<std::function<void()>> Funcs = {
 		{ [this]() { this->SetOffs(); } },
 		{ [this]() { this->SetSize(); } },
 		{ [this]() { this->SetVal(); } },
 
-		{ [this]() { this->Insert(); } },
 		{ [this]() { this->Remove(); } },
+		{ [this]() { this->Insert(); } },
+		
 		{ [this]() { this->Back(); } }
 	};
 };

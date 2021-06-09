@@ -42,9 +42,9 @@ void Reminsert::Draw() {
 			Gui::Draw_Rect(this->Menu[Idx ].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 		};
 
-		Gui::DrawString(60, 40, 0.45f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("OFFSET") + "0x" + Utils::ToHex<uint32_t>(this->Offset));
-		Gui::DrawString(60, 80, 0.45f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("SIZE") + "0x" + Utils::ToHex<uint32_t>(this->Size));
-		Gui::DrawString(60, 120, 0.45f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("TO_INSERT") + "0x" + Utils::ToHex<uint8_t>(this->ValueToInsert));
+		Gui::DrawString(90, 40, 0.45f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("OFFSET") + "0x" + Utils::ToHex<uint32_t>(this->Offset));
+		Gui::DrawString(90, 80, 0.45f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("SIZE") + "0x" + Utils::ToHex<uint32_t>(this->Size));
+		Gui::DrawString(90, 120, 0.45f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("TO_INSERT") + "0x" + Utils::ToHex<uint8_t>(this->ValueToInsert));
 
 		/* Draw Insert / Remove. */
 		for (uint8_t Idx = 0; Idx < 2; Idx++) {

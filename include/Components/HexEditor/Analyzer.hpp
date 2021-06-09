@@ -38,6 +38,8 @@ public:
 	void Draw();
 	void Handler();
 private:
+	bool IsOnAnalyzer = true; // True: Analyze main sub mode, False: Second page.
+
 	void Back();
 	void Fetch();
 
@@ -45,8 +47,36 @@ private:
 	void ToggleEndian();
 	void ToggleHex();
 
+	void SetU8();
+	void SetU16();
+	void SetU32();
+	void ToggleBit(const uint8_t Idx);
+
 	bool Endian = false; // Little Endian.
 	bool Hex = true; // Hexadecimal.
+
+	const std::vector<Structs::ButtonPos> EditMenu = {
+		{ 50, 0, 20, 20 }, // Back.
+
+		/* uint8_t. */
+		{ 80, 40, 100, 20 },
+
+		/* uint16_t. */
+		{ 80, 80, 100, 20 },
+
+		/* uint32_t. */
+		{ 80, 120, 100, 20 },
+
+		/* Bits. */
+		{ 80, 160, 20, 20 },
+		{ 110, 160, 20, 20 },
+		{ 140, 160, 20, 20 },
+		{ 170, 160, 20, 20 },
+		{ 200, 160, 20, 20 },
+		{ 230, 160, 20, 20 },
+		{ 260, 160, 20, 20 },
+		{ 290, 160, 20, 20 }
+	};
 
 	const std::vector<Structs::ButtonPos> Menu = {
 		{ 50, 0, 20, 20 }, // Back.
@@ -73,10 +103,10 @@ private:
 		{ 260, 170, 30, 20 },
 
 		/* UTF-8. */
-		{ 260, 200, 30, 20 },
+		{ 260, 200, 30, 20 }
 	};
 
-	const std::vector<std::function<void()>> Funcs = {
+	const std::vector<std::function<void()>> MainFuncs = {
 		{ [this]() { this->Back(); } },
 
 		{ [this]() { this->SwitchByteSize(1); } },
@@ -85,7 +115,24 @@ private:
 
 		{ [this]() { this->ToggleEndian(); } },
 
-		{ [this]() { this->ToggleHex(); } },
+		{ [this]() { this->ToggleHex(); } }
+	};
+
+	const std::vector<std::function<void()>> EditFuncs = {
+		{ [this]() { this->Back(); } },
+
+		{ [this]() { this->SetU8(); } },
+		{ [this]() { this->SetU16(); } },
+		{ [this]() { this->SetU32(); } },
+
+		{ [this]() { this->ToggleBit(0); } },
+		{ [this]() { this->ToggleBit(1); } },
+		{ [this]() { this->ToggleBit(2); } },
+		{ [this]() { this->ToggleBit(3); } },
+		{ [this]() { this->ToggleBit(4); } },
+		{ [this]() { this->ToggleBit(5); } },
+		{ [this]() { this->ToggleBit(6); } },
+		{ [this]() { this->ToggleBit(7); } }
 	};
 };
 

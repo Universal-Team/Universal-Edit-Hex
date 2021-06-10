@@ -38,9 +38,14 @@ HexData::HexData() {
 	this->FileData.resize(1);
 	this->FileData[0] = { 0x0 }; // Init with 0x0.
 	this->FileGood = true;
-	this->File = "sdmc:/3ds/Universal-Edit/Temp.bin";
 
-	this->LoadEncoding("romfs:/encodings/ascii.json");
+	#ifdef _3DS // 3DS -> sdmc and romfs.
+		this->File = "sdmc:/3ds/Universal-Edit/Temp.bin";
+		this->LoadEncoding("romfs:/encodings/ascii.json");
+	#elif ARM9 // DS(i) -> sd and nitro.
+		this->File = "sd:/_nds/Universal-Edit/Temp.bin";
+		this->LoadEncoding("nitro:/encodings/ascii.json");
+	#endif
 };
 
 /*

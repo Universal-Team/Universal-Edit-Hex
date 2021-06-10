@@ -28,10 +28,18 @@
 #include "ConfigData.hpp"
 #include <unistd.h>
 
+#ifdef _3DS
+	#define CONFIG_PATH "sdmc:/3ds/Universal-Edit/Config.json"
+#else
+	#define CONFIG_PATH "sd:/_nds/Universal-Edit/Config.json"
+#endif
+
 /* Detects system language and is used later to set app language to system language. */
 std::string ConfigData::SysLang(void) {
 	uint8_t Language = 1;
-	CFGU_GetSystemLanguage(&Language);
+	#ifdef _3DS // 3DS only, does set english on NDS.
+		CFGU_GetSystemLanguage(&Language);
+	#endif
 
 	switch(Language) {
 		case 0:
@@ -75,9 +83,9 @@ std::string ConfigData::SysLang(void) {
 
 /* Loads the Configuration file. */
 void ConfigData::Load() {
-	if (access("sdmc:/3ds/Universal-Edit/Config.json", F_OK) != 0) this->Initialize();
+	if (access(CONFIG_PATH, F_OK) != 0) this->Initialize();
 
-	FILE *File = fopen("sdmc:/3ds/Universal-Edit/Config.json", "r");
+	FILE *File = fopen(CONFIG_PATH, "r");
 	this->CFG = nlohmann::json::parse(File, nullptr, false);
 	fclose(File);
 
@@ -91,7 +99,7 @@ void ConfigData::Load() {
 
 /* Initializes the Configuration file properly as a JSON. */
 void ConfigData::Initialize() {
-	FILE *Temp = fopen("sdmc:/3ds/Universal-Edit/Config.json", "w");
+	FILE *Temp = fopen(CONFIG_PATH, "w");
 
 	const nlohmann::json OBJ = {
 		{ "ByteGroup", this->ByteGroup() },
@@ -113,7 +121,7 @@ void ConfigData::Sav() {
 		this->Set<std::string>("Lang", this->Lang());
 		this->Set<std::string>("Theme", this->Theme());
 
-		FILE *Out = fopen("sdmc:/3ds/Universal-Edit/Config.json", "w");
+		FILE *Out = fopen(CONFIG_PATH, "w");
 
 		/* Write changes to file. */
 		const std::string Dump = this->CFG.dump(1, '\t');

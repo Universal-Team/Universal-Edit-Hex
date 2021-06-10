@@ -92,5 +92,5 @@ Once you've cloned the repository (with submodules), simply run `make` in the ro
 - [SuperSaiyajinStackZ](https://github.com/SuperSaiyajinStackZ) - Main developer of Universal-Edit-Hex.
 - [Pk11](https://github.com/Epicpkmn11) - Main developer of Universal-Edit-Hex as well.
 - [Icons8](https://icons8.com/) - Icon Designer.
-- [LUA Team](https://www.lua.org/) - The LUA code from the `lua` directory.
+- [LUA Team](https://www.lua.org/) - The LUA code from the `common/lua` directory.
 - [devkitPro](https://github.com/devkitpro) - devkitARM, Libctru, citro2d, citro3d.

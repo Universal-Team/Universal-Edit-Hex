@@ -207,8 +207,8 @@ bool BrowseData::CanDirBack() {
 		char Path[PATH_MAX];
 		getcwd(Path, PATH_MAX);
 
-		/* Check for sdmc, /, sd and fat. */
-		if ((strcmp(Path, "romfs:/") == 0) || strcmp(Path, "sdmc:/") == 0 || strcmp(Path, "/") == 0 || strcmp(Path, "sd:/") == 0 || (strcmp(Path, "fat:/") == 0)) return false;
+		/* Check for romfs, nitro, sdmc, /, sd and fat. */
+		if ((strcmp(Path, "romfs:/") == 0) || (strcmp(Path, "nitro:/") == 0) || strcmp(Path, "sdmc:/") == 0 || strcmp(Path, "/") == 0 || strcmp(Path, "sd:/") == 0 || (strcmp(Path, "fat:/") == 0)) return false;
 	};
 
 	return true;

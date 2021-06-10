@@ -24,40 +24,34 @@
 *         reasonable ways as different from the original version.
 */
 
-#ifndef _UNIVERSAL_EDIT_FILE_HANDLER_HPP
-#define _UNIVERSAL_EDIT_FILE_HANDLER_HPP
+#ifndef _UNIVERSAL_EDIT_UTILS_CONVERTER_HPP
+#define _UNIVERSAL_EDIT_UTILS_CONVERTER_HPP
 
 #include "structs.hpp"
 #include <functional>
 #include <string>
 #include <vector>
 
-class FileHandler {
+class Converter {
 public:
 	void Draw();
 	void Handler();
-
-	static bool Loaded;
 private:
-	/* Actions. */
-	void LoadFile();
-	void NewFile();
-	void SaveFile();
-	void SaveFileAs();
+	uint32_t Val = 0;
+	void Back();
+	void EnterHex();
+	void EnterDecimal();
 
 	const std::vector<Structs::ButtonPos> Menu = {
-		{ 114, 40, 140, 30 }, // Load File.
-		{ 114, 90, 140, 30 }, // New File.
-		{ 114, 140, 140, 30 }, // Save File.
-		{ 114, 190, 140, 30 } // Save as....
+		{ 50, 0, 20, 20 }, // Back.
+		{ 70, 80, 100, 30 }, // Hex Input.
+		{ 200, 80, 100, 30 }  // Decimal Input.
 	};
 
-	const std::vector<std::string> MenuOptions = { "LOAD_FILE", "NEW_FILE", "SAVE_FILE", "SAVE_FILE_AS" };
 	const std::vector<std::function<void()>> Funcs = {
-		{ [this]() { this->LoadFile(); } },
-		{ [this]() { this->NewFile(); } },
-		{ [this]() { this->SaveFile(); } },
-		{ [this]() { this->SaveFileAs(); } }
+		{ [this]() { this->Back(); } },
+		{ [this]() { this->EnterHex(); } },
+		{ [this]() { this->EnterDecimal(); } }
 	};
 };
 

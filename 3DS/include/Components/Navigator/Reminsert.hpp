@@ -50,12 +50,12 @@ private:
 	uint32_t Size = 0x0;
 
 	const std::vector<Structs::ButtonPos> Menu = {
-		{ 88, 38, 200, 30 }, // Offset.
-		{ 88, 78, 200, 30 }, // Size.
-		{ 88, 118, 200, 30 }, // Value to insert.
+		{ 106, 40, 160, 30 }, // Offset.
+		{ 106, 90, 160, 30 }, // Size.
+		{ 106, 140, 160, 30 }, // Value to insert.
 
-		{ 70, 170, 100, 30 }, // Remove.
-		{ 200, 170, 100, 30 }, // Insert.
+		{ 70, 190, 100, 30 }, // Remove.
+		{ 198, 190, 100, 30 }, // Insert.
 		
 		{ 50, 0, 20, 20 } // Back.
 	};

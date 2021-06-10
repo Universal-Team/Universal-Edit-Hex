@@ -337,12 +337,12 @@ static int DumpBytes(lua_State *LState) {
 	Inject a file into the current file's data.
 
 	Usage:
-		UniversalEdit.InjectBytes(0x100, "sd:/Test.txt");
+		UniversalEdit.InjectFile(0x100, "sd:/Test.txt");
 
 	First: The offset where to inject the data.
 	Second: The file to inject.
 */
-static int InjectBytes(lua_State *LState) {
+static int InjectFile(lua_State *LState) {
 	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 	const uint32_t Offs = luaL_checkinteger(LState, 1);
 	const std::string File = (std::string)(luaL_checkstring(LState, 2));
@@ -372,6 +372,35 @@ static int InjectBytes(lua_State *LState) {
 		memcpy(UniversalEdit::UE->CurrentFile->GetData() + Offs, Data.get(), Size);
 	};
 
+	return 0;
+};
+
+/*
+	Inject a table of values into the current file's data.
+
+	Usage:
+		UniversalEdit.InjectBytes(0x100, { 0x0, 0x1, 0x4, 0xFF });
+
+	First: The offset where to inject the data.
+	Second: The table of values to inject.
+*/
+static int InjectBytes(lua_State *LState) {
+	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	const uint32_t Offs = luaL_checkinteger(LState, 1);
+
+	std::vector<uint8_t> DataList;
+	if (lua_istable(LState, 2)) {
+		lua_pushnil(LState);
+
+		while(lua_next(LState, 2)) {
+			DataList.push_back((uint8_t)lua_tointeger(LState, -1));
+			lua_pop(LState, 1);
+		};
+	};
+
+	if (Offs + DataList.size() >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
+
+	memcpy(UniversalEdit::UE->CurrentFile->GetData() + Offs, DataList.data(), DataList.size());
 	return 0;
 };
 
@@ -449,6 +478,7 @@ static constexpr luaL_Reg UniversalEditFunctions[] = {
 	{ "HexPad", HexPad },
 	{ "Keyboard", Kbd },
 	{ "DumpBytes", DumpBytes },
+	{ "InjectFile", InjectFile },
 	{ "InjectBytes", InjectBytes },
 	{ "SelectFile", SelectFile },
 	{ "FileSize", FileSize },

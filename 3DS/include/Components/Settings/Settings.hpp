@@ -48,9 +48,9 @@ private:
 	void AccessCredits();
 
 	const std::vector<Structs::ButtonPos> Menu = {
-		{ 70, 40, 100, 30 }, // Language.
-		{ 200, 40, 100, 30 }, // Themes.
-		{ 70, 80, 100, 30 } // Credits.
+		{ 114, 40, 140, 30 }, // Language.
+		{ 114, 90, 140, 30 }, // Themes.
+		{ 114, 140, 140, 30 } // Credits.
 	};
 
 	const std::vector<std::string> MenuOptions = { "LANGUAGE", "THEMES", "CREDITS" };

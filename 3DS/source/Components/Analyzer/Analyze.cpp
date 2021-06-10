@@ -41,15 +41,15 @@ void Analyze::Draw() {
 			if (HexEditor::SelectionSize == 1 << Idx) Gui::Draw_Rect(this->Menu[Idx + 1].x - 2, this->Menu[Idx + 1].y - 2, this->Menu[Idx + 1].w + 4, this->Menu[Idx + 1].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 
 			Gui::Draw_Rect(this->Menu[Idx + 1].x, this->Menu[Idx + 1].y, this->Menu[Idx + 1].w, this->Menu[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
-			Gui::DrawString(this->Menu[Idx + 1].x + 1, this->Menu[Idx + 1].y + 1, 0.4f, UniversalEdit::UE->TData->TextColor(), std::to_string(1 << Idx));
+			Gui::DrawString(this->Menu[Idx + 1].x + 5, this->Menu[Idx + 1].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), std::to_string(1 << Idx));
 		};
 
 		/* Draw Endian and Hex/Dec buttons. */
 		Gui::Draw_Rect(this->Menu[4].x, this->Menu[4].y, this->Menu[4].w, this->Menu[4].h, UniversalEdit::UE->TData->ButtonColor()); // LE / BE.
-		Gui::DrawString(this->Menu[4].x + 1, this->Menu[4].y + 1, 0.4f, UniversalEdit::UE->TData->TextColor(), (Analyzer::Endian ? "BE" : "LE"));
+		Gui::DrawString(this->Menu[4].x + 6, this->Menu[4].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), (Analyzer::Endian ? "BE" : "LE"));
 
 		Gui::Draw_Rect(this->Menu[5].x, this->Menu[5].y, this->Menu[5].w, this->Menu[5].h, UniversalEdit::UE->TData->ButtonColor()); // Hex / Dec.
-		Gui::DrawString(this->Menu[5].x + 1, this->Menu[5].y + 1, 0.4f, UniversalEdit::UE->TData->TextColor(), (this->Hex ? "Hex" : "Dec"));
+		Gui::DrawString(this->Menu[5].x + 4, this->Menu[5].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), (this->Hex ? "Hex" : "Dec"));
 
 		union {
 			uint32_t U32;

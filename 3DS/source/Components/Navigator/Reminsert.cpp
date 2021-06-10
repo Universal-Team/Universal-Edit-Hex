@@ -36,22 +36,19 @@ void Reminsert::Draw() {
 
 	/* Only display if FileHandler is good. */
 	if (FileHandler::Loaded) {
-		/* Draw Offset, Size, ValueToInsert. */
-		for (uint8_t Idx = 0; Idx < 3; Idx++) {
+		/* Draw the Buttons. */
+		for (uint8_t Idx = 0; Idx < 5; Idx++) {
 			Gui::Draw_Rect(this->Menu[Idx].x - 2, this->Menu[Idx].y - 2, this->Menu[Idx].w + 4, this->Menu[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 			Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 		};
 
-		Gui::DrawString(90, 40, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("OFFSET") + "0x" + Common::ToHex<uint32_t>(this->Offset));
-		Gui::DrawString(90, 80, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SIZE") + "0x" + Common::ToHex<uint32_t>(this->Size));
-		Gui::DrawString(90, 120, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("TO_INSERT") + "0x" + Common::ToHex<uint8_t>(this->ValueToInsert));
+		Gui::DrawStringCentered(26, this->Menu[0].y + 8, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("OFFSET") + "0x" + Common::ToHex<uint32_t>(this->Offset));
+		Gui::DrawStringCentered(26, this->Menu[1].y + 8, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SIZE") + "0x" + Common::ToHex<uint32_t>(this->Size));
+		Gui::DrawStringCentered(26, this->Menu[2].y + 8, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("TO_INSERT") + "0x" + Common::ToHex<uint8_t>(this->ValueToInsert));
 
-		/* Draw Insert / Remove. */
-		for (uint8_t Idx = 0; Idx < 2; Idx++) {
-			Gui::Draw_Rect(this->Menu[Idx + 3].x - 2, this->Menu[Idx + 3].y - 2, this->Menu[Idx + 3].w + 4, this->Menu[Idx + 3].h + 4, UniversalEdit::UE->TData->ButtonSelected());
-			Gui::Draw_Rect(this->Menu[Idx + 3].x, this->Menu[Idx + 3].y, this->Menu[Idx + 3].w, this->Menu[Idx + 3].h, UniversalEdit::UE->TData->ButtonColor());
-			Gui::DrawString(this->Menu[Idx + 3].x + 5, this->Menu[Idx + 3].y + 5, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[Idx]));
-		};
+		/* Draw Remove, then Insert. */
+		Gui::DrawStringCentered(-40, this->Menu[3].y + 8, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[0]));
+		Gui::DrawStringCentered(87, this->Menu[4].y + 8, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[1]));
 	};
 };
 

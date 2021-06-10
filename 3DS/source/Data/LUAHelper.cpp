@@ -262,7 +262,7 @@ static int SelectList(lua_State *LState) {
 	if (lua_istable(LState, 2)) {
 		lua_pushnil(LState);
 
-		while (lua_next(LState, 2)) {
+		while(lua_next(LState, 2)) {
 			List.push_back(lua_tostring(LState, -1));
 			lua_pop(LState, 1);
 		};
@@ -320,10 +320,10 @@ static int Numpad(lua_State *LState) {
 	if (lua_gettop(LState) != 5) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 	const std::string Msg = (std::string)(luaL_checkstring(LState, 1));
 
-	const int CurVal = luaL_checkinteger(LState, 2);
-	const int MinVal = luaL_checkinteger(LState, 3);
-	const int MaxVal = luaL_checkinteger(LState, 4);
-	const int Length = luaL_checkinteger(LState, 5);
+	const uint32_t CurVal = luaL_checkinteger(LState, 2);
+	const uint32_t MinVal = luaL_checkinteger(LState, 3);
+	const uint32_t MaxVal = luaL_checkinteger(LState, 4);
+	const uint32_t Length = luaL_checkinteger(LState, 5);
 
 	lua_pushinteger(LState, Common::Numpad(Msg, CurVal, MinVal, MaxVal, Length));
 	return 1;
@@ -408,12 +408,12 @@ static int DumpBytes(lua_State *LState) {
 	Inject a file into the current file's data.
 
 	Usage:
-		UniversalEdit.InjectBytes(0x100, "sdmc:/Test.txt");
+		UniversalEdit.InjectFile(0x100, "sdmc:/Test.txt");
 
 	First: The offset where to inject the data.
 	Second: The file to inject.
 */
-static int InjectBytes(lua_State *LState) {
+static int InjectFile(lua_State *LState) {
 	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 	const uint32_t Offs = luaL_checkinteger(LState, 1);
 	const std::string File = (std::string)(luaL_checkstring(LState, 2));
@@ -446,6 +446,34 @@ static int InjectBytes(lua_State *LState) {
 	return 0;
 };
 
+/*
+	Inject a table of values into the current file's data.
+
+	Usage:
+		UniversalEdit.InjectBytes(0x100, { 0x0, 0x1, 0x4, 0xFF });
+
+	First: The offset where to inject the data.
+	Second: The table of values to inject.
+*/
+static int InjectBytes(lua_State *LState) {
+	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	const uint32_t Offs = luaL_checkinteger(LState, 1);
+
+	std::vector<uint8_t> DataList;
+	if (lua_istable(LState, 2)) {
+		lua_pushnil(LState);
+
+		while(lua_next(LState, 2)) {
+			DataList.push_back((uint8_t)lua_tointeger(LState, -1));
+			lua_pop(LState, 1);
+		};
+	};
+
+	if (Offs + DataList.size() >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
+
+	memcpy(UniversalEdit::UE->CurrentFile->GetData() + Offs, DataList.data(), DataList.size());
+	return 0;
+};
 
 /*
 	Select a file from the SD Card and return the selected filepath.
@@ -553,6 +581,7 @@ static constexpr luaL_Reg UniversalEditFunctions[] = {
 	{ "HexPad", HexPad },
 	{ "Keyboard", Keyboard },
 	{ "DumpBytes", DumpBytes },
+	{ "InjectFile", InjectFile },
 	{ "InjectBytes", InjectBytes },
 	{ "SelectFile", SelectFile },
 	{ "FileSize", FileSize },

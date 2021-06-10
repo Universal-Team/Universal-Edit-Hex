@@ -70,7 +70,7 @@ void Search::DrawSequenceList() {
 			Gui::Draw_Rect(this->SeqMenu[Idx + 1].x, this->SeqMenu[Idx + 1].y, this->SeqMenu[Idx + 1].w, this->SeqMenu[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 
 			/* Draw Sequence. */
-			Gui::DrawString(this->SeqMenu[Idx + 1].x + 5, this->SeqMenu[Idx + 1].y + 3, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::ToHex<uint8_t>(this->Sequences[this->SPos + Idx]));
+			Gui::DrawStringCentered(15, this->SeqMenu[Idx + 1].y + 6, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::ToHex<uint8_t>(this->Sequences[this->SPos + Idx]));
 			
 			/* Display Remove button next to sequence. */
 			Gui::Draw_Rect(this->SeqMenu[Idx + 6].x, this->SeqMenu[Idx + 6].y, this->SeqMenu[Idx + 6].w, this->SeqMenu[Idx + 6].h, UniversalEdit::UE->TData->ButtonColor());

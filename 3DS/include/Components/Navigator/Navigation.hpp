@@ -52,9 +52,9 @@ private:
 	void AccessRemInsert();
 
 	const std::vector<Structs::ButtonPos> Menu = {
-		{ 70, 40, 100, 30 }, // Search.
-		{ 200, 40, 100, 30 }, // Jump to.
-		{ 70, 80, 100, 30 }, // Remove / Insert.
+		{ 114, 40, 140, 30 }, // Search.
+		{ 114, 90, 140, 30 }, // Jump to.
+		{ 114, 140, 140, 30 } // Remove / Insert.
 	};
 
 	const std::vector<std::string> MenuOptions = { "SEARCH", "JUMP_TO", "REMINSERT" };

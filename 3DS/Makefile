@@ -44,12 +44,33 @@ BANNERTOOL 	?= bannertool
 
 endif
 
+# If on a tagged commit, use just the tag
+ifneq ($(shell echo $(shell git tag -l --points-at HEAD) | head -c 1),)
+GIT_VER := $(shell git tag -l --points-at HEAD)
+else
+GIT_VER := $(shell git describe --abbrev=0 --tags)-$(shell git rev-parse --short=7 HEAD)
+endif
+
 #---------------------------------------------------------------------------------
 # Version number
 #---------------------------------------------------------------------------------
+ifneq ($(shell echo $(shell git describe --tags) | head -c 2 | tail -c 1),)
+VERSION_MAJOR := $(shell echo $(shell git describe --tags) | head -c 2 | tail -c 1)
+else
 VERSION_MAJOR := 0
+endif
+
+ifneq ($(shell echo $(shell git describe --tags) | head -c 4 | tail -c 1),)
+VERSION_MINOR := $(shell echo $(shell git describe --tags) | head -c 4 | tail -c 1)
+else
 VERSION_MINOR := 1
+endif
+
+ifneq ($(shell echo $(shell git describe --tags) | head -c 6 | tail -c 1),)
+VERSION_MICRO := $(shell echo $(shell git describe --tags) | head -c 6 | tail -c 1)
+else
 VERSION_MICRO := 0
+endif
 
 VERSION_STRING := "v$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)"
 #---------------------------------------------------------------------------------

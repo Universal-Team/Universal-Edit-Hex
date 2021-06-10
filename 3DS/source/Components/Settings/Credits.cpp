@@ -44,7 +44,7 @@ void Credits::Draw() {
 
 	Gui::Draw_Rect(49, 219, 320, 1, UniversalEdit::UE->TData->BarOutline());
 	Gui::Draw_Rect(49, 220, 320, 20, UniversalEdit::UE->TData->BarColor());
-	Gui::DrawStringCentered(24, 222, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("CURRENT_VERSION") + V_STRING, 280, 0);
+	Gui::DrawStringCentered(24, 222, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("CURRENT_VERSION") + V_SHA, 280, 0);
 };
 
 void Credits::Handler() {

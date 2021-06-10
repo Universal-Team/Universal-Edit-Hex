@@ -34,29 +34,42 @@
 #define BYTES_PER_LIST 0xD0
 #define BYTES_PER_OFFS 0x10
 
+Utils::SubMode Utils::Mode = Utils::SubMode::Main;
+
+
 void Utils::Draw() {
-	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
-	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
-	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("UTILS_MENU"), 310);
+	if (Utils::Mode == Utils::SubMode::Main) {
+		Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
+		Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
+		Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("UTILS_MENU"), 310);
 
-	if (FileHandler::Loaded) {
-		for (uint8_t Idx = 0; Idx < 3; Idx++) {
-			Gui::Draw_Rect(this->Menu[Idx].x - 2, this->Menu[Idx].y - 2, this->Menu[Idx].w + 4, this->Menu[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
-			Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
+		if (FileHandler::Loaded) {
+			for (uint8_t Idx = 0; Idx < 4; Idx++) {
+				Gui::Draw_Rect(this->Menu[Idx].x - 2, this->Menu[Idx].y - 2, this->Menu[Idx].w + 4, this->Menu[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
+				Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 
-			Gui::DrawString(this->Menu[Idx].x + 5, this->Menu[Idx].y + 5, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[Idx]));
+				Gui::DrawStringCentered(24, this->Menu[Idx].y + 9, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[Idx]));
+			};
 		};
+
+	} else {
+		this->Conv->Draw();
 	};
 };
 
 void Utils::Handler() {
-	if (UniversalEdit::UE->Down & KEY_TOUCH) {
-		for (uint8_t Idx = 0; Idx < 3; Idx++) {
-			if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
-				this->Funcs[Idx]();
-				break;
+	if (Utils::Mode == Utils::SubMode::Main) {
+		if (UniversalEdit::UE->Down & KEY_TOUCH) {
+			for (uint8_t Idx = 0; Idx < 4; Idx++) {
+				if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
+					this->Funcs[Idx]();
+					break;
+				};
 			};
 		};
+
+	} else {
+		this->Conv->Handler();
 	};
 };
 
@@ -102,3 +115,5 @@ void Utils::Encoding() {
 		if (EncodingFile != "") UniversalEdit::UE->CurrentFile->LoadEncoding(EncodingFile);
 	};
 };
+
+void Utils::AccessConverter() { Utils::Mode = Utils::SubMode::Converter; };

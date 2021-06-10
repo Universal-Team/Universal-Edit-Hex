@@ -41,16 +41,16 @@ void EditBytes::Draw() {
 			Gui::Draw_Rect(this->Menu[Idx + 1].x, this->Menu[Idx + 1].y, this->Menu[Idx + 1].w, this->Menu[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 		};
 
-		Gui::DrawString(this->Menu[1].x + 3, this->Menu[1].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), "uint8_t");
-		Gui::DrawString(this->Menu[2].x + 3, this->Menu[2].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), "uint16_t");
-		Gui::DrawString(this->Menu[3].x + 3, this->Menu[3].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), "uint32_t");
+		Gui::DrawStringCentered(24, this->Menu[1].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), "uint8_t");
+		Gui::DrawStringCentered(24, this->Menu[2].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), "uint16_t");
+		Gui::DrawStringCentered(24, this->Menu[3].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), "uint32_t");
 
 		/* Display Bits. */
 		for (uint8_t Idx = 0; Idx < 8; Idx++) {
 			Gui::Draw_Rect(this->Menu[Idx + 4].x - 2, this->Menu[Idx + 4].y - 2, this->Menu[Idx + 4].w + 4, this->Menu[Idx + 4].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 			Gui::Draw_Rect(this->Menu[Idx + 4].x, this->Menu[Idx + 4].y, this->Menu[Idx + 4].w, this->Menu[Idx + 4].h, UniversalEdit::UE->TData->ButtonColor());
 
-			Gui::DrawString(this->Menu[4 + Idx].x + 3, this->Menu[4 + Idx].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), (UniversalEdit::UE->CurrentFile->ReadBit(HexEditor::OffsIdx * 0x10 + HexEditor::CursorIdx, Idx) == 0 ? "0" : "1"));
+			Gui::DrawString(this->Menu[4 + Idx].x + 6, this->Menu[4 + Idx].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), (UniversalEdit::UE->CurrentFile->ReadBit(HexEditor::OffsIdx * 0x10 + HexEditor::CursorIdx, Idx) == 0 ? "0" : "1"));
 		};
 	};
 };

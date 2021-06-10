@@ -53,8 +53,8 @@ private:
 	void AccessEdit();
 
 	const std::vector<Structs::ButtonPos> Menu = {
-		{ 70, 40, 100, 30 }, // Analyze.
-		{ 200, 40, 100, 30 } // Edit
+		{ 114, 40, 140, 30 }, // Analyze.
+		{ 114, 90, 140, 30 } // Edit Bytes.
 	};
 
 	const std::vector<std::string> MenuOptions = { "ANALYZE", "EDIT_BYTES" };

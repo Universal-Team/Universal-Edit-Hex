@@ -33,27 +33,38 @@
 #include <string>
 #include <vector>
 
+#include "Converter.hpp"
+
 class Utils {
 public:
+	enum class SubMode : uint8_t { Main = 0, Converter = 1 };
+	Utils() { this->Conv = std::make_unique<Converter>(); };
 	void Draw();
 	void Handler();
+
+	static SubMode Mode;
 private:
 	void Labels();
 	void Scripts();
 	void Encoding();
+	void AccessConverter();
 
 	const std::vector<Structs::ButtonPos> Menu = {
-		{ 70, 40, 100, 30 }, // Labels.
-		{ 200, 40, 100, 30 }, // Scripts.
-		{ 70, 80, 100, 30 }, // Encoding.
+		{ 114, 40, 140, 30 }, // Labels.
+		{ 114, 90, 140, 30 }, // Scripts.
+		{ 114, 140, 140, 30 }, // Encoding.
+		{ 114, 190, 140, 30 } // Converter.
 	};
 
-	const std::vector<std::string> MenuOptions = { "LABELS", "SCRIPTS", "ENCODING" };
+	const std::vector<std::string> MenuOptions = { "LABELS", "SCRIPTS", "ENCODING", "CONVERTER" };
 	const std::vector<std::function<void()>> Funcs = {
 		{ [this]() { this->Labels(); } },
 		{ [this]() { this->Scripts(); } },
-		{ [this]() { this->Encoding(); } }
+		{ [this]() { this->Encoding(); } },
+		{ [this]() { this->AccessConverter(); } }
 	};
+
+	std::unique_ptr<Converter> Conv = nullptr;
 };
 
 #endif

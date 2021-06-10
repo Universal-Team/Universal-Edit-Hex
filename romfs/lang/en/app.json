@@ -1,4 +1,5 @@
 {
+	"ANALYZE": "Analyze",
 	"ANALYZER": "Analyzer",
 	"BINARY": "Binary: ",
 	"BIT_INDEX_VALID": "Only Bitindex 0 until 7 is valid.",
@@ -10,6 +11,7 @@
 	"CREDITS": "Credits",
 	"CURRENT_VERSION": "Current version: ",
 	"DOES_NOT_EXIST": "%s does not exist.",
+	"EDIT_BYTES": "Edit Bytes",
 	"ENCODING": "Encoding",
 	"ENCODING_LOAD": "Do you like to load Encodings from the RomFS (Cancel) or the SD Card (Confirm)?",
 	"ENTER_DIR_NAME": "Enter the directory name you want to create.",
@@ -58,6 +60,7 @@
 	"SAVING_FILE": "Saving file...",
 	"SCRIPTS": "Scripts",
 	"SEARCH": "Search",
+	"SEARCH_MENU": "Search Menu",
 	"SELECT_DEST": "Select the destination of the file.",
 	"SELECT_FILE": "Select the file you like to open.",
 	"SELECT_LABEL": "Select the label you like to load.",
@@ -74,5 +77,6 @@
 	"TO_INSERT": "To insert: ",
 	"UNSIGNED_INT": "Unsigned int: ",
 	"UTF_8": "UTF-8: ",
+	"UTILS_MENU": "Utils Menu",
 	"WRONG_NUMBER_OF_ARGUMENTS": "Wrong number of arguments."
 }

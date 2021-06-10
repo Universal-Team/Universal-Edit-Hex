@@ -48,6 +48,9 @@ private:
 	int SPos = 0, Selection = 0;
 	std::vector<Label> Labels;
 	const std::vector<Structs::ButtonPos> LPos = {
+		{ 0, 0, 20, 20 }, // Back.
+		
+		/* Actual positions. */
 		{ 30, 30, 260, 45 },
 		{ 30, 83, 260, 45 },
 		{ 30, 136, 260, 45 },

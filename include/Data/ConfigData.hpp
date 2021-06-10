@@ -46,8 +46,13 @@ public:
 	std::string Theme() const { return this->VTheme; };
 	void Theme(const std::string &V) { this->VTheme = V; if (!this->ChangesMade) this->ChangesMade = true; };
 
+	/* Default Hex View mode. */
 	int DefaultHexView() const { return this->VDefaultHexView; };
 	void DefaultHexView(const int V) { this->VDefaultHexView = V; if (!this->ChangesMade) this->ChangesMade = true; };
+
+	/* Byte Group size. */
+	int ByteGroup() const { return this->VByteGroup; };
+	void ByteGroup(const int V) { this->VByteGroup = V; if (!this->ChangesMade) this->ChangesMade = true; };
 private:
 	template <class T>
 	T Get(const std::string &Key, const T IfNotFound) {
@@ -65,7 +70,7 @@ private:
 	std::string SysLang(void);
 
 	std::string VLang = "en", VTheme = "Default";
-	int VDefaultHexView = 0;
+	int VDefaultHexView = 0, VByteGroup = 0;
 	bool ChangesMade = false;
 	nlohmann::json CFG = nullptr;
 };

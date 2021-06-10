@@ -24,15 +24,53 @@
 *         reasonable ways as different from the original version.
 */
 
-#ifndef _UNIVERSAL_EDIT_CREDITS_HPP
-#define _UNIVERSAL_EDIT_CREDITS_HPP
+#ifndef _UNIVERSAL_EDIT_NAVIGATOR_REMOVE_INSERT_HPP
+#define _UNIVERSAL_EDIT_NAVIGATOR_REMOVE_INSERT_HPP
 
 #include "structs.hpp"
+#include <functional>
 #include <string>
+#include <vector>
 
-class Credits {
+class Reminsert {
 public:
 	void Draw();
+	void Handler();
+private:
+	void SetOffs();
+	void SetSize();
+	void SetVal();
+
+	void Remove();
+	void Insert();
+	void Back();
+
+	uint8_t ValueToInsert = 0x0;
+	uint32_t Offset = 0x0;
+	uint32_t Size = 0x0;
+
+	const std::vector<Structs::ButtonPos> Menu = {
+		{ 88, 38, 200, 30 }, // Offset.
+		{ 88, 78, 200, 30 }, // Size.
+		{ 88, 118, 200, 30 }, // Value to insert.
+
+		{ 70, 170, 100, 30 }, // Remove.
+		{ 200, 170, 100, 30 }, // Insert.
+		
+		{ 50, 0, 20, 20 } // Back.
+	};
+
+	const std::vector<std::string> MenuOptions = { "REMOVE", "INSERT" };
+	const std::vector<std::function<void()>> Funcs = {
+		{ [this]() { this->SetOffs(); } },
+		{ [this]() { this->SetSize(); } },
+		{ [this]() { this->SetVal(); } },
+
+		{ [this]() { this->Remove(); } },
+		{ [this]() { this->Insert(); } },
+		
+		{ [this]() { this->Back(); } }
+	};
 };
 
 #endif

@@ -58,11 +58,13 @@ UniversalEdit::UniversalEdit() {
 	
 
 	/* Initialize all components. */
-	this->CR = std::make_unique<Credits>();
+	this->_Analyzer = std::make_unique<Analyzer>();
 	this->FH = std::make_unique<FileHandler>();
 	this->HE = std::make_unique<HexEditor>();
+	this->Navigator = std::make_unique<Navigation>();
 	this->SE = std::make_unique<Settings>();
 	this->_Tab = std::make_unique<Tab>();
+	this->_Utils = std::make_unique<Utils>();
 
 	this->ThemeNames = this->TData->ThemeNames();
 };
@@ -90,23 +92,27 @@ void UniversalEdit::DrawBottom(const bool OnlyTab) {
 			this->FH->Draw();
 			break;
 
-		case Tabs::HexEditor:
-			this->HE->DrawBottom();
+		case Tabs::Navigator:
+			this->Navigator->Draw();
+			break;
+
+		case Tabs::Analyzer:
+			this->_Analyzer->Draw();
+			break;
+
+		case Tabs::Utils:
+			this->_Utils->Draw();
 			break;
 
 		case Tabs::Settings:
 			this->SE->Draw();
-			break;
-			
-		case Tabs::Credits:
-			this->CR->Draw();
 			break;
 	};
 };
 
 
 int UniversalEdit::Handler() {
-	Utils::LoadLanguage();
+	Common::LoadLanguage();
 	
 	while(aptMainLoop() && !this->Exiting) {
 		C2D_TargetClear(Top, C2D_Color32(0, 0, 0, 0));
@@ -125,7 +131,7 @@ int UniversalEdit::Handler() {
 		if (this->Down & KEY_START) {
 			if (FileHandler::Loaded && this->CurrentFile->Changes()) {
 				std::unique_ptr<PromptMessage> PMessage = std::make_unique<PromptMessage>();
-				const bool Res = PMessage->Handler(Utils::GetStr("EXIT_WARNING"));
+				const bool Res = PMessage->Handler(Common::GetStr("EXIT_WARNING"));
 
 				if (Res) this->Exiting = true;
 			} else this->Exiting = true;
@@ -133,20 +139,27 @@ int UniversalEdit::Handler() {
 
 
 		this->_Tab->Handler();
+		this->HE->Handler();
+
 		switch(this->ActiveTab) {
 			case Tabs::FileHandler:
 				this->FH->Handler();
 				break;
 
-			case Tabs::HexEditor:
-				this->HE->Handler();
+			case Tabs::Navigator:
+				this->Navigator->Handler();
+				break;
+
+			case Tabs::Analyzer:
+				this->_Analyzer->Handler();
+				break;
+
+			case Tabs::Utils:
+				this->_Utils->Handler();
 				break;
 
 			case Tabs::Settings:
 				this->SE->Handler();
-				break;
-				
-			case Tabs::Credits:
 				break;
 		};
 	};

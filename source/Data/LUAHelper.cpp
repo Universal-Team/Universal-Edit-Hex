@@ -24,6 +24,7 @@
 *         reasonable ways as different from the original version.
 */
 
+#include "Common.hpp"
 #include "DirSelector.hpp"
 #include "FileBrowser.hpp"
 #include "JSONListSelector.hpp"
@@ -33,7 +34,6 @@
 #include "PromptMessage.hpp"
 #include "StatusMessage.hpp"
 #include "UniversalEdit.hpp"
-#include "Utils.hpp"
 #include <unistd.h>
 
 
@@ -48,7 +48,7 @@
 	Third (optional): If reading a big endian (true) or little endian (false, default).
 */
 static int Read(lua_State *LState) {
-	if (lua_gettop(LState) != 2 && lua_gettop(LState) != 3) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 2 && lua_gettop(LState) != 3) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
 	bool IsBigEndian = false;
 	const std::string Type = (std::string)(luaL_checkstring(LState, 1)); // Get the string of the type.
@@ -56,22 +56,22 @@ static int Read(lua_State *LState) {
 
 	/* The pushes. */
 	if (Type == "uint8_t" || Type == "u8") {
-		if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+		if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 		lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->GetData()[Offs]);
 
 	} else if (Type == "uint16_t" || Type == "u16") {
-		if (Offs + 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+		if (Offs + 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 		
 		if (lua_gettop(LState) == 3) IsBigEndian = lua_toboolean(LState, 3);
 		lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->Read<uint16_t>(Offs, IsBigEndian));
 
 	} else if (Type == "uint32_t" || Type == "u32") {
-		if (Offs + 3 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+		if (Offs + 3 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 
 		if (lua_gettop(LState) == 3) IsBigEndian = lua_toboolean(LState, 3);
 		lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->Read<uint32_t>(Offs, IsBigEndian));
 
-	} else return luaL_error(LState, Utils::GetStr("NOT_A_VALID_TYPE").c_str());
+	} else return luaL_error(LState, Common::GetStr("NOT_A_VALID_TYPE").c_str());
 
 	return 1;
 };
@@ -86,12 +86,12 @@ static int Read(lua_State *LState) {
 	Second: Bit index to read from ( 0 - 7 ).
 */
 static int ReadBit(lua_State *LState) {
-	if (lua_gettop(LState) != 2) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
 	const uint32_t Offs = luaL_checkinteger(LState, 1);
-	if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+	if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 	const uint8_t BitIndex = luaL_checkinteger(LState, 2);
-	if (BitIndex > 7) return luaL_error(LState, Utils::GetStr("BIT_INDEX_VALID").c_str());
+	if (BitIndex > 7) return luaL_error(LState, Common::GetStr("BIT_INDEX_VALID").c_str());
 	
 	lua_pushboolean(LState, UniversalEdit::UE->CurrentFile->ReadBit(Offs, BitIndex));
 	return 1;
@@ -108,10 +108,10 @@ static int ReadBit(lua_State *LState) {
 	Second: If reading from the first bits ( true, 0 - 3 ) or the second ( false, 4 - 7 ).
 */
 static int ReadBits(lua_State *LState) {
-	if (lua_gettop(LState) != 2) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
 	const uint32_t Offs = luaL_checkinteger(LState, 1);
-	if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+	if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 	const bool First = lua_toboolean(LState, 2);
 	lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->ReadBits(Offs, First));
 	return 1;
@@ -129,7 +129,7 @@ static int ReadBits(lua_State *LState) {
 	Fourth (optional): If writing a big endian (true) or little endian (false, default).
 */
 static int Write(lua_State *LState) {
-	if (lua_gettop(LState) != 3 && lua_gettop(LState) != 4) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 3 && lua_gettop(LState) != 4) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
 	bool IsBigEndian = false;
 	const std::string Type = (std::string)(luaL_checkstring(LState, 1)); // Get the string of the type.
@@ -137,22 +137,22 @@ static int Write(lua_State *LState) {
 
 	/* The writes. */
 	if (Type == "uint8_t" || Type == "u8") {
-		if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+		if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 		UniversalEdit::UE->CurrentFile->Write<uint8_t>(Offs, luaL_checkinteger(LState, 3), IsBigEndian);
 
 	} else if (Type == "uint16_t" || Type == "u16") {
-		if (Offs + 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+		if (Offs + 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 
 		if (lua_gettop(LState) == 4) IsBigEndian = lua_toboolean(LState, 4);
 		UniversalEdit::UE->CurrentFile->Write<uint16_t>(Offs, luaL_checkinteger(LState, 3), IsBigEndian);
 
 	} else if (Type == "uint32_t" || Type == "u32") {
-		if (Offs + 3 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+		if (Offs + 3 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 
 		if (lua_gettop(LState) == 4) IsBigEndian = lua_toboolean(LState, 4);
 		UniversalEdit::UE->CurrentFile->Write<uint32_t>(Offs, luaL_checkinteger(LState, 3), IsBigEndian);
 
-	} else return luaL_error(LState, Utils::GetStr("NOT_A_VALID_TYPE").c_str());
+	} else return luaL_error(LState, Common::GetStr("NOT_A_VALID_TYPE").c_str());
 
 	return 0;
 };
@@ -169,12 +169,12 @@ static int Write(lua_State *LState) {
 	Third: If bit is set (true) or not (false).
 */
 static int WriteBit(lua_State *LState) {
-	if (lua_gettop(LState) != 3) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 3) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
 	const uint32_t Offs = luaL_checkinteger(LState, 1);
-	if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+	if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 	const uint8_t BitIndex = luaL_checkinteger(LState, 2);
-	if (BitIndex > 7) return luaL_error(LState, Utils::GetStr("BIT_INDEX_VALID").c_str());
+	if (BitIndex > 7) return luaL_error(LState, Common::GetStr("BIT_INDEX_VALID").c_str());
 	const bool Set = lua_toboolean(LState, 3);
 
 	UniversalEdit::UE->CurrentFile->WriteBit(Offs, BitIndex, Set);
@@ -193,10 +193,10 @@ static int WriteBit(lua_State *LState) {
 	Third: The value to write.
 */
 static int WriteBits(lua_State *LState) {
-	if (lua_gettop(LState) != 3) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 3) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
 	const uint32_t Offs = luaL_checkinteger(LState, 1);
-	if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+	if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 	const bool First = lua_toboolean(LState, 2);
 	const uint8_t Val = luaL_checkinteger(LState, 3);
 
@@ -215,7 +215,7 @@ static int WriteBits(lua_State *LState) {
 	Second: The status code to display.
 */
 static int StatusMSG(lua_State *LState) {
-	if (lua_gettop(LState) != 2) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
 	const std::string Msg = (std::string)(luaL_checkstring(LState, 1)); // Get the string of the type.
 	const int Status = luaL_checkinteger(LState, 2);
@@ -234,7 +234,7 @@ static int StatusMSG(lua_State *LState) {
 	First: The message to display for the prompt.
 */
 static int Prompt(lua_State *LState) {
-	if (lua_gettop(LState) != 1) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 1) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
 	const std::string Msg = (std::string)(luaL_checkstring(LState, 1)); // Get the string of the type.
 	
@@ -255,7 +255,7 @@ static int Prompt(lua_State *LState) {
 	Second: Table of Strings.
 */
 static int SelectList(lua_State *LState) {
-	if (lua_gettop(LState) != 2) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 	const char *Msg = luaL_checkstring(LState, 1);
 
 	std::vector<std::string> List;
@@ -293,7 +293,7 @@ static int SelectList(lua_State *LState) {
 	}
 */
 static int SelectJSONList(lua_State *LState) {
-	if (lua_gettop(LState) != 2) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 	const std::string Msg = (std::string)(luaL_checkstring(LState, 1));
 	const std::string JSONFile = (std::string)(luaL_checkstring(LState, 2));
 
@@ -317,7 +317,7 @@ static int SelectJSONList(lua_State *LState) {
 	Fifth: The length of numbers.
 */
 static int Numpad(lua_State *LState) {
-	if (lua_gettop(LState) != 5) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 5) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 	const std::string Msg = (std::string)(luaL_checkstring(LState, 1));
 
 	const int CurVal = luaL_checkinteger(LState, 2);
@@ -325,7 +325,7 @@ static int Numpad(lua_State *LState) {
 	const int MaxVal = luaL_checkinteger(LState, 4);
 	const int Length = luaL_checkinteger(LState, 5);
 
-	lua_pushinteger(LState, Utils::Numpad(Msg, CurVal, MinVal, MaxVal, Length));
+	lua_pushinteger(LState, Common::Numpad(Msg, CurVal, MinVal, MaxVal, Length));
 	return 1;
 };
 
@@ -343,7 +343,7 @@ static int Numpad(lua_State *LState) {
 	Fifth: The length of numbers, including the '0x' identifier
 */
 static int HexPad(lua_State *LState) {
-	if (lua_gettop(LState) != 5) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 5) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 	const std::string Msg = (std::string)(luaL_checkstring(LState, 1));
 
 	const int CurVal = luaL_checkinteger(LState, 2);
@@ -351,7 +351,7 @@ static int HexPad(lua_State *LState) {
 	const int MaxVal = luaL_checkinteger(LState, 4);
 	const int Length = luaL_checkinteger(LState, 5);
 
-	lua_pushinteger(LState, Utils::HexPad(Msg, CurVal, MinVal, MaxVal, Length));
+	lua_pushinteger(LState, Common::HexPad(Msg, CurVal, MinVal, MaxVal, Length));
 	return 1;
 };
 
@@ -366,12 +366,12 @@ static int HexPad(lua_State *LState) {
 	Third: The max length of allowed signs.
 */
 static int Keyboard(lua_State *LState) {
-	if (lua_gettop(LState) != 3) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 3) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 	const std::string Msg = (std::string)(luaL_checkstring(LState, 1));
 	const std::string CurVal = (std::string)(luaL_checkstring(LState, 2));
 	const int Length = luaL_checkinteger(LState, 3);
 
-	lua_pushstring(LState, Utils::Keyboard(Msg, CurVal, Length).c_str());
+	lua_pushstring(LState, Common::Keyboard(Msg, CurVal, Length).c_str());
 	return 1;
 };
 
@@ -387,11 +387,11 @@ static int Keyboard(lua_State *LState) {
 	Third: Where to write the data to.
 */
 static int DumpBytes(lua_State *LState) {
-	if (lua_gettop(LState) != 3) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 3) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 	const uint32_t Offs = luaL_checkinteger(LState, 1);
 	const uint32_t Size = luaL_checkinteger(LState, 2);
 
-	if (Offs + Size >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+	if (Offs + Size >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 
 	const std::string File = (std::string)(luaL_checkstring(LState, 3));
 
@@ -414,13 +414,13 @@ static int DumpBytes(lua_State *LState) {
 	Second: The file to inject.
 */
 static int InjectBytes(lua_State *LState) {
-	if (lua_gettop(LState) != 2) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 	const uint32_t Offs = luaL_checkinteger(LState, 1);
 	const std::string File = (std::string)(luaL_checkstring(LState, 2));
 
 	if (access(File.c_str(), F_OK) != 0) {
 		char Buffer[200] = { 0 };
-		snprintf(Buffer, sizeof(Buffer), Utils::GetStr("DOES_NOT_EXIST").c_str(), File.c_str());
+		snprintf(Buffer, sizeof(Buffer), Common::GetStr("DOES_NOT_EXIST").c_str(), File.c_str());
 		return luaL_error(LState, Buffer);
 	};
 
@@ -433,7 +433,7 @@ static int InjectBytes(lua_State *LState) {
 
 		if (Offs + Size >= UniversalEdit::UE->CurrentFile->GetSize()) {
 			fclose(F);
-			return luaL_error(LState, Utils::GetStr("OUT_OF_BOUNDS").c_str());
+			return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 		};
 
 		std::unique_ptr<uint8_t[]> Data = std::make_unique<uint8_t[]>(Size);
@@ -459,7 +459,7 @@ static int InjectBytes(lua_State *LState) {
 	Fourth: The table of extensions.
 */
 static int SelectFile(lua_State *LState) {
-	if (lua_gettop(LState) != 4) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 4) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
 	const std::string Msg = (std::string)(luaL_checkstring(LState, 1));
 	const std::string StartPath = (std::string)(luaL_checkstring(LState, 2));
@@ -490,7 +490,7 @@ static int SelectFile(lua_State *LState) {
 		local Size = UniversalEdit.FileSize();
 */
 static int FileSize(lua_State *LState) {
-	if (lua_gettop(LState) != 0) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 0) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
 	lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->GetSize());
 	return 1;
@@ -506,9 +506,9 @@ static int FileSize(lua_State *LState) {
 	First: The message to display as the progress.
 */
 static int ProgressMessage(lua_State *LState) {
-	if (lua_gettop(LState) != 1) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 1) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 	const std::string Msg = (std::string)(luaL_checkstring(LState, 1));
-	Utils::ProgressMessage(Msg);
+	Common::ProgressMessage(Msg);
 
 	return 0;
 };
@@ -524,7 +524,7 @@ static int ProgressMessage(lua_State *LState) {
 	Second: Default Path.
 */
 static int SelectDir(lua_State *LState) {
-	if (lua_gettop(LState) != 2) return luaL_error(LState, Utils::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
 	const std::string Msg = (std::string)(luaL_checkstring(LState, 1));
 	const std::string StartPath = (std::string)(luaL_checkstring(LState, 2));
@@ -575,7 +575,7 @@ static void InitLibraries(lua_State *LState) {
 void LUAHelper::RunScript() {
 	/* Find a file. */
 	std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
-	const std::string LUAFile = FB->Handler("sdmc:/3ds/Universal-Edit/Hex-Editor/Scripts/", true, Utils::GetStr("SELECT_SCRIPT"), { "lua" });
+	const std::string LUAFile = FB->Handler("sdmc:/3ds/Universal-Edit/Hex-Editor/Scripts/", true, Common::GetStr("SELECT_SCRIPT"), { "lua" });
 	if (LUAFile == "") return;
 
 	std::pair<int, std::string> Status = std::make_pair(0, "");

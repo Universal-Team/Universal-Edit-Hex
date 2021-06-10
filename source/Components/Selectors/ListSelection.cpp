@@ -39,14 +39,15 @@ void ListSelection::Draw() {
 	UniversalEdit::UE->GData->DrawBottom();
 	Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(0, 20, 320, 1, UniversalEdit::UE->TData->BarOutline());
+	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 0, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
 	Gui::DrawStringCentered(0, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), this->Text, 310);
 
 	/* Now begin to draw the contents. */
 	for (int Idx = 0; Idx < ENTRIES_ON_LIST && Idx < (int)this->SelectData.size(); Idx++) {
-		if (this->SPos + Idx == this->Selection) Gui::Draw_Rect(this->ListPos[Idx].x - 2, this->ListPos[Idx].y - 2, this->ListPos[Idx].w + 4, this->ListPos[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
-		Gui::Draw_Rect(this->ListPos[Idx].x, this->ListPos[Idx].y, this->ListPos[Idx].w, this->ListPos[Idx].h, UniversalEdit::UE->TData->ButtonColor());
+		if (this->SPos + Idx == this->Selection) Gui::Draw_Rect(this->ListPos[Idx + 1].x - 2, this->ListPos[Idx + 1].y - 2, this->ListPos[Idx + 1].w + 4, this->ListPos[Idx + 1].h + 4, UniversalEdit::UE->TData->ButtonSelected());
+		Gui::Draw_Rect(this->ListPos[Idx + 1].x, this->ListPos[Idx + 1].y, this->ListPos[Idx + 1].w, this->ListPos[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 		
-		Gui::DrawStringCentered(0, this->ListPos[Idx].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), this->SelectData[this->SPos + Idx], 240);
+		Gui::DrawStringCentered(0, this->ListPos[Idx + 1].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), this->SelectData[this->SPos + Idx], 240);
 	};
 
 	C3D_FrameEnd(0);
@@ -84,14 +85,15 @@ int ListSelection::Handler(const std::string &Text, const std::vector<std::strin
 			else this->Selection = this->SelectData.size() - 1;
 		};
 
-
 		if (Down & KEY_A) return this->Selection;
 		if (Down & KEY_B) return -1;
 
 		if (Down & KEY_TOUCH) {
+			if (Common::Touching(T, this->ListPos[0])) return -1;
+
 			for (uint8_t Idx = 0; Idx < ENTRIES_ON_LIST; Idx++) {
 				if (this->SPos + Idx < (int)this->SelectData.size()) {
-					if (Utils::Touching(T, this->ListPos[Idx])) return this->SPos + Idx;
+					if (Common::Touching(T, this->ListPos[Idx + 1])) return this->SPos + Idx;
 				};
 			};
 		};

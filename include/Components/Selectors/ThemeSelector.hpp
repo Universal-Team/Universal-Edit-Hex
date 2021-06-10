@@ -41,6 +41,8 @@ private:
 	bool SelectMode = true;
 	
 	const std::vector<Structs::ButtonPos> TPos = {
+		{ 0, 0, 20, 20 }, // Back.
+		
 		{ 30, 30, 260, 45 },
 		{ 30, 83, 260, 45 },
 		{ 30, 136, 260, 45 },

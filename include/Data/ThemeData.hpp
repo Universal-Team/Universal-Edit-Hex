@@ -55,7 +55,6 @@ public:
 	uint32_t BackArrowColor() const { return this->vBackArrowColor; };
 
 	uint32_t HexRowColor(const size_t Idx) const { return this->vHexRowColors[Idx % this->vHexRowColors.size()]; };
-
 private:
 	uint32_t vBarColor, vBGColor, vTextColor, vButtonColor, vSelectedByte, vUnselectedByte, vButtonSelected,
 			 vBarOutline, vSideBarIconColor, vHexOffsetColor, vHexOffsetHighlight, vSidebarColor, vSidebarSelected,

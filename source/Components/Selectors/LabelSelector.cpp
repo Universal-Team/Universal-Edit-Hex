@@ -40,16 +40,17 @@ void LabelSelector::Draw() {
 	UniversalEdit::UE->GData->DrawBottom();
 	Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(0, 20, 320, 1, UniversalEdit::UE->TData->BarOutline());
-	Gui::DrawStringCentered(0, 1, 0.5f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("SELECT_LABEL"), 310);
+	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 0, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
+	Gui::DrawStringCentered(0, 1, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SELECT_LABEL"), 310);
 
 	/* Now begin to draw the Labels. */
 	for (int Idx = 0; Idx < ENTRIES_ON_LIST && Idx < (int)this->Labels.size(); Idx++) {
-		if (this->SPos + Idx == this->Selection) Gui::Draw_Rect(this->LPos[Idx].x - 2, this->LPos[Idx].y - 2, this->LPos[Idx].w + 4, this->LPos[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
-		Gui::Draw_Rect(this->LPos[Idx].x, this->LPos[Idx].y, this->LPos[Idx].w, this->LPos[Idx].h, UniversalEdit::UE->TData->ButtonColor());
+		if (this->SPos + Idx == this->Selection) Gui::Draw_Rect(this->LPos[Idx + 1].x - 2, this->LPos[Idx + 1].y - 2, this->LPos[Idx + 1].w + 4, this->LPos[Idx + 1].h + 4, UniversalEdit::UE->TData->ButtonSelected());
+		Gui::Draw_Rect(this->LPos[Idx + 1].x, this->LPos[Idx + 1].y, this->LPos[Idx + 1].w, this->LPos[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 
-		Gui::DrawStringCentered(0, this->LPos[Idx].y + 4, 0.5f, UniversalEdit::UE->TData->TextColor(), this->Labels[this->SPos + Idx].Title, 240);
-		Gui::DrawStringCentered(0, this->LPos[Idx].y + 20, 0.4f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("OFFSET") + this->Labels[this->SPos + Idx].Offset, 240);
-		Gui::DrawStringCentered(0, this->LPos[Idx].y + 30, 0.4f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("SIZE") + std::to_string(this->Labels[this->SPos + Idx].Size), 240);
+		Gui::DrawStringCentered(0, this->LPos[Idx + 1].y + 4, 0.5f, UniversalEdit::UE->TData->TextColor(), this->Labels[this->SPos + Idx].Title, 240);
+		Gui::DrawStringCentered(0, this->LPos[Idx + 1].y + 20, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("OFFSET") + this->Labels[this->SPos + Idx].Offset, 240);
+		Gui::DrawStringCentered(0, this->LPos[Idx + 1].y + 30, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SIZE") + std::to_string(this->Labels[this->SPos + Idx].Size), 240);
 	};
 
 	C3D_FrameEnd(0);
@@ -65,7 +66,7 @@ int LabelSelector::Handler(const std::string &LabelJSON) {
 	nlohmann::ordered_json LData = nullptr;
 	FILE *File = fopen(LabelJSON.c_str(), "r");
 	if (File) {
-		Utils::ProgressMessage(Utils::GetStr("LOADING_LABELS"));
+		Common::ProgressMessage(Common::GetStr("LOADING_LABELS"));
 
 		LData = nlohmann::ordered_json::parse(File, nullptr, false);
 		fclose(File);
@@ -98,7 +99,6 @@ int LabelSelector::Handler(const std::string &LabelJSON) {
 			const uint32_t Repeat = hidKeysDownRepeat();
 			hidTouchRead(&T);
 
-
 			if (Repeat & KEY_DOWN) {
 				if (this->Selection < (int)this->Labels.size() - 1) this->Selection++;
 				else this->Selection = 0;
@@ -123,9 +123,11 @@ int LabelSelector::Handler(const std::string &LabelJSON) {
 			if (Down & KEY_B) return -1;
 
 			if (Down & KEY_TOUCH) {
+				if (Common::Touching(T, this->LPos[0])) return -1;
+
 				for (uint8_t Idx = 0; Idx < ENTRIES_ON_LIST; Idx++) {
 					if (this->SPos + Idx < (int)this->Labels.size()) {
-						if (Utils::Touching(T, this->LPos[Idx])) {
+						if (Common::Touching(T, this->LPos[Idx + 1])) {
 							this->Selection = this->SPos + Idx;
 							this->SelectionMode = false;
 							break;

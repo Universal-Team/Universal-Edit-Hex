@@ -34,10 +34,8 @@ void Tab::Draw() {
 	};
 
 	UniversalEdit::UE->GData->SpriteBlend(sprites_filehandler_idx, this->Tabs[0].x, this->Tabs[0].y, UniversalEdit::UE->TData->SidebarIconColor(), 1.0f);
-	UniversalEdit::UE->GData->SpriteBlend(sprites_hexeditor_idx, this->Tabs[1].x, this->Tabs[1].y, UniversalEdit::UE->TData->SidebarIconColor(), 1.0f);
-	UniversalEdit::UE->GData->SpriteBlend(sprites_settings_idx, this->Tabs[2].x, this->Tabs[2].y, UniversalEdit::UE->TData->SidebarIconColor(), 1.0f);
-	UniversalEdit::UE->GData->SpriteBlend(sprites_credits_idx, this->Tabs[3].x, this->Tabs[3].y, UniversalEdit::UE->TData->SidebarIconColor(), 1.0f);
 
+	UniversalEdit::UE->GData->SpriteBlend(sprites_settings_idx, this->Tabs[4].x, this->Tabs[4].y, UniversalEdit::UE->TData->SidebarIconColor(), 1.0f);
 	Gui::Draw_Rect(48, 0, 1, 240, UniversalEdit::UE->TData->BarOutline());
 };
 
@@ -49,8 +47,8 @@ static void SwitchTab(const UniversalEdit::Tabs T) {
 
 void Tab::Handler() {
 	if (UniversalEdit::UE->Down & KEY_TOUCH) {
-		for (uint8_t Idx = 0; Idx < 4; Idx++) {
-			if (Utils::Touching(UniversalEdit::UE->T, this->Tabs[Idx])) {
+		for (uint8_t Idx = 0; Idx < 5; Idx++) {
+			if (Common::Touching(UniversalEdit::UE->T, this->Tabs[Idx])) {
 				SwitchTab((UniversalEdit::Tabs)Idx);
 				break;
 			};

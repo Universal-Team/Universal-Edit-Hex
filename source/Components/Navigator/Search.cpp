@@ -25,28 +25,23 @@
 */
 
 #include "Common.hpp"
-#include "Navigation.hpp"
+#include "Search.hpp"
 
-void Navigation::Draw() {
+void Search::Draw() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
 	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 50, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
-	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("NAVIGATOR_MENU"), 310);
+	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SEARCH_MENU"), 310);
 
-	/* Draw Buttons. */
 	if (FileHandler::Loaded) {
-		for (uint8_t Idx = 0; Idx < 2; Idx++) {
-			Gui::Draw_Rect(this->Menu[Idx].x - 2, this->Menu[Idx].y - 2, this->Menu[Idx].w + 4, this->Menu[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
-			Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
-			Gui::DrawString(this->Menu[Idx].x + 5, this->Menu[Idx].y + 5, 0.4f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr(this->MenuOptions[Idx]));
-		};
+
 	};
 };
 
-void Navigation::Handler() {
+void Search::Handler() {
 	if (UniversalEdit::UE->Down & KEY_TOUCH) {
-		for (uint8_t Idx = 0; Idx < 3; Idx++) {
-			if (Utils::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
+		for (uint8_t Idx = 0; Idx < 1; Idx++) {
+			if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 				this->Funcs[Idx]();
 				break;
 			};
@@ -54,29 +49,4 @@ void Navigation::Handler() {
 	};
 };
 
-
-void Navigation::Search() {
-	/* TODO: Get ideas how to implement this nicely. */
-	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->GetSize() > 0) {
-
-	};
-};
-
-void Navigation::JumpTo() {
-	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->GetSize() > 0) {
-		const uint32_t Offs = Utils::HexPad(Utils::GetStr("ENTER_OFFSET_IN_HEX"), (HexEditor::OffsIdx * 0x10) + HexEditor::CursorIdx, 0, UniversalEdit::UE->CurrentFile->GetSize() - 1, 10);
-
-		if (Offs != (HexEditor::OffsIdx * 0x10) + HexEditor::CursorIdx) {
-			if (Offs < 0xD0) {
-				HexEditor::OffsIdx = 0;
-				HexEditor::CursorIdx = Offs;
-
-			} else {
-				HexEditor::OffsIdx = 1 + ((Offs - 0xD0) / 0x10);
-				HexEditor::CursorIdx = (0xD0 - 0x10) + (Offs % 0x10);
-			};
-		};
-	};
-};
-
-void Navigation::Back() { HexEditor::Mode = HexEditor::SubMode::Sub; };
+void Search::Back() { Navigation::Mode = Navigation::SubMode::Main; };

@@ -41,6 +41,8 @@ private:
 	std::vector<std::string> SelectData;
 
 	const std::vector<Structs::ButtonPos> ListPos = {
+		{ 0, 0, 20, 20 }, // Back.
+		
 		{ 30, 35, 260, 30 },
 		{ 30, 70, 260, 30 },
 		{ 30, 105, 260, 30 },

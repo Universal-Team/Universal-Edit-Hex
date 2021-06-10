@@ -25,14 +25,13 @@
 */
 
 #include "Common.hpp"
-#include "Utils.hpp"
 #include <unistd.h>
 
-bool Utils::Touching(const touchPosition T, const Structs::ButtonPos P) {
+bool Common::Touching(const touchPosition T, const Structs::ButtonPos P) {
 	return (T.px >= P.x && T.px <= (P.x + P.w) && T.py >= P.y && T.py <= (P.y + P.h));
 };
 
-int Utils::Numpad(const std::string &Text, const int CurVal, const int MinVal, const int MaxVal, const int Length) {
+int Common::Numpad(const std::string &Text, const int CurVal, const int MinVal, const int MaxVal, const int Length) {
 	/* Display one frame on top of what should be entered. */
 	C2D_TargetClear(Top, C2D_Color32(0, 0, 0, 0));
 	C2D_TargetClear(Bottom, C2D_Color32(0, 0, 0, 0));
@@ -61,7 +60,7 @@ int Utils::Numpad(const std::string &Text, const int CurVal, const int MinVal, c
 	return (Ret == SWKBD_BUTTON_CONFIRM ? Num : CurVal);
 };
 
-uint32_t Utils::HexPad(const std::string &Text, const uint32_t CurVal, const uint32_t MinVal, const uint32_t MaxVal, const int Length) {
+uint32_t Common::HexPad(const std::string &Text, const uint32_t CurVal, const uint32_t MinVal, const uint32_t MaxVal, const int Length) {
 	uint32_t Res = CurVal;
 
 	/* Display one frame on top of what should be entered. */
@@ -100,18 +99,18 @@ uint32_t Utils::HexPad(const std::string &Text, const uint32_t CurVal, const uin
 					};
 
 					if (!IsGood) { // Not valid!
-						*CallbackMsg = Utils::GetStr("NOT_VALID_HEX_INPUT").c_str();
+						*CallbackMsg = Common::GetStr("NOT_VALID_HEX_INPUT").c_str();
 						return SWKBD_CALLBACK_CONTINUE;
 					};
 				};
 
 			} else {
-				*CallbackMsg = Utils::GetStr("HEX_IDENTIFIER_MISSING").c_str();
+				*CallbackMsg = Common::GetStr("HEX_IDENTIFIER_MISSING").c_str();
 				return SWKBD_CALLBACK_CONTINUE;
 			};
 
 		} else { // Input smaller as 0x3.
-			*CallbackMsg = Utils::GetStr("HEX_INPUT_TOO_SMALL").c_str();
+			*CallbackMsg = Common::GetStr("HEX_INPUT_TOO_SMALL").c_str();
 			return SWKBD_CALLBACK_CONTINUE;
 		};
 
@@ -133,7 +132,7 @@ uint32_t Utils::HexPad(const std::string &Text, const uint32_t CurVal, const uin
 	return Res;
 };
 
-std::string Utils::Keyboard(const std::string &Text, const std::string &CurStr, const int Length) {
+std::string Common::Keyboard(const std::string &Text, const std::string &CurStr, const int Length) {
 	/* Display one frame on top of what should be entered. */
 	C2D_TargetClear(Top, C2D_Color32(0, 0, 0, 0));
 	C2D_TargetClear(Bottom, C2D_Color32(0, 0, 0, 0));
@@ -157,7 +156,7 @@ std::string Utils::Keyboard(const std::string &Text, const std::string &CurStr, 
 	return (Ret == SWKBD_BUTTON_CONFIRM ? Input : CurStr);
 };
 
-void Utils::ProgressMessage(const std::string &Msg) {
+void Common::ProgressMessage(const std::string &Msg) {
 	C2D_TargetClear(Top, C2D_Color32(0, 0, 0, 0));
 	C2D_TargetClear(Bottom, C2D_Color32(0, 0, 0, 0));
 	Gui::clearTextBufs();
@@ -168,11 +167,10 @@ void Utils::ProgressMessage(const std::string &Msg) {
 
 	Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(0, 20, 320, 1, UniversalEdit::UE->TData->BarOutline());
-	Gui::DrawStringCentered(0, 1, 0.6f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("PROGRESS_MSG"), 310);
+	Gui::DrawStringCentered(0, 1, 0.6f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("PROGRESS_MSG"), 310);
 	Gui::DrawStringCentered(0, 60, 0.5f, UniversalEdit::UE->TData->TextColor(), Msg, 300, 120, nullptr, C2D_WordWrap);
 	C3D_FrameEnd(0);
 };
-
 
 
 static nlohmann::json AppJSON;
@@ -183,7 +181,7 @@ static std::string IfNotFound = "";
 
 	const std::string &Key: The string to get from the translation.
 */
-const std::string &Utils::GetStr(const std::string &Key) {
+const std::string &Common::GetStr(const std::string &Key) {
 	if (!AppJSON.contains(Key)) return IfNotFound; // Since we'd return a reference there, we need to have it like this.
 
 	return AppJSON.at(Key).get_ref<const std::string &>();
@@ -191,7 +189,7 @@ const std::string &Utils::GetStr(const std::string &Key) {
 
 
 /* Loads the Language Strings. */
-void Utils::LoadLanguage() {
+void Common::LoadLanguage() {
 	FILE *In = nullptr;
 	bool Good = true;
 

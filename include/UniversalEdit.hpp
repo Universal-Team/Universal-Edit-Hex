@@ -28,27 +28,29 @@
 #define _UNIVERSAL_EDIT_HPP
 
 #include "ConfigData.hpp"
-#include "Data.hpp"
 #include "GFXData.hpp"
+#include "HexData.hpp"
 #include "ThemeData.hpp"
 #include <string>
 
 /* Include all Components. */
-#include "Credits.hpp"
+#include "Analyzer.hpp"
 #include "FileHandler.hpp"
 #include "HexEditor.hpp"
+#include "Navigation.hpp"
 #include "Settings.hpp"
 #include "Tab.hpp"
+#include "Utils.hpp"
 
 class UniversalEdit {
 public:
-	enum class Tabs : uint8_t { FileHandler = 0, HexEditor = 1, Settings = 2, Credits = 3 };
+	enum class Tabs : uint8_t { FileHandler = 0, Navigator = 1, Analyzer = 2, Utils = 3, Settings = 4 };
 	UniversalEdit();
 	int Handler();
 
 	static std::unique_ptr<UniversalEdit> UE;
 
-	std::unique_ptr<Data> CurrentFile = nullptr; // Needs to be accessible for LUA Scripts, Hex Editor etc.
+	std::unique_ptr<HexData> CurrentFile = nullptr; // Needs to be accessible for LUA Scripts, Hex Editor etc.
 	std::unique_ptr<ThemeData> TData = nullptr; // Needs to be accessible for the other Components.
 	std::unique_ptr<GFXData> GData = nullptr;
 	std::unique_ptr<ConfigData> CData = nullptr;
@@ -63,11 +65,13 @@ private:
 	bool Exiting = false;
 	
 	/* Include all Components. */
-	std::unique_ptr<Credits> CR = nullptr;
+	std::unique_ptr<Analyzer> _Analyzer = nullptr;
 	std::unique_ptr<FileHandler> FH = nullptr;
 	std::unique_ptr<HexEditor> HE = nullptr;
+	std::unique_ptr<Navigation> Navigator = nullptr;
 	std::unique_ptr<Settings> SE = nullptr;
 	std::unique_ptr<Tab> _Tab = nullptr;
+	std::unique_ptr<Utils> _Utils = nullptr;
 };
 
 #endif

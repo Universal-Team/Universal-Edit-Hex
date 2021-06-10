@@ -24,34 +24,66 @@
 *         reasonable ways as different from the original version.
 */
 
-#ifndef _UNIVERSAL_EDIT_HEX_EDITOR_NAVIGATION_HPP
-#define _UNIVERSAL_EDIT_HEX_EDITOR_NAVIGATION_HPP
+#ifndef _UNIVERSAL_EDIT_ANALYZER_EDIT_BYTES_HPP
+#define _UNIVERSAL_EDIT_ANALYZER_EDIT_BYTES_HPP
 
 #include "structs.hpp"
+#include <functional>
 #include <string>
 #include <vector>
 
-class Navigation {
+class EditBytes {
 public:
-	Navigation() { };
+	EditBytes() { };
 	void Draw();
 	void Handler();
+
 private:
-	void Search();
-	void JumpTo();
 	void Back();
 
+	void SetU8();
+	void SetU16();
+	void SetU32();
+	void ToggleBit(const uint8_t Idx);
+
 	const std::vector<Structs::ButtonPos> Menu = {
-		{ 70, 40, 100, 30 }, // Search.
-		{ 200, 40, 100, 30 }, // Jump to.
-		{ 50, 0, 20, 20 } // Back.
+		{ 50, 0, 20, 20 }, // Back.
+
+		/* uint8_t. */
+		{ 80, 40, 100, 20 },
+
+		/* uint16_t. */
+		{ 80, 80, 100, 20 },
+
+		/* uint32_t. */
+		{ 80, 120, 100, 20 },
+
+		/* Bits. */
+		{ 80, 160, 20, 20 },
+		{ 110, 160, 20, 20 },
+		{ 140, 160, 20, 20 },
+		{ 170, 160, 20, 20 },
+		{ 200, 160, 20, 20 },
+		{ 230, 160, 20, 20 },
+		{ 260, 160, 20, 20 },
+		{ 290, 160, 20, 20 }
 	};
 
-	const std::vector<std::string> MenuOptions = { "SEARCH", "JUMP_TO" };
 	const std::vector<std::function<void()>> Funcs = {
-		{ [this]() { this->Search(); } },
-		{ [this]() { this->JumpTo(); } },
-		{ [this]() { this->Back(); } }
+		{ [this]() { this->Back(); } },
+
+		{ [this]() { this->SetU8(); } },
+		{ [this]() { this->SetU16(); } },
+		{ [this]() { this->SetU32(); } },
+
+		{ [this]() { this->ToggleBit(0); } },
+		{ [this]() { this->ToggleBit(1); } },
+		{ [this]() { this->ToggleBit(2); } },
+		{ [this]() { this->ToggleBit(3); } },
+		{ [this]() { this->ToggleBit(4); } },
+		{ [this]() { this->ToggleBit(5); } },
+		{ [this]() { this->ToggleBit(6); } },
+		{ [this]() { this->ToggleBit(7); } }
 	};
 };
 

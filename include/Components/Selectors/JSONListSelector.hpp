@@ -41,6 +41,8 @@ private:
 	std::vector<std::pair<std::string, int>> Content;
 
 	const std::vector<Structs::ButtonPos> ListPos = {
+		{ 0, 0, 20, 20 }, // Back.
+		
 		{ 30, 40, 260, 30 },
 		{ 30, 80, 260, 30 },
 		{ 30, 120, 260, 30 },

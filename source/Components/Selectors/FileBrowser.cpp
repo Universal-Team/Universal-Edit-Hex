@@ -42,6 +42,7 @@ void FileBrowser::Draw() {
 
 	Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(0, 20, 320, 1, UniversalEdit::UE->TData->BarOutline());
+	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 0, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
 	Gui::DrawStringCentered(0, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), this->Text, 310);
 
 	Gui::Draw_Rect(0, 220, 320, 20, UniversalEdit::UE->TData->BarColor());
@@ -50,10 +51,10 @@ void FileBrowser::Draw() {
 
 	/* Now begin to draw the filebrowser. */
 	for (int Idx = 0; Idx < ENTRIES_ON_LIST && Idx < (int)this->CurrentFileData.size(); Idx++) {
-		if (this->SPos + Idx == this->Browser->GetSelectedIndex()) Gui::Draw_Rect(this->FBPos[Idx].x - 2, this->FBPos[Idx].y - 2, this->FBPos[Idx].w + 4, this->FBPos[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
-		Gui::Draw_Rect(this->FBPos[Idx].x, this->FBPos[Idx].y, this->FBPos[Idx].w, this->FBPos[Idx].h, UniversalEdit::UE->TData->ButtonColor());
+		if (this->SPos + Idx == this->Browser->GetSelectedIndex()) Gui::Draw_Rect(this->FBPos[Idx + 1].x - 2, this->FBPos[Idx + 1].y - 2, this->FBPos[Idx + 1].w + 4, this->FBPos[Idx + 1].h + 4, UniversalEdit::UE->TData->ButtonSelected());
+		Gui::Draw_Rect(this->FBPos[Idx + 1].x, this->FBPos[Idx + 1].y, this->FBPos[Idx + 1].w, this->FBPos[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 
-		Gui::DrawStringCentered(0, this->FBPos[Idx].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), this->CurrentFileData[this->SPos + Idx], 240);
+		Gui::DrawStringCentered(0, this->FBPos[Idx + 1].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), this->CurrentFileData[this->SPos + Idx], 240);
 	};
 
 	C3D_FrameEnd(0);
@@ -77,12 +78,10 @@ std::string FileBrowser::Handler(const std::string &BasePath, const bool Limit, 
 		const uint32_t Repeat = hidKeysDownRepeat();
 		hidTouchRead(&T);
 
-
 		if (Repeat & KEY_UP) this->Browser->Up();
 		if (Repeat & KEY_DOWN) this->Browser->Down();
 		if (Repeat & KEY_LEFT) this->Browser->Left(ENTRIES_ON_LIST);
 		if (Repeat & KEY_RIGHT) this->Browser->Right(ENTRIES_ON_LIST);
-
 
 		if (Down & KEY_B) {
 			if (this->Limit) { // Can only go down to the BasePath.
@@ -142,7 +141,7 @@ std::string FileBrowser::Handler(const std::string &BasePath, const bool Limit, 
 		if (Down & KEY_SELECT) {
 			if (this->Browser->GetPath().size() >= 5) {
 				if (this->Browser->GetPath().substr(0, 5) != "romfs") {
-					const std::string Res = Utils::Keyboard(Utils::GetStr("ENTER_DIR_NAME"), "", 100);
+					const std::string Res = Common::Keyboard(Common::GetStr("ENTER_DIR_NAME"), "", 100);
 
 					if (Res != "") { // Ensure it's not empty.
 						if (access((this->Browser->GetPath() + Res).c_str(), F_OK) != 0) { // Make sure it doesn't already exist.
@@ -157,9 +156,11 @@ std::string FileBrowser::Handler(const std::string &BasePath, const bool Limit, 
 		};
 
 		if (Down & KEY_TOUCH) {
+			if (Common::Touching(T, this->FBPos[0])) return "";
+
 			for (uint8_t Idx = 0; Idx < ENTRIES_ON_LIST; Idx++) {
 				if (this->SPos + Idx < (int)this->CurrentFileData.size()) {
-					if (Utils::Touching(T, this->FBPos[Idx])) {
+					if (Common::Touching(T, this->FBPos[Idx + 1])) {
 						this->Browser->SetSelection(this->SPos + Idx);
 
 						if (!this->Browser->OpenHandle()) { // It's not a directory.

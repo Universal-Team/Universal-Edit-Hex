@@ -24,17 +24,17 @@
 *         reasonable ways as different from the original version.
 */
 
-#ifndef _UNIVERSAL_EDIT_DATA_HPP
-#define _UNIVERSAL_EDIT_DATA_HPP
+#ifndef _UNIVERSAL_EDIT_HEX_DATA_HPP
+#define _UNIVERSAL_EDIT_HEX_DATA_HPP
 
 #include <cstring> // memcpy.
 #include <string>
 #include <vector>
 
-class Data {
+class HexData {
 public:
-	Data();
-	Data(const std::string &File) {
+	HexData();
+	HexData(const std::string &File) {
 		this->Load(File);
 		this->LoadEncoding("romfs:/encodings/ascii.json");
 	};
@@ -88,7 +88,7 @@ public:
 			};
 		};
 
-		if (!this->Changes()) this->ChangesMade = true;
+		this->SetChanges(true);
 	};
 
 	/* Bit Operations. */

@@ -82,6 +82,7 @@ void ConfigData::Load() {
 	fclose(File);
 
 	if (!this->CFG.is_discarded()) {
+		this->ByteGroup(this->Get<nlohmann::json::number_integer_t>("ByteGroup", this->ByteGroup()));
 		this->DefaultHexView(this->Get<nlohmann::json::number_integer_t>("DefaultHexView", this->DefaultHexView()));
 		this->Lang(this->Get<std::string>("Lang", this->Lang()));
 		this->Theme(this->Get<std::string>("Theme", this->Theme()));
@@ -93,6 +94,7 @@ void ConfigData::Initialize() {
 	FILE *Temp = fopen("sdmc:/3ds/Universal-Edit/Config.json", "w");
 
 	const nlohmann::json OBJ = {
+		{ "ByteGroup", this->ByteGroup() },
 		{ "DefaultHexView", this->DefaultHexView() },
 		{ "Lang", this->SysLang() },
 		{ "Theme", this->Theme() }
@@ -106,6 +108,7 @@ void ConfigData::Initialize() {
 /* SAV changes to the Configuration, if changes made. */
 void ConfigData::Sav() {
 	if (this->ChangesMade) {
+		this->Set<nlohmann::json::number_integer_t>("ByteGroup", this->ByteGroup());
 		this->Set<nlohmann::json::number_integer_t>("DefaultHexView", this->DefaultHexView());
 		this->Set<std::string>("Lang", this->Lang());
 		this->Set<std::string>("Theme", this->Theme());

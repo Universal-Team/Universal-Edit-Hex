@@ -32,7 +32,7 @@ void Reminsert::Draw() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
 	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 50, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
-	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("REMINSERT_MENU"), 310);
+	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("REMINSERT_MENU"), 310);
 
 	/* Only display if FileHandler is good. */
 	if (FileHandler::Loaded) {
@@ -42,15 +42,15 @@ void Reminsert::Draw() {
 			Gui::Draw_Rect(this->Menu[Idx ].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 		};
 
-		Gui::DrawString(90, 40, 0.45f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("OFFSET") + "0x" + Utils::ToHex<uint32_t>(this->Offset));
-		Gui::DrawString(90, 80, 0.45f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("SIZE") + "0x" + Utils::ToHex<uint32_t>(this->Size));
-		Gui::DrawString(90, 120, 0.45f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("TO_INSERT") + "0x" + Utils::ToHex<uint8_t>(this->ValueToInsert));
+		Gui::DrawString(90, 40, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("OFFSET") + "0x" + Common::ToHex<uint32_t>(this->Offset));
+		Gui::DrawString(90, 80, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SIZE") + "0x" + Common::ToHex<uint32_t>(this->Size));
+		Gui::DrawString(90, 120, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("TO_INSERT") + "0x" + Common::ToHex<uint8_t>(this->ValueToInsert));
 
 		/* Draw Insert / Remove. */
 		for (uint8_t Idx = 0; Idx < 2; Idx++) {
 			Gui::Draw_Rect(this->Menu[Idx + 3].x - 2, this->Menu[Idx + 3].y - 2, this->Menu[Idx + 3].w + 4, this->Menu[Idx + 3].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 			Gui::Draw_Rect(this->Menu[Idx + 3].x, this->Menu[Idx + 3].y, this->Menu[Idx + 3].w, this->Menu[Idx + 3].h, UniversalEdit::UE->TData->ButtonColor());
-			Gui::DrawString(this->Menu[Idx + 3].x + 5, this->Menu[Idx + 3].y + 5, 0.4f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr(this->MenuOptions[Idx]));
+			Gui::DrawString(this->Menu[Idx + 3].x + 5, this->Menu[Idx + 3].y + 5, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[Idx]));
 		};
 	};
 };
@@ -58,7 +58,7 @@ void Reminsert::Draw() {
 void Reminsert::Handler() {
 	if (UniversalEdit::UE->Down & KEY_TOUCH) {
 		for (uint8_t Idx = 0; Idx < 6; Idx++) {
-			if (Utils::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
+			if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 				this->Funcs[Idx]();
 				break;
 			};
@@ -69,19 +69,19 @@ void Reminsert::Handler() {
 
 void Reminsert::SetOffs() {
 	if (FileHandler::Loaded) {
-		this->Offset = Utils::HexPad(Utils::GetStr("ENTER_OFFSET_IN_HEX"), this->Offset, 0x0, UniversalEdit::UE->CurrentFile->GetSize(), 10);
+		this->Offset = Common::HexPad(Common::GetStr("ENTER_OFFSET_IN_HEX"), this->Offset, 0x0, UniversalEdit::UE->CurrentFile->GetSize(), 10);
 	};
 };
 
 void Reminsert::SetSize() {
 	if (FileHandler::Loaded) {
-		this->Size = Utils::HexPad(Utils::GetStr("ENTER_SIZE_IN_HEX"), this->Size, 0x0, 0xFFFFFF, 10);
+		this->Size = Common::HexPad(Common::GetStr("ENTER_SIZE_IN_HEX"), this->Size, 0x0, 0xFFFFFF, 10);
 	};
 };
 
 void Reminsert::SetVal() {
 	if (FileHandler::Loaded) {
-		this->ValueToInsert = Utils::HexPad(Utils::GetStr("ENTER_VALUE_TO_INSERT_IN_HEX"), this->ValueToInsert, 0x0, 0xFF, 4);
+		this->ValueToInsert = Common::HexPad(Common::GetStr("ENTER_VALUE_TO_INSERT_IN_HEX"), this->ValueToInsert, 0x0, 0xFF, 4);
 	};
 };
 
@@ -115,12 +115,12 @@ void Reminsert::Remove() {
 
 				} else {
 					/* Larger than one screen, so set the row & cursor idx. */
-					HexEditor::OffsIdx = 1 + ((UniversalEdit::UE->CurrentFile->GetSize() - 1 - 0xD0) / 0x10);
-					HexEditor::CursorIdx = (0xD0 - 0x10) + (UniversalEdit::UE->CurrentFile->GetSize() % 0x10);
+					HexEditor::OffsIdx = 1 + (((UniversalEdit::UE->CurrentFile->GetSize() - 0x1) - 0xD0) / 0x10);
+					HexEditor::CursorIdx = (0xD0 - 0x10) + ((UniversalEdit::UE->CurrentFile->GetSize() - 1) % 0x10);
 				};
 			};
 		};
 	};
 };
 
-void Reminsert::Back() { HexEditor::Mode = HexEditor::SubMode::Sub; };
+void Reminsert::Back() { Navigation::Mode = Navigation::SubMode::Main; };

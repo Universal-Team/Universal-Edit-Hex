@@ -40,15 +40,16 @@ void ThemeSelector::Draw() {
 	UniversalEdit::UE->GData->DrawBottom();
 	Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(0, 20, 320, 1, UniversalEdit::UE->TData->BarOutline());
-	Gui::DrawStringCentered(0, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Utils::GetStr("SELECT_THEME"), 310);
+	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 0, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
+	Gui::DrawStringCentered(0, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SELECT_THEME"), 310);
 
 	/* Now begin to draw the Theme List. */
 	for (uint8_t Idx = 0; Idx < THEMES_ON_LIST && Idx < UniversalEdit::UE->ThemeNames.size(); Idx++) {
-		if (this->SPos + Idx == this->Selection) Gui::Draw_Rect(this->TPos[Idx].x - 2, this->TPos[Idx].y - 2, this->TPos[Idx].w + 4, this->TPos[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
-		Gui::Draw_Rect(this->TPos[Idx].x, this->TPos[Idx].y, this->TPos[Idx].w, this->TPos[Idx].h, UniversalEdit::UE->TData->ButtonColor());
+		if (this->SPos + Idx == this->Selection) Gui::Draw_Rect(this->TPos[Idx + 1].x - 2, this->TPos[Idx + 1].y - 2, this->TPos[Idx + 1].w + 4, this->TPos[Idx + 1].h + 4, UniversalEdit::UE->TData->ButtonSelected());
+		Gui::Draw_Rect(this->TPos[Idx + 1].x, this->TPos[Idx + 1].y, this->TPos[Idx + 1].w, this->TPos[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 
-		Gui::DrawStringCentered(0, this->TPos[Idx].y + 4, 0.5f, UniversalEdit::UE->TData->TextColor(), UniversalEdit::UE->ThemeNames[this->SPos + Idx].first, 240);
-		Gui::DrawStringCentered(0, this->TPos[Idx].y + 20, 0.4f, UniversalEdit::UE->TData->TextColor(), UniversalEdit::UE->ThemeNames[this->SPos + Idx].second, 240, 25, nullptr, C2D_WordWrap);
+		Gui::DrawStringCentered(0, this->TPos[Idx + 1].y + 4, 0.5f, UniversalEdit::UE->TData->TextColor(), UniversalEdit::UE->ThemeNames[this->SPos + Idx].first, 240);
+		Gui::DrawStringCentered(0, this->TPos[Idx + 1].y + 20, 0.4f, UniversalEdit::UE->TData->TextColor(), UniversalEdit::UE->ThemeNames[this->SPos + Idx].second, 240, 25, nullptr, C2D_WordWrap);
 	};
 
 	C3D_FrameEnd(0);
@@ -95,9 +96,14 @@ void ThemeSelector::Handler() {
 			};
 
 			if (Down & KEY_TOUCH) {
+				if (Common::Touching(T, this->TPos[0])) {
+					this->SelectMode = false;
+					return;
+				};
+
 				for (uint8_t Idx = 0; Idx < THEMES_ON_LIST; Idx++) {
 					if (this->SPos + Idx < (int)UniversalEdit::UE->ThemeNames.size()) {
-						if (Utils::Touching(T, this->TPos[Idx])) {
+						if (Common::Touching(T, this->TPos[Idx + 1])) {
 							UniversalEdit::UE->CData->Theme(UniversalEdit::UE->ThemeNames[this->SPos + Idx].first);
 							UniversalEdit::UE->TData->LoadTheme(UniversalEdit::UE->CData->Theme());
 							this->SelectMode = false;

@@ -24,21 +24,31 @@
 *         reasonable ways as different from the original version.
 */
 
-#include "Data.hpp"
+#include "Common.hpp"
+#include "HexData.hpp"
 #include "JSON.hpp"
-#include "Utils.hpp"
 #include <unistd.h>
 
-Data::Data() {
+/*
+	Initializes new data.
+
+	This one has 1 byte set as 0x0 and it's save file set to Temp.bin.
+*/
+HexData::HexData() {
 	this->FileData.resize(1);
 	this->FileData[0] = { 0x0 }; // Init with 0x0.
 	this->FileGood = true;
-	this->File = "sdmc:/3ds/Universal-Edit/Temp.txt";
+	this->File = "sdmc:/3ds/Universal-Edit/Temp.bin";
 
 	this->LoadEncoding("romfs:/encodings/ascii.json");
 };
 
-void Data::Load(const std::string &File) {
+/*
+	Load a file.
+
+	const std::string &File: The file to load.
+*/
+void HexData::Load(const std::string &File) {
 	this->File = File;
 
 	if (access(this->File.c_str(), F_OK) == 0) {
@@ -61,19 +71,38 @@ void Data::Load(const std::string &File) {
 };
 
 
-void Data::InsertBytes(const uint32_t Offs, const std::vector<uint8_t> &ToInsert) {
+/*
+	Insert bytes to a specific offset.
+
+	const uint32_t Offs: The offset to which to insert.
+	const std::vector<uint8_t> &ToInsert: The vector of data to insert.
+*/
+void HexData::InsertBytes(const uint32_t Offs, const std::vector<uint8_t> &ToInsert) {
 	if (Offs > this->GetSize()) return; // Out of bounds.
 
 	this->FileData.insert(this->FileData.begin() + Offs, ToInsert.begin(), ToInsert.end());
+	this->SetChanges(true);
 };
 
-void Data::EraseBytes(const uint32_t Offs, const uint32_t Size) {
+/*
+	Erase bytes from a specific offset for a specific size.
+
+	const uint32_t Offs: The offset from which to remove.
+	const uint32_t Size: The size which to remove.
+*/
+void HexData::EraseBytes(const uint32_t Offs, const uint32_t Size) {
 	if (Offs >= this->GetSize() || Offs + Size > this->GetSize()) return; // Out of bounds.
 	this->FileData.erase(this->FileData.begin() + Offs, this->FileData.begin() + Offs + Size);
+
+	this->SetChanges(true);
 };
 
+/*
+	Write the changes back to the file.
 
-bool Data::WriteBack(const std::string &File) {
+	const std::string &File: The file to write back.
+*/
+bool HexData::WriteBack(const std::string &File) {
 	if (this->IsGood() && this->GetData()) {
 		FILE *Out = fopen(File.c_str(), "w");
 		fwrite(this->GetData(), 1, this->GetSize(), Out);
@@ -84,12 +113,16 @@ bool Data::WriteBack(const std::string &File) {
 	return false;
 };
 
-std::string Data::ByteToString(const uint32_t Offs) {
-	if (this->IsGood() && this->GetData() && Offs < this->GetSize()) return Utils::ToHex<uint8_t>(this->GetData()[Offs]);
+
+/*
+	Return a byte to an uint8_t hex string like this: 00, 0F, 20 etc.
+
+	const uint32_t Offs: The offset from which to return the byte from as hex.
+*/
+std::string HexData::ByteToString(const uint32_t Offs) {
+	if (this->IsGood() && this->GetData() && Offs < this->GetSize()) return Common::ToHex<uint8_t>(this->GetData()[Offs]);
 	return "";
 };
-
-
 
 
 /*
@@ -98,7 +131,7 @@ std::string Data::ByteToString(const uint32_t Offs) {
 	const uint32_t Offs: The Offset to read from.
 	const uint8_t BitIndex: The Bit index ( 0 - 7 ).
 */
-bool Data::ReadBit(const uint32_t Offs, const uint8_t BitIndex) {
+bool HexData::ReadBit(const uint32_t Offs, const uint8_t BitIndex) {
 	if (!this->IsGood() || !this->GetData() || BitIndex > 7 || Offs >= this->GetSize()) return false;
 
 	return (this->GetData()[Offs] >> BitIndex & 1) != 0;
@@ -111,13 +144,13 @@ bool Data::ReadBit(const uint32_t Offs, const uint8_t BitIndex) {
 	const uint8_t BitIndex: The Bit index ( 0 - 7 ).
 	const bool IsSet: If it's set (1) or not (0).
 */
-void Data::WriteBit(const uint32_t Offs, const uint8_t BitIndex, const bool IsSet) {
+void HexData::WriteBit(const uint32_t Offs, const uint8_t BitIndex, const bool IsSet) {
 	if (!this->IsGood() || !this->GetData() || BitIndex > 7 || Offs >= this->GetSize()) return;
 
 	this->GetData()[Offs] &= ~(1 << BitIndex);
 	this->GetData()[Offs] |= (IsSet ? 1 : 0) << BitIndex;
 
-	if (!this->Changes()) this->ChangesMade = true;
+	this->SetChanges(true);
 };
 
 
@@ -128,7 +161,7 @@ void Data::WriteBit(const uint32_t Offs, const uint8_t BitIndex, const bool IsSe
 	const uint32_t Offs: The offset where to read from.
 	const bool First: If Reading from the first four bits, or second.
 */
-uint8_t Data::ReadBits(const uint32_t Offs, const bool First) {
+uint8_t HexData::ReadBits(const uint32_t Offs, const bool First) {
 	if (!this->IsGood() || !this->GetData() || Offs >= this->GetSize()) return 0x0;
 
 	if (First) return (this->GetData()[Offs] & 0xF); // Bit 0 - 3.
@@ -142,23 +175,26 @@ uint8_t Data::ReadBits(const uint32_t Offs, const bool First) {
 	const bool First: If Writing on the first four bits, or second.
 	const uint8_t Data: The Data to write.
 */
-void Data::WriteBits(const uint32_t Offs, const bool First, const uint8_t Data) {
+void HexData::WriteBits(const uint32_t Offs, const bool First, const uint8_t Data) {
 	if (!this->IsGood() || !this->GetData() || Data > 0xF || Offs >= this->GetSize()) return;
 
 	if (First) this->GetData()[Offs] = (this->GetData()[Offs] & 0xF0) | (Data & 0xF); // Bit 0 - 3.
 	else this->GetData()[Offs] = (this->GetData()[Offs] & 0x0F) | (Data << 4); // Bit 4 - 7.
-	if (!this->Changes()) this->ChangesMade = true;
+	this->SetChanges(true);
 };
 
 /*
 	Load an Encoding.
+
+	const std::string &ENCFile: The Encoding JSON file to load.
 */
-void Data::LoadEncoding(const std::string &ENCFile) {
+void HexData::LoadEncoding(const std::string &ENCFile) {
 	if (access(ENCFile.c_str(), F_OK) != 0) return;
 
 	/* Open Handle. */
 	nlohmann::json ENC;
 	FILE *File = fopen(ENCFile.c_str(), "r");
+
 	if (File) {
 		ENC = nlohmann::json::parse(File, nullptr, false);
 		fclose(File);
@@ -172,7 +208,7 @@ void Data::LoadEncoding(const std::string &ENCFile) {
 
 	if (ENC.contains("map") && ENC["map"].is_object()) {
 		for (size_t Idx = 0; Idx < 256; Idx++) {
-			const std::string Str = Utils::ToHex<uint8_t>(Idx);
+			const std::string Str = Common::ToHex<uint8_t>(Idx);
 
 			if (ENC["map"].contains(Str) && ENC["map"][Str].is_string()) this->Encoding[Idx] = ENC["map"][Str].get<std::string>();
 		};

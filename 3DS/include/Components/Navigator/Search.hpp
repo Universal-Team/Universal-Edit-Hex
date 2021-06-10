@@ -33,18 +33,64 @@
 
 class Search {
 public:
-	Search() { };
 	void Draw();
 	void Handler();
 private:
-	void Back();
+	enum class DisplayMode : uint8_t { Sequence = 0, Results = 1 };
+	DisplayMode Mode = DisplayMode::Sequence;
+	uint32_t SPos = 0, Selection = 0;
+	std::vector<uint8_t> Sequences; // All the sequences.
+	std::vector<uint32_t> FoundResults; // Found results.
 
-	const std::vector<Structs::ButtonPos> Menu = {
-		{ 50, 0, 20, 20 } // Back.
+	/* Sequence Stuff. */
+	void DrawSequenceList();
+	void EditSequence(const size_t Idx);
+	void RemoveSequence(const size_t Idx);
+	void AddSequence();
+	void ClearSequence();
+	void SequenceHandler();
+
+	/* Some other Actions. */
+	void Back();
+	void DrawResultList();
+	void SearchAction();
+	void ResultHandler();
+	void JumpToSelected(const uint32_t Selected);
+
+	const std::vector<Structs::ButtonPos> SeqMenu = {
+		{ 50, 0, 20, 20 }, // Back.
+
+		{ 114, 28, 141, 30 }, // Edit Value.
+		{ 114, 63, 141, 30 },
+		{ 114, 98, 141, 30 },
+		{ 114, 133, 141, 30 },
+		{ 114, 168, 141, 30 },
+
+		{ 280, 28, 30, 30 }, // Remove Value.
+		{ 280, 63, 30, 30 },
+		{ 280, 98, 30, 30 },
+		{ 280, 133, 30, 30 },
+		{ 280, 168, 30, 30 },
+
+		{ 70, 210, 50, 20 }, // Add.
+		{ 160, 210, 50, 20 }, // Search.
+		{ 240, 210, 50, 20 } // Clear.
 	};
 
+	const std::vector<Structs::ButtonPos> ResMenu = {
+		{ 114, 28, 141, 30 },
+		{ 114, 63, 141, 30 },
+		{ 114, 98, 141, 30 },
+		{ 114, 133, 141, 30 },
+		{ 114, 168, 141, 30 },
+		{ 114, 203, 141, 30 }
+	};
+
+	/* Sequence Menu Actions. */
 	const std::vector<std::function<void()>> Funcs = {
-		{ [this]() { this->Back(); } }
+		{ [this]() { this->AddSequence(); } },
+		{ [this]() { this->SearchAction(); } },
+		{ [this]() { this->ClearSequence(); } }
 	};
 };
 

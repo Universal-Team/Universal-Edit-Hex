@@ -34,10 +34,8 @@
 
 class EditBytes {
 public:
-	EditBytes() { };
 	void Draw();
 	void Handler();
-
 private:
 	void Back();
 

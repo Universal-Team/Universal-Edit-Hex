@@ -33,7 +33,6 @@
 
 class Tab {
 public:
-	Tab() { };
 	void Draw();
 	void Handler();
 private:

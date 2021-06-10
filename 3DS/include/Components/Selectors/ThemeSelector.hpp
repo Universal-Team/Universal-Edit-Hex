@@ -33,7 +33,6 @@
 
 class ThemeSelector {
 public:
-	ThemeSelector() { };
 	void Draw();
 	void Handler();
 private:

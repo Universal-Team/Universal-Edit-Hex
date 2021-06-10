@@ -70,7 +70,7 @@ void Utils::Labels() {
 			const int Offs = Label->Handler(LBFile);
 
 			if (Offs != -1 && Offs < (int)UniversalEdit::UE->CurrentFile->GetSize()) {
-				if (Offs < BYTES_PER_OFFS) {
+				if (Offs < BYTES_PER_LIST) {
 					HexEditor::OffsIdx = 0;
 					HexEditor::CursorIdx = Offs;
 

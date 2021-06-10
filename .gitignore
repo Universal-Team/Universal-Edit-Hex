@@ -11,7 +11,7 @@
 *.lst
 .vscode
 *.DS_Store
-romfs/gfx/*.t3x
-
+3DS/romfs/gfx/sprites.t3x
 bannertool*
 makerom*
+DS/Universal-Edit.nds

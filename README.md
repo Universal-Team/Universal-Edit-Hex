@@ -61,6 +61,7 @@ Once you've cloned the repository (with submodules), simply run `make` in the ro
 ### Navigator
 ![Navigator](https://github.com/Universal-Team/Universal-Edit-Hex/blob/main/resources/screenshots/navigator.png)
 ![Search](https://github.com/Universal-Team/Universal-Edit-Hex/blob/main/resources/screenshots/search.png)
+![Search Result](https://github.com/Universal-Team/Universal-Edit-Hex/blob/main/resources/screenshots/searchresults.png)
 ![Remove Insert](https://github.com/Universal-Team/Universal-Edit-Hex/blob/main/resources/screenshots/reminsert.png)
 
 ### Analyzer

@@ -32,7 +32,6 @@
 
 class PromptMessage {
 public:
-	PromptMessage() { };
 	bool Handler(const std::string &Msg);
 private:
 	std::string Msg = "";

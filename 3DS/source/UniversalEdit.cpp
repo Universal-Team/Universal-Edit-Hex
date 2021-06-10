@@ -25,7 +25,6 @@
 */
 
 #include "Common.hpp"
-#include "LUAHelper.hpp"
 #include "PromptMessage.hpp"
 #include <3ds.h>
 #include <dirent.h> // mkdir.
@@ -139,7 +138,7 @@ int UniversalEdit::Handler() {
 
 
 		this->_Tab->Handler();
-		this->HE->Handler();
+		if (Navigation::Mode != Navigation::SubMode::Search) this->HE->Handler(); // Only handle, if not in the search results.
 
 		switch(this->ActiveTab) {
 			case Tabs::FileHandler:

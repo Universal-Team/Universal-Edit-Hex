@@ -32,7 +32,6 @@
 
 class StatusMessage {
 public:
-	StatusMessage() { };
 	void Handler(const std::string &Msg, const int Res);
 private:
 	int Res = 0;

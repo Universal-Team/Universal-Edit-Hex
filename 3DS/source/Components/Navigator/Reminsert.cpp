@@ -39,7 +39,7 @@ void Reminsert::Draw() {
 		/* Draw Offset, Size, ValueToInsert. */
 		for (uint8_t Idx = 0; Idx < 3; Idx++) {
 			Gui::Draw_Rect(this->Menu[Idx].x - 2, this->Menu[Idx].y - 2, this->Menu[Idx].w + 4, this->Menu[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
-			Gui::Draw_Rect(this->Menu[Idx ].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
+			Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 		};
 
 		Gui::DrawString(90, 40, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("OFFSET") + "0x" + Common::ToHex<uint32_t>(this->Offset));

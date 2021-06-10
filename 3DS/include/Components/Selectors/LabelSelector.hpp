@@ -33,7 +33,6 @@
 
 class LabelSelector {
 public:
-	LabelSelector() { };
 	void Draw();
 	int Handler(const std::string &LabelJSON);
 private:

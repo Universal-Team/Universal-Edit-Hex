@@ -74,18 +74,34 @@ void FileHandler::LoadFile() {
 		Common::ProgressMessage(Common::GetStr("LOADING_FILE"));
 
 		/* If nullptr, initialize the unique_ptr. */
-		if (!UniversalEdit::UE->CurrentFile) UniversalEdit::UE->CurrentFile = std::make_unique<HexData>(EditFile);
-		else UniversalEdit::UE->CurrentFile->Load(EditFile); // Otherwise load.
+		if (!UniversalEdit::UE->CurrentFile) UniversalEdit::UE->CurrentFile = std::make_unique<HexData>();
+		const int Res = UniversalEdit::UE->CurrentFile->Load(EditFile);
+
+		if (Res == -1) { // File might be too large!
+			std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
+			Ovl->Handler(Common::GetStr("ERROR_IN_FILE_LOAD"), Res);
+			HexEditor::CursorIdx = 0;
+			HexEditor::OffsIdx = 0;
+			FileHandler::Loaded = false;
+
+			return;
+		};
+
+		if (Res == -2) {
+			std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
+			Ovl->Handler(Common::GetStr("FILE_NOT_EXIST"), Res);
+			HexEditor::CursorIdx = 0;
+			HexEditor::OffsIdx = 0;
+			FileHandler::Loaded = false;
+
+			return;
+		};
 
 		if (UniversalEdit::UE->CurrentFile->IsGood()) {
+			UniversalEdit::UE->CurrentFile->SetChanges(false);
 			HexEditor::CursorIdx = 0; // After sucessful loading, also reset the Hex Editor cursor.
 			HexEditor::OffsIdx = 0;
 			FileHandler::Loaded = true;
-
-		} else {
-			std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
-			Ovl->Handler(Common::GetStr("FILE_NOT_EXIST_BAD"), -1);
-			FileHandler::Loaded = false;
 		};
 	};
 };
@@ -99,7 +115,6 @@ void FileHandler::NewFile() {
 	};
 
 	UniversalEdit::UE->CurrentFile = std::make_unique<HexData>();
-	
 	HexEditor::CursorIdx = 0; // After sucessful loading, also reset the Hex Editor cursor.
 	HexEditor::OffsIdx = 0;
 	FileHandler::Loaded = true;
@@ -148,5 +163,5 @@ void FileHandler::SaveFileAs() {
 	} else {
 		std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
 		Ovl->Handler(Common::GetStr("NO_SAVE_ON_NO_LOAD"), -1);
-	}
+	};
 };

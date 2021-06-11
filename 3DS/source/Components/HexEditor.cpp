@@ -26,6 +26,7 @@
 
 #include "Common.hpp"
 #include "HexEditor.hpp"
+#include "StatusMessage.hpp"
 
 #define BYTES_PER_LIST 0xD0
 #define BYTES_PER_OFFS 0x10
@@ -256,24 +257,32 @@ void HexEditor::Handler() {
 	if (UniversalEdit::UE->Down & KEY_X) {
 		if (FileHandler::Loaded) {
 			if ((HexEditor::OffsIdx * BYTES_PER_OFFS) + HexEditor::CursorIdx + HexEditor::SelectionSize <= UniversalEdit::UE->CurrentFile->GetSize()) {
-				UniversalEdit::UE->CurrentFile->EraseBytes((HexEditor::OffsIdx * BYTES_PER_OFFS) + HexEditor::CursorIdx, HexEditor::SelectionSize);
+				const int Res = UniversalEdit::UE->CurrentFile->EraseBytes((HexEditor::OffsIdx * BYTES_PER_OFFS) + HexEditor::CursorIdx, HexEditor::SelectionSize);
 
-				if (UniversalEdit::UE->CurrentFile->GetSize() == 0) {
-					HexEditor::OffsIdx = 0;
-					HexEditor::CursorIdx = 0;
+				if (Res == -1) { // Bad.
+					std::unique_ptr<StatusMessage> SMsg = std::make_unique<StatusMessage>();
+					SMsg->Handler(Common::GetStr("ERROR_IN_FILE_ERASE"), Res);
 					return;
 				};
-			
-				/* Now properly check for cursor index and set it to not go out of screen. */
-				if (((HexEditor::OffsIdx * BYTES_PER_OFFS) + HexEditor::CursorIdx) >= UniversalEdit::UE->CurrentFile->GetSize()) {
-					if (UniversalEdit::UE->CurrentFile->GetSize() < BYTES_PER_LIST) {
-						HexEditor::OffsIdx = 0;
-						HexEditor::CursorIdx = UniversalEdit::UE->CurrentFile->GetSize() - 1;
 
-					} else {
-						/* Larger than one screen, so set the row & cursor idx. */
-						HexEditor::OffsIdx = 1 + (((UniversalEdit::UE->CurrentFile->GetSize() - 0x1) - BYTES_PER_LIST) / BYTES_PER_OFFS);
-						HexEditor::CursorIdx = (BYTES_PER_LIST - BYTES_PER_OFFS) + ((UniversalEdit::UE->CurrentFile->GetSize() - 1) % BYTES_PER_OFFS);
+				if (Res == 0) { // Good.
+					if (UniversalEdit::UE->CurrentFile->GetSize() == 0) {
+						HexEditor::OffsIdx = 0;
+						HexEditor::CursorIdx = 0;
+						return;
+					};
+			
+					/* Now properly check for cursor index and set it to not go out of screen. */
+					if (((HexEditor::OffsIdx * BYTES_PER_OFFS) + HexEditor::CursorIdx) >= UniversalEdit::UE->CurrentFile->GetSize()) {
+						if (UniversalEdit::UE->CurrentFile->GetSize() < BYTES_PER_LIST) {
+							HexEditor::OffsIdx = 0;
+							HexEditor::CursorIdx = UniversalEdit::UE->CurrentFile->GetSize() - 1;
+
+						} else {
+							/* Larger than one screen, so set the row & cursor idx. */
+							HexEditor::OffsIdx = 1 + (((UniversalEdit::UE->CurrentFile->GetSize() - 0x1) - BYTES_PER_LIST) / BYTES_PER_OFFS);
+							HexEditor::CursorIdx = (BYTES_PER_LIST - BYTES_PER_OFFS) + ((UniversalEdit::UE->CurrentFile->GetSize() - 1) % BYTES_PER_OFFS);
+						};
 					};
 				};
 			};
@@ -282,7 +291,12 @@ void HexEditor::Handler() {
 
 	if (UniversalEdit::UE->Down & KEY_Y) {
 		if (FileHandler::Loaded) {
-			UniversalEdit::UE->CurrentFile->InsertBytes((HexEditor::OffsIdx * BYTES_PER_OFFS) + HexEditor::CursorIdx, { 0x0 });
+			const int Res = UniversalEdit::UE->CurrentFile->InsertBytes((HexEditor::OffsIdx * BYTES_PER_OFFS) + HexEditor::CursorIdx, { 0x0 });
+
+			if (Res == -1) {
+				std::unique_ptr<StatusMessage> SMsg = std::make_unique<StatusMessage>();
+				SMsg->Handler(Common::GetStr("ERROR_IN_FILE_INSERT"), Res);
+			};
 		};
 	};
 };

@@ -52,9 +52,12 @@ HexData::HexData() {
 	Load a file.
 
 	const std::string &File: The file to load.
+
+	Returns -2 for file not existing, -1 for allocate related errors and 0 for good.
 */
-void HexData::Load(const std::string &File) {
+int HexData::Load(const std::string &File) {
 	this->File = File;
+	this->FileGood = false;
 
 	if (access(this->File.c_str(), F_OK) == 0) {
 		FILE *In = fopen(this->File.c_str(), "r");
@@ -64,15 +67,27 @@ void HexData::Load(const std::string &File) {
 			const uint32_t Size = ftell(In);
 			fseek(In, 0, SEEK_SET);
 
-			this->FileData.resize(Size);
-			fread(this->FileData.data(), 1, Size, In);
+			/* Do this to ensure to not cause crashes. */
+			try {
+				this->FileData.resize(Size);
+				fread(this->FileData.data(), 1, Size, In);
+
+			} catch(...) {
+				fclose(In);
+				this->FileGood = false;
+				return -1; // "The file load caused an exception. File might be too big.".
+			};
+
 			fclose(In);
 			this->FileGood = true;
 		};
 
 	} else {
 		this->FileGood = false;
+		return -2; // File doesn't exist.
 	};
+
+	return 0;
 };
 
 
@@ -81,12 +96,21 @@ void HexData::Load(const std::string &File) {
 
 	const uint32_t Offs: The offset to which to insert.
 	const std::vector<uint8_t> &ToInsert: The vector of data to insert.
-*/
-void HexData::InsertBytes(const uint32_t Offs, const std::vector<uint8_t> &ToInsert) {
-	if (Offs > this->GetSize()) return; // Out of bounds.
 
-	this->FileData.insert(this->FileData.begin() + Offs, ToInsert.begin(), ToInsert.end());
+	Returns -2 for out of bounds access, -1 for allocate related errors and 0 for good.
+*/
+int HexData::InsertBytes(const uint32_t Offs, const std::vector<uint8_t> &ToInsert) {
+	if (Offs > this->GetSize()) return - 2; // Out of bounds.
+
+	try {
+		this->FileData.insert(this->FileData.begin() + Offs, ToInsert.begin(), ToInsert.end());
+
+	} catch(...) {
+		return - 1; // "The insert caused an exception. Issue might be caused by bad allocation through too large data.".
+	};
+
 	this->SetChanges(true);
+	return 0;
 };
 
 /*
@@ -94,12 +118,20 @@ void HexData::InsertBytes(const uint32_t Offs, const std::vector<uint8_t> &ToIns
 
 	const uint32_t Offs: The offset from which to remove.
 	const uint32_t Size: The size which to remove.
+
+	Returns -2 for out of bounds access, -1 for erase error, 0 for good.
 */
-void HexData::EraseBytes(const uint32_t Offs, const uint32_t Size) {
-	if (Offs >= this->GetSize() || Offs + Size > this->GetSize()) return; // Out of bounds.
-	this->FileData.erase(this->FileData.begin() + Offs, this->FileData.begin() + Offs + Size);
+int HexData::EraseBytes(const uint32_t Offs, const uint32_t Size) {
+	if (Offs >= this->GetSize() || Offs + Size > this->GetSize()) return -2; // Out of bounds.
+	try {
+		this->FileData.erase(this->FileData.begin() + Offs, this->FileData.begin() + Offs + Size);
+
+	} catch(...) {
+		return -1; // "The erase caused an exception.".
+	};
 
 	this->SetChanges(true);
+	return 0;
 };
 
 /*

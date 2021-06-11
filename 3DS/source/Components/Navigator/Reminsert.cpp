@@ -26,6 +26,7 @@
 
 #include "Common.hpp"
 #include "Reminsert.hpp" // Remove Insert FYI.
+#include "StatusMessage.hpp"
 
 
 void Reminsert::Draw() {
@@ -86,34 +87,45 @@ void Reminsert::Insert() {
 	if (FileHandler::Loaded && this->Size > 0) {
 		std::vector<uint8_t> Vec; Vec.resize(this->Size);
 		std::fill(Vec.begin(), Vec.end(), this->ValueToInsert); // Fill the vector.
-		UniversalEdit::UE->CurrentFile->InsertBytes(this->Offset, Vec);
 
-		UniversalEdit::UE->CurrentFile->SetChanges(true); // Inserted -> Changes.
+		const int Res = UniversalEdit::UE->CurrentFile->InsertBytes(this->Offset, Vec);
+
+		if (Res == -1) {
+			std::unique_ptr<StatusMessage> SMsg = std::make_unique<StatusMessage>();
+			SMsg->Handler(Common::GetStr("ERROR_IN_FILE_INSERT"), Res);
+		};
 	};
 };
 
 void Reminsert::Remove() {
 	if (FileHandler::Loaded && this->Size > 0) {
 		if (this->Offset + this->Size <= UniversalEdit::UE->CurrentFile->GetSize()) {
-			UniversalEdit::UE->CurrentFile->EraseBytes(this->Offset, this->Size); // Erase.
-			UniversalEdit::UE->CurrentFile->SetChanges(true); // Erased -> Changes.
+			const int Res = UniversalEdit::UE->CurrentFile->EraseBytes(this->Offset, this->Size); // Erase.
 
-			if (UniversalEdit::UE->CurrentFile->GetSize() == 0) {
-				HexEditor::OffsIdx = 0;
-				HexEditor::CursorIdx = 0;
+			if (Res == -1) {
+				std::unique_ptr<StatusMessage> SMsg = std::make_unique<StatusMessage>();
+				SMsg->Handler(Common::GetStr("ERROR_IN_FILE_ERASE"), Res);
 				return;
 			};
-			
-			/* Now properly check for cursor index and set it to not go out of screen. */
-			if (((HexEditor::OffsIdx * 0x10) + HexEditor::CursorIdx) >= UniversalEdit::UE->CurrentFile->GetSize()) {
-				if (UniversalEdit::UE->CurrentFile->GetSize() < 0xD0) {
-					HexEditor::OffsIdx = 0;
-					HexEditor::CursorIdx = UniversalEdit::UE->CurrentFile->GetSize() - 1;
 
-				} else {
-					/* Larger than one screen, so set the row & cursor idx. */
-					HexEditor::OffsIdx = 1 + (((UniversalEdit::UE->CurrentFile->GetSize() - 0x1) - 0xD0) / 0x10);
-					HexEditor::CursorIdx = (0xD0 - 0x10) + ((UniversalEdit::UE->CurrentFile->GetSize() - 1) % 0x10);
+			if (Res == 0) {
+				if (UniversalEdit::UE->CurrentFile->GetSize() == 0) {
+					HexEditor::OffsIdx = 0;
+					HexEditor::CursorIdx = 0;
+					return;
+				};
+			
+				/* Now properly check for cursor index and set it to not go out of screen. */
+				if (((HexEditor::OffsIdx * 0x10) + HexEditor::CursorIdx) >= UniversalEdit::UE->CurrentFile->GetSize()) {
+					if (UniversalEdit::UE->CurrentFile->GetSize() < 0xD0) {
+						HexEditor::OffsIdx = 0;
+						HexEditor::CursorIdx = UniversalEdit::UE->CurrentFile->GetSize() - 1;
+
+					} else {
+						/* Larger than one screen, so set the row & cursor idx. */
+						HexEditor::OffsIdx = 1 + (((UniversalEdit::UE->CurrentFile->GetSize() - 0x1) - 0xD0) / 0x10);
+						HexEditor::CursorIdx = (0xD0 - 0x10) + ((UniversalEdit::UE->CurrentFile->GetSize() - 1) % 0x10);
+					};
 				};
 			};
 		};

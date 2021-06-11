@@ -40,7 +40,7 @@ public:
 	};
 
 	void SetNewPath(const std::string &P) { this->File = P; };
-	void Load(const std::string &File);
+	int Load(const std::string &File);
 	bool Changes() const { return this->ChangesMade; };
 	void SetChanges(const bool V) { this->ChangesMade = V; };
 	bool IsGood() const { return this->FileGood; };
@@ -100,8 +100,8 @@ public:
 	void WriteBits(const uint32_t Offs, const bool First, const uint8_t Data);
 
 	/* Insert bytes to the HexData. */
-	void InsertBytes(const uint32_t Offs, const std::vector<uint8_t> &ToInsert);
-	void EraseBytes(const uint32_t Offs, const uint32_t Size);
+	int InsertBytes(const uint32_t Offs, const std::vector<uint8_t> &ToInsert);
+	int EraseBytes(const uint32_t Offs, const uint32_t Size);
 
 	bool WriteBack(const std::string &File);
 

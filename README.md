@@ -13,6 +13,9 @@ Features including:
 
 Check out the wiki in the future to read more about the features.
 
+## Known things
+- [x] The 3DS version seems to cause a `std::bad_alloc` when loading a file around ~ 32+ MB. That is likely caused due to 3DS memory limits or so. Unsure about the NDS version size yet. If you want to edit larger files, please use a PC Hex Editor, because a PC has more memory than a 3DS or DS(i). Alternatively, you could try GodMode9 on 3DS or GodMode9i on DS(i).
+
 ## Compilation
 
 ### Setting up your environment

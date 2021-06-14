@@ -297,7 +297,7 @@ void Search::SearchAction() {
 		bool Matched = true;
 
 		for (size_t Idx = 0; Idx < this->Size && Idx < UniversalEdit::UE->CurrentFile->GetCurModeSize(); Idx++) {
-			Common::ProgressMessage(Common::GetStr("SEARCH_MATCHES") + "\nCurrent Index: " + Common::ToHex<uint32_t>(this->Offs + Idx) + " | " + Common::ToHex<uint32_t>(this->Offs + this->Size) + "\nFound Results: " + std::to_string(this->FoundResults.size()));
+			Common::ProgressMessage(Common::GetStr("SEARCH_MATCHES") + "\n\n" + Common::GetStr("CURRENT_INDEX") + Common::ToHex<uint32_t>(this->Offs + Idx) + " | " + Common::ToHex<uint32_t>(this->Offs + this->Size) + "\n\n" + Common::GetStr("FOUND_RESULTS") + std::to_string(this->FoundResults.size()));
 			Matched = true; // Always set to true first.
 
 			hidScanInput();

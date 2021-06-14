@@ -31,7 +31,7 @@ void EditBytes::Draw() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
 	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 50, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
-	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("ANALYZER"), 310);
+	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("EDIT_BYTES"), 310);
 
 	if (FileHandler::Loaded) {
 		/* Display u8, u16 and u32 buttons. */
@@ -63,6 +63,8 @@ void EditBytes::Handler() {
 			};
 		};
 	};
+
+	if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) this->Back();
 };
 
 

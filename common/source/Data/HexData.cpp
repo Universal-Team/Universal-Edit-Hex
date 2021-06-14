@@ -125,8 +125,9 @@ bool HexData::ReadBitFromEditBuffer(const uint32_t Offs, const uint8_t BitIndex)
 	const uint32_t Offs: The Offset to write to.
 	const uint8_t BitIndex: The Bit index ( 0 - 7 ).
 	const bool IsSet: If it's set (1) or not (0).
+	const bool ToChanges: If writing to the changes map, or directly to the FILE.
 */
-void HexData::WriteBit(const uint32_t Offs, const uint8_t BitIndex, const bool IsSet) {
+void HexData::WriteBit(const uint32_t Offs, const uint8_t BitIndex, const bool IsSet, const bool ToChanges) {
 	if (!this->FileHandler || BitIndex > 7 || Offs >= this->GetSize()) return;
 
 	fseek(this->FileHandler, Offs, SEEK_SET);
@@ -135,7 +136,11 @@ void HexData::WriteBit(const uint32_t Offs, const uint8_t BitIndex, const bool I
 	V &= ~(1 << BitIndex);
 	V |= (IsSet ? 1 : 0) << BitIndex;
 
-	this->Changes[Offs] = V;
+	if (ToChanges) this->Changes[Offs] = V;
+	else {
+		fseek(this->FileHandler, Offs, SEEK_SET);
+		fwrite(&V, 1, 1, this->FileHandler);
+	};
 };
 
 /* ^ Same as above, but for the Editing Buffer instead of FILE stream. */
@@ -172,8 +177,9 @@ uint8_t HexData::ReadBits(const uint32_t Offs, const bool First) {
 	const uint32_t Offs: The offset where to write to.
 	const bool First: If Writing on the first four bits, or second.
 	const uint8_t Data: The Data to write.
+	const bool ToChanges: If writing to the changes map, or directly to the FILE.
 */
-void HexData::WriteBits(const uint32_t Offs, const bool First, const uint8_t Data) {
+void HexData::WriteBits(const uint32_t Offs, const bool First, const uint8_t Data, const bool ToChanges) {
 	if (!this->FileHandler || Data > 0xF || Offs >= this->GetSize()) return;
 
 	fseek(this->FileHandler, Offs, SEEK_SET);
@@ -182,7 +188,11 @@ void HexData::WriteBits(const uint32_t Offs, const bool First, const uint8_t Dat
 	if (First) V = (V & 0xF0) | (Data & 0xF); // Bit 0 - 3.
 	else V = (V & 0x0F) | (Data << 4); // Bit 4 - 7.
 	
-	this->Changes[Offs] = V;
+	if (ToChanges) this->Changes[Offs] = V;
+	else {
+		fseek(this->FileHandler, Offs, SEEK_SET);
+		fwrite(&V, 1, 1, this->FileHandler);
+	};
 };
 
 /*
@@ -229,15 +239,13 @@ void HexData::LoadEncoding(const std::string &ENCFile) {
 
 /* DOWN Action. */
 void HexData::DOWN() {
-	bool DoUpdate = false;
-
 	switch(this->Mode) {
 		case HexData::EditMode::Scroll:
 			if (this->GetSize() > BYTES_PER_OFFS) { // ONLY if larger as 0x10.
 				if (((this->OffsIdx * BYTES_PER_OFFS) + this->CursorPos) < this->GetSize() - BYTES_PER_OFFS) {
 					if (this->CursorPos >= this->BytesPerList - BYTES_PER_OFFS) { // When row changed, update display buffer.
 						this->OffsIdx++;
-						DoUpdate = true;
+						this->UpdateDisplay();
 
 					} else {
 						this->CursorPos += BYTES_PER_OFFS;
@@ -251,8 +259,6 @@ void HexData::DOWN() {
 							this->CursorPos = this->BytesPerList - BYTES_PER_OFFS; // TODO: Set to max.
 						};
 					};
-
-					if (DoUpdate) this->UpdateDisplay();
 				};
 			};
 			break;
@@ -262,7 +268,7 @@ void HexData::DOWN() {
 				if (((this->OffsIdx * BYTES_PER_OFFS) + this->CursorPos) < (this->EditStart() + this->GetEditSize() - BYTES_PER_OFFS)) {
 					if (this->CursorPos >= this->BytesPerList - BYTES_PER_OFFS) { // When row changed, update display buffer.
 						this->OffsIdx++;
-						DoUpdate = true;
+						this->UpdateDisplay();
 
 					} else {
 						this->CursorPos += BYTES_PER_OFFS;
@@ -276,8 +282,6 @@ void HexData::DOWN() {
 							this->CursorPos = this->BytesPerList - BYTES_PER_OFFS; // TODO: Set to max.
 						};
 					};
-
-					if (DoUpdate) this->UpdateDisplay();
 				};
 			};
 			break;
@@ -415,7 +419,6 @@ void HexData::RIGHT() {
 	};
 };
 
-
 /*
 	Update the Display data with the FILE data, or the Editing buffer, depending on the Mode.
 */
@@ -431,19 +434,31 @@ void HexData::UpdateDisplay() {
 			return;
 		};
 
-		this->_DisplayData.resize(this->BytesPerList);
+		if (this->GetSize() < this->BytesPerList + (this->OffsIdx * BYTES_PER_OFFS)) {
+			this->_DisplayData.resize((this->BytesPerList - BYTES_PER_OFFS) + ((this->GetSize()) % BYTES_PER_OFFS));
+
+		} else {
+			this->_DisplayData.resize(this->BytesPerList); // Properly resize before.
+		};
+
 		fseek(this->FileHandler, (this->OffsIdx * BYTES_PER_OFFS), SEEK_SET);
-		fread(this->_DisplayData.data(), this->BytesPerList, 1, this->FileHandler);
+		fread(this->_DisplayData.data(), this->_DisplayData.size(), 1, this->FileHandler);
 
 	} else { // Get Data from _Edit Buffer.
 		if (this->GetEditSize() < this->BytesPerList) {
 			this->_DisplayData.resize(this->GetEditSize()); // Properly resize before.
-			memcpy(this->_DisplayData.data(), this->_EditData.data() + (this->OffsIdx * BYTES_PER_OFFS) - this->EditStartOffs, this->GetEditSize());
+			memcpy(this->_DisplayData.data(), this->_EditData.data() + (this->OffsIdx * BYTES_PER_OFFS) - this->EditStartOffs, this->GetDisplaySize());
 			return;
 		};
 
-		this->_DisplayData.resize(this->BytesPerList); // Properly resize before.
-		memcpy(this->_DisplayData.data(), this->_EditData.data() + (this->OffsIdx * BYTES_PER_OFFS) - this->EditStartOffs, this->BytesPerList);
+		if (this->GetEditSize() < this->BytesPerList + (this->OffsIdx * BYTES_PER_OFFS) - this->EditStart()) {
+			this->_DisplayData.resize((this->BytesPerList - BYTES_PER_OFFS) + ((this->GetEditSize()) % BYTES_PER_OFFS));
+
+		} else {
+			this->_DisplayData.resize(this->BytesPerList); // Properly resize before.
+		};
+
+		memcpy(this->_DisplayData.data(), this->_EditData.data() + (this->OffsIdx * BYTES_PER_OFFS) - this->EditStartOffs, this->GetDisplaySize());
 	};
 };
 

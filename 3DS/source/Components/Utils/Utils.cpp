@@ -85,7 +85,7 @@ void Utils::Labels() {
 
 
 void Utils::Scripts() {
-	if (FileHandler::Loaded) {
+	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) {
 		std::unique_ptr<LUAHelper> LH = std::make_unique<LUAHelper>();
 		LH->RunScript();
 	};

@@ -68,6 +68,7 @@ public:
 		return this->Encoding[this->_DisplayData[Cursor]];
 	};
 
+
 	/* Only use this if you KNOW WHAT YOU DO!!! */
 	template <class T> T ReadFromEditBuffer(const uint32_t Offs, const bool BigEndian = false) {
 		if (!this->EditData() || !this->IsGood() || (Offs + sizeof(T) >= this->GetEditSize())) return 0;
@@ -106,6 +107,41 @@ public:
 		};
 	};
 
+	template <class T> std::vector<T> ReadScript(const uint32_t Offs, const uint32_t Count = 0x1, const bool BigEndian = false) {
+		if (!this->FileHandler || !this->IsGood() || ((Offs + (sizeof(T) * Count) >= this->GetSize()))) return { 0 };
+		std::vector<T> Read;
+
+		try {
+			Read.resize(Count);
+			fseek(this->FileHandler, Offs, SEEK_SET); // Seek to position.
+			fread(Read.data(), sizeof(T), Count, this->FileHandler); // Read.
+
+		} catch(...) {
+			return { 0 }; // Likely out of space, so just return 0.
+		};
+
+		if (BigEndian) { // TODO: Correct that like before, for now hardcode the ways for u16 and u32, cause that's all you really need actually.
+			for (size_t Idx = 0; Idx < Count; Idx++) { // Get through the whole vector.
+				if (sizeof(T) == 2) { // uint16_t.
+					Read[Idx] =  (Read[Idx] >> 8) | (Read[Idx] << 8);
+
+				} else if (sizeof(T) == 4) { // uint32_t.
+					Read[Idx] = (Read[Idx] >> 24) | ((Read[Idx] << 8) & 0x00FF0000) | ((Read[Idx] >> 8) & 0x0000FF00) | (Read[Idx] << 24);
+				};
+			};
+
+		};
+
+		return Read;
+	};
+
+	template<class T> void WriteScript(const uint32_t Offs, const std::vector<T> &Data) {
+		if (!this->FileHandler || !this->IsGood() || ((Offs + (sizeof(T) * Data.size()) >= this->GetSize()))) return;
+
+		fseek(this->FileHandler, Offs, SEEK_SET);
+		fwrite(Data.data(), sizeof(T), Data.size(), this->FileHandler);
+	};
+
 	/* Read things from the FILE. */
 	template <class T> T Read(const uint32_t Offs, const bool BigEndian = false) {
 		if (!this->FileHandler || !this->IsGood() || (Offs + sizeof(T) >= this->GetSize())) return 0;
@@ -114,13 +150,14 @@ public:
 		fseek(this->FileHandler, Offs, SEEK_SET); // Seek to position.
 		fread(&Read, sizeof(T), 1, this->FileHandler); // Read.
 
-		if (BigEndian) {
-			T Val = 0;
-			for (size_t Idx = 0; Idx < sizeof(T) && Offs + Idx < this->GetSize(); Idx++) {
-				Val |= (uint8_t)(Read >> (Offs + Idx) * 8) << (sizeof(T) - 1 - Idx) * 8;
-			};
+		if (BigEndian) { // TODO: Correct that like before, for now hardcode the ways for u16 and u32, cause that's all you really need actually.
 
-			return Val;
+			if (sizeof(T) == 2) { // uint16_t.
+				Read = (Read >> 8) | (Read << 8);
+
+			} else if (sizeof(T) == 4) { // uint32_t.
+				Read = (Read >> 24) | ((Read << 8) & 0x00FF0000) | ((Read >> 8) & 0x0000FF00) | (Read << 24);
+			};
 		};
 
 		return Read;
@@ -149,12 +186,12 @@ public:
 	/* Bit Operations. */
 	bool ReadBit(const uint32_t Offs, const uint8_t BitIndex);
 	bool ReadBitFromEditBuffer(const uint32_t Offs, const uint8_t BitIndex); // Same as above, but instead of FILE, load from EDIT buffer.
-	void WriteBit(const uint32_t Offs, const uint8_t BitIndex, const bool IsSet);
+	void WriteBit(const uint32_t Offs, const uint8_t BitIndex, const bool IsSet, const bool ToChanges = true);
 	void WriteBitToEditBuffer(const uint32_t Offs, const uint8_t BitIndex, const bool IsSet); // Same as above, but instead of FILE, load from EDIT buffer.
 
 	/* Bits Operations. */
 	uint8_t ReadBits(const uint32_t Offs, const bool First);
-	void WriteBits(const uint32_t Offs, const bool First, const uint8_t Data);
+	void WriteBits(const uint32_t Offs, const bool First, const uint8_t Data, const bool ToChanges = true);
 
 	std::string ByteToString(const uint32_t Cursor); // Return the cursor's position byte to a hex string such as `00` or `FF`.
 

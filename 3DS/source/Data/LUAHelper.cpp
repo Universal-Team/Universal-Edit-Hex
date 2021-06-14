@@ -42,35 +42,80 @@
 	Read a value from the currently open file.
 
 	Usage:
-	local Res = UniversalEdit.Read("uint32_t", 0x40);
+	local Res = UniversalEdit.Read(0x0, 0x1000, "uint8_t", false);
 
-	First: Type to read.
-	Second: Offset to read from.
-	Third (optional): If reading a big endian (true) or little endian (false, default).
+	First: Offset to read from.
+	Second: Amount of elements from specified type to read.
+	Third (Optional): The type to read (uint8_t by default).
+	Fourth (Optional): The Endian to read (Little Endian (false) by default).
 */
 static int Read(lua_State *LState) {
-	if (lua_gettop(LState) != 2 && lua_gettop(LState) != 3) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 2 && lua_gettop(LState) != 3 && lua_gettop(LState) != 4) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
-	bool IsBigEndian = false;
-	const std::string Type = (std::string)(luaL_checkstring(LState, 1)); // Get the string of the type.
-	const uint32_t Offs = luaL_checkinteger(LState, 2);
+	bool IsBigEndian = false; // Little Endian.
+	std::string Type = "uint8_t"; // Default type.
+	const uint32_t Offs = luaL_checkinteger(LState, 1); // Offset to read.
+	const uint32_t Elm = luaL_checkinteger(LState, 2); // Elements to read.
+	if (lua_gettop(LState) >= 3) Type = (std::string)(luaL_checkstring(LState, 3)); // Get the string of the type.
+	if (lua_gettop(LState) == 4) IsBigEndian = lua_toboolean(LState, 4);
 
-	/* The pushes. */
+
 	if (Type == "uint8_t" || Type == "u8") {
-		if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
-		lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->Read<uint8_t>(Offs, IsBigEndian));
+		if ((Offs + Elm) >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
+
+		std::vector<uint8_t> Res = UniversalEdit::UE->CurrentFile->ReadScript<uint8_t>(Offs, Elm, IsBigEndian);
+
+		if (lua_checkstack(LState, Res.size())) { // Ensure enough STACK is available.
+			lua_createtable(LState, 0, Res.size());
+			const int StackTop = lua_gettop(LState);
+
+			for (size_t Idx = 0; Idx < Res.size(); Idx++) { // Set vector into the table.
+				lua_pushinteger(LState, Idx);
+				lua_pushinteger(LState, Res[Idx]);
+				lua_settable(LState, StackTop);
+			};
+
+		} else {
+			return luaL_error(LState, Common::GetStr("OUT_OF_SPACE").c_str());
+		};
 
 	} else if (Type == "uint16_t" || Type == "u16") {
-		if (Offs + 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
+		if (Offs + (Elm * 0x2) - 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 		
-		if (lua_gettop(LState) == 3) IsBigEndian = lua_toboolean(LState, 3);
-		lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->Read<uint16_t>(Offs, IsBigEndian));
+		std::vector<uint16_t> Res = UniversalEdit::UE->CurrentFile->ReadScript<uint16_t>(Offs, Elm, IsBigEndian);
+
+		if (lua_checkstack(LState, Res.size() * 2)) { // Ensure enough STACK is available.
+			lua_createtable(LState, 0, Res.size());
+			const int StackTop = lua_gettop(LState);
+
+			for (size_t Idx = 0; Idx < Res.size(); Idx++) { // Set vector into the table.
+				lua_pushinteger(LState, Idx);
+				lua_pushinteger(LState, Res[Idx]);
+				lua_settable(LState, StackTop);
+			};
+
+		} else {
+			return luaL_error(LState, Common::GetStr("OUT_OF_SPACE").c_str());
+		};
 
 	} else if (Type == "uint32_t" || Type == "u32") {
-		if (Offs + 3 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
+		if (Offs + (Elm * 0x4) - 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 
-		if (lua_gettop(LState) == 3) IsBigEndian = lua_toboolean(LState, 3);
-		lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->Read<uint32_t>(Offs, IsBigEndian));
+		std::vector<uint32_t> Res = UniversalEdit::UE->CurrentFile->ReadScript<uint32_t>(Offs, Elm, IsBigEndian);
+
+		if (lua_checkstack(LState, Res.size() * 4)) { // Ensure enough STACK is available.
+			lua_createtable(LState, 0, Res.size());
+			const int StackTop = lua_gettop(LState);
+
+			for (size_t Idx = 0; Idx < Res.size(); Idx++) { // Set vector into the table.
+				lua_pushinteger(LState, Idx);
+				lua_pushinteger(LState, Res[Idx]);
+				lua_settable(LState, StackTop);
+			};
+
+		} else {
+			return luaL_error(LState, Common::GetStr("OUT_OF_SPACE").c_str());
+		};
 
 	} else return luaL_error(LState, Common::GetStr("NOT_A_VALID_TYPE").c_str());
 
@@ -122,36 +167,93 @@ static int ReadBits(lua_State *LState) {
 	Write a value to the currently open file.
 
 	Usage:
-	UniversalEdit.Write("uint32_t", 0x40, 0xFFFFFFFF, false);
+	UniversalEdit.Write(0x0, { 0x0, 0x5, 0x10}, "uint8_t", false);
 
-	First: Type to write.
-	Second: Offset to write to.
-	Third: Value to write.
+	First: Offset to write.
+	Second: Table of data to insert.
+	Third (Optional): The type to write (uint8_t by default).
 	Fourth (optional): If writing a big endian (true) or little endian (false, default).
 */
 static int Write(lua_State *LState) {
-	if (lua_gettop(LState) != 3 && lua_gettop(LState) != 4) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 2 && lua_gettop(LState) != 3 && lua_gettop(LState) != 4) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
-	bool IsBigEndian = false;
-	const std::string Type = (std::string)(luaL_checkstring(LState, 1)); // Get the string of the type.
-	const uint32_t Offs = luaL_checkinteger(LState, 2);
+	bool IsBigEndian = false; // Little Endian.
+	std::string Type = "uint8_t"; // Default type.
+	const uint32_t Offs = luaL_checkinteger(LState, 1);
 
-	/* The writes. */
+	if (lua_gettop(LState) >= 3) Type = (std::string)(luaL_checkstring(LState, 3)); // Get the string of the type.
+	if (lua_gettop(LState) == 4) IsBigEndian = lua_toboolean(LState, 4);
+
 	if (Type == "uint8_t" || Type == "u8") {
-		if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
-		UniversalEdit::UE->CurrentFile->Write<uint8_t>(Offs, luaL_checkinteger(LState, 3), IsBigEndian);
+		std::vector<uint8_t> DT;
+
+		if (lua_istable(LState, 2)) { // Get content from TABLE.
+			lua_pushnil(LState);
+
+			while (lua_next(LState, 2)) {
+				try {
+					DT.push_back(lua_tointeger(LState, -1));
+
+				} catch(...) {
+					/* Cannot allocate anymore, it's better to have this check in place or it will cause bad behaviour. */
+					return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
+				};
+
+				lua_pop(LState, 1);
+			};
+		};
+
+		DT.shrink_to_fit(); // Shrink the vector size to only the size we need.
+		if (Offs + DT.size() >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
+		UniversalEdit::UE->CurrentFile->WriteScript<uint8_t>(Offs, DT);
 
 	} else if (Type == "uint16_t" || Type == "u16") {
-		if (Offs + 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
+		std::vector<uint16_t> DT;
 
-		if (lua_gettop(LState) == 4) IsBigEndian = lua_toboolean(LState, 4);
-		UniversalEdit::UE->CurrentFile->Write<uint16_t>(Offs, luaL_checkinteger(LState, 3), IsBigEndian);
+		if (lua_istable(LState, 2)) { // Get content from TABLE.
+			lua_pushnil(LState);
+
+			while (lua_next(LState, 2)) {
+				try {
+					DT.push_back(lua_tointeger(LState, -1));
+					if (IsBigEndian) DT[DT.size() - 1] = (DT[DT.size() - 1] >> 8) | (DT[DT.size() - 1] << 8);
+
+				} catch(...) {
+					/* Cannot allocate anymore, it's better to have this check in place or it will cause bad behaviour. */
+					return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
+				};
+
+				lua_pop(LState, 1);
+			};
+		};
+
+		DT.shrink_to_fit(); // Shrink the vector size to only the size we need.
+		if (Offs + (DT.size() * 2) - 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
+		UniversalEdit::UE->CurrentFile->WriteScript<uint16_t>(Offs, DT);
 
 	} else if (Type == "uint32_t" || Type == "u32") {
-		if (Offs + 3 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
+		std::vector<uint32_t> DT;
 
-		if (lua_gettop(LState) == 4) IsBigEndian = lua_toboolean(LState, 4);
-		UniversalEdit::UE->CurrentFile->Write<uint32_t>(Offs, luaL_checkinteger(LState, 3), IsBigEndian);
+		if (lua_istable(LState, 2)) { // Get content from TABLE.
+			lua_pushnil(LState);
+
+			while (lua_next(LState, 2)) {
+				try {
+					DT.push_back(lua_tointeger(LState, -1));
+					if (IsBigEndian) DT[DT.size() - 1] = (DT[DT.size() - 1] >> 24) | ((DT[DT.size() - 1] << 8) & 0x00FF0000) | ((DT[DT.size() - 1] >> 8) & 0x0000FF00) | (DT[DT.size() - 1] << 24);
+
+				} catch(...) {
+					/* Cannot allocate anymore, it's better to have this check in place or it will cause bad behaviour. */
+					return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
+				};
+
+				lua_pop(LState, 1);
+			};
+		};
+
+		DT.shrink_to_fit(); // Shrink the vector size to only the size we need.
+		if (Offs + (DT.size() * 4) - 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
+		UniversalEdit::UE->CurrentFile->WriteScript<uint32_t>(Offs, DT);
 
 	} else return luaL_error(LState, Common::GetStr("NOT_A_VALID_TYPE").c_str());
 
@@ -178,7 +280,7 @@ static int WriteBit(lua_State *LState) {
 	if (BitIndex > 7) return luaL_error(LState, Common::GetStr("BIT_INDEX_VALID").c_str());
 	const bool Set = lua_toboolean(LState, 3);
 
-	UniversalEdit::UE->CurrentFile->WriteBit(Offs, BitIndex, Set);
+	UniversalEdit::UE->CurrentFile->WriteBit(Offs, BitIndex, Set, false);
 	return 0;
 };
 
@@ -201,7 +303,7 @@ static int WriteBits(lua_State *LState) {
 	const bool First = lua_toboolean(LState, 2);
 	const uint8_t Val = luaL_checkinteger(LState, 3);
 
-	UniversalEdit::UE->CurrentFile->WriteBits(Offs, First, Val);
+	UniversalEdit::UE->CurrentFile->WriteBits(Offs, First, Val, false);
 	return 0;
 };
 
@@ -393,16 +495,23 @@ static int DumpBytes(lua_State *LState) {
 	const uint32_t Size = luaL_checkinteger(LState, 2);
 
 	if (Offs + Size >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
-
 	const std::string File = (std::string)(luaL_checkstring(LState, 3));
 
-/*
-	FILE *Out = fopen(File.c_str(), "w");
+
+	FILE *Out = fopen(File.c_str(), "wb");
 	if (Out) {
-		fwrite(UniversalEdit::UE->CurrentFile->GetData() + Offs, 1, Size, Out);
+		try {
+			std::vector<uint8_t> DT = UniversalEdit::UE->CurrentFile->ReadScript<uint8_t>(Offs, Size);
+			fwrite(DT.data(), 1, Size, Out);
+
+		} catch(...) {
+			fclose(Out);
+			return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
+		};
+
 		fclose(Out);
 	};
-*/
+
 	return 0;
 };
 
@@ -438,47 +547,21 @@ static int InjectFile(lua_State *LState) {
 			return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 		};
 
-		std::unique_ptr<uint8_t[]> Data = std::make_unique<uint8_t[]>(Size);
-		fread(Data.get(), 1, Size, F);
+		
+		try { // Ensure it works fine.
+			std::vector<uint8_t> Data; Data.resize(Size);
+			fread(Data.data(), 1, Size, F);
+			UniversalEdit::UE->CurrentFile->WriteScript<uint8_t>(Offs, Data);
+
+		} catch(...) {
+			fclose(F);
+			return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
+		};
+
+
 		fclose(F);
-
-		for (size_t Idx = 0; Idx < Size; Idx++) {
-			UniversalEdit::UE->CurrentFile->Write<uint8_t>(Offs, Data.get()[Idx], false);
-		};
 	};
 
-	return 0;
-};
-
-/*
-	Inject a table of values into the current file's data.
-
-	Usage:
-		UniversalEdit.InjectBytes(0x100, { 0x0, 0x1, 0x4, 0xFF });
-
-	First: The offset where to inject the data.
-	Second: The table of values to inject.
-*/
-static int InjectBytes(lua_State *LState) {
-	if (lua_gettop(LState) != 2) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
-	const uint32_t Offs = luaL_checkinteger(LState, 1);
-
-	std::vector<uint8_t> DataList;
-	if (lua_istable(LState, 2)) {
-		lua_pushnil(LState);
-
-		while(lua_next(LState, 2)) {
-			DataList.push_back((uint8_t)lua_tointeger(LState, -1));
-			lua_pop(LState, 1);
-		};
-	};
-
-	if (Offs + DataList.size() >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
-
-	for (size_t Idx = 0; Idx < DataList.size(); Idx++) {
-		UniversalEdit::UE->CurrentFile->Write<uint8_t>(Offs, DataList[Idx], false);
-	};
-	
 	return 0;
 };
 
@@ -589,7 +672,6 @@ static constexpr luaL_Reg UniversalEditFunctions[] = {
 	{ "Keyboard", Keyboard },
 	{ "DumpBytes", DumpBytes },
 	{ "InjectFile", InjectFile },
-	{ "InjectBytes", InjectBytes },
 	{ "SelectFile", SelectFile },
 	{ "FileSize", FileSize },
 	{ "ProgressMessage", ProgressMessage },
@@ -631,12 +713,7 @@ void LUAHelper::RunScript() {
 	if (Status.first) {
 		std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
 		Ovl->Handler(Status.second.substr(44), Status.first);
+	};
 
-
-	} else { // Script was fine, do the handle action for writes.
-		if (UniversalEdit::UE->CurrentFile->GetChanges().size() > 0) {
-			std::unique_ptr<ChangesPrompt> ChangePrompt = std::make_unique<ChangesPrompt>();
-			ChangePrompt->Handler();
-		};
-	};	
+	UniversalEdit::UE->CurrentFile->UpdateDisplay(); // Refresh, cause of new changes.
 };

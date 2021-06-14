@@ -78,7 +78,7 @@ void UniversalEdit::DrawTop() {
 		};
 	};
 
-	Gui::DrawStringCentered(0, 1, 0.55f, this->TData->TextColor(), "Universal-Edit");
+	Gui::DrawStringCentered(0, 1, 0.55f, this->TData->TextColor(), "Universal-Edit-Hex");
 };
 
 void UniversalEdit::DrawBottom(const bool OnlyTab) {

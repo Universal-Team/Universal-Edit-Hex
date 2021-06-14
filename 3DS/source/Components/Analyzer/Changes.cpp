@@ -33,9 +33,10 @@ void Changes::Draw() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
 	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 50, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
-	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("CHANGE_LIST"), 310);
 
-	if (FileHandler::Loaded) {
+	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile) {
+		Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("CHANGE_LIST") + " " + std::to_string(UniversalEdit::UE->CurrentFile->GetChanges().size()), 310);
+
 		auto IT = UniversalEdit::UE->CurrentFile->GetChanges().begin();
 		if (this->SPos < UniversalEdit::UE->CurrentFile->GetChanges().size()) std::advance(IT, this->SPos); // Go to the proper idx.
 
@@ -54,12 +55,14 @@ void Changes::Handler() {
 		if (Common::Touching(UniversalEdit::UE->T, this->Menu[0])) this->Back();
 	};
 
-	if (UniversalEdit::UE->Repeat & KEY_DOWN) {
-		if (this->Selection < UniversalEdit::UE->CurrentFile->GetChanges().size() - 1) this->Selection++;
-	};
+	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile) {
+		if (UniversalEdit::UE->Repeat & KEY_DOWN) {
+			if (this->Selection < UniversalEdit::UE->CurrentFile->GetChanges().size() - 1) this->Selection++;
+		};
 
-	if (UniversalEdit::UE->Repeat & KEY_UP) {
-		if (this->Selection > 0) this->Selection--;
+		if (UniversalEdit::UE->Repeat & KEY_UP) {
+			if (this->Selection > 0) this->Selection--;
+		};
 	};
 
 	/* Scroll. */

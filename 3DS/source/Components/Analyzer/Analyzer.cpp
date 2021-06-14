@@ -62,7 +62,9 @@ void Analyzer::Draw() {
 };
 
 void Analyzer::AccessAnalyze() { Analyzer::Mode = Analyzer::SubMode::Analyze; };
-void Analyzer::AccessEdit() { Analyzer::Mode = Analyzer::SubMode::Edit; };
+void Analyzer::AccessEdit() {
+	if (UniversalEdit::UE->CurrentFile->GetCurMode() != HexData::EditMode::Scroll) Analyzer::Mode = Analyzer::SubMode::Edit;
+};
 void Analyzer::AccessChanges() { Analyzer::Mode = Analyzer::SubMode::Changes; };
 
 

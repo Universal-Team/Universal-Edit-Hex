@@ -27,93 +27,172 @@
 #ifndef _UNIVERSAL_EDIT_HEX_DATA_HPP
 #define _UNIVERSAL_EDIT_HEX_DATA_HPP
 
-#include <cstring> // memcpy.
+#include <map>
 #include <string>
 #include <vector>
 
 class HexData {
 public:
-	HexData();
-	HexData(const std::string &File) {
-		this->Load(File);
-		this->LoadEncoding("romfs:/encodings/ascii.json");
+	enum class EditMode : uint8_t { Scroll = 0, Edit = 1, Change = 2 };
+	~HexData(); // Literally calls End().
+
+	void Load(const std::string &File, const uint8_t MaxLines = 0xD, const uint32_t EditModeBufferLen = 0x5000);
+	void End(); // Used to CLOSE the FILE stream.
+	uint32_t GetSize() const { return this->FileSize; }; // Get the filesize.
+	void WriteChanges(const bool DoChanges); // Write the changes you made to the file through FWRITE.
+
+	uint8_t *DisplayData() { return this->_DisplayData.data(); }; // Get the display data.
+	uint8_t *EditData() { return this->_EditData.data(); }; // Get the Editing Data.
+	uint32_t GetDisplaySize() const { return this->_DisplayData.size(); }; // Get the display size.
+	uint32_t GetEditSize() const { return this->_EditData.size(); }; // Get the editing size.
+	uint8_t GetSelectionSize() const { return this->SelectionSize; }; // Get the Selection size.
+	uint32_t GetBytePerList() const { return this->BytesPerList; }; // Get the bytes per list amount.
+	uint32_t GetLines() const { return this->MaxLines; }; // Get the amount of lines to draw.
+	uint32_t GetCursor() const { return this->CursorPos; }; // Get the cursor position.
+	uint32_t GetOffs() const { return this->OffsIdx; }; // Get the line / row whatever you call it offset.
+	EditMode GetCurMode() const { return this->Mode; }; // Get the current mode, such as scroll or editing or changing.
+	std::string EditFile() const { return this->File; }; // Get the name of the current editing file.
+
+	uint32_t GetCurModeSize() const { // Get the size of the FILE or the buffer, depending on current mode.
+		if (this->Mode == HexData::EditMode::Scroll) return this->GetSize();
+		else return this->GetEditSize();
 	};
 
-	void SetNewPath(const std::string &P) { this->File = P; };
-	int Load(const std::string &File);
-	bool Changes() const { return this->ChangesMade; };
-	void SetChanges(const bool V) { this->ChangesMade = V; };
-	bool IsGood() const { return this->FileGood; };
-	uint32_t GetSize() const { return this->FileData.size(); };
-	uint8_t *GetData() { return this->FileData.data(); };
-	
-	std::string GetChar(const uint32_t Offs) {
-		if (Offs >= this->GetSize()) return ".";
-		return this->Encoding[this->FileData[Offs]];
+	std::map<uint32_t, uint8_t> &GetChanges() { return this->Changes; }; // Return a reference to the changes.
+	bool IsGood() const { return this->FileGood; }; // Return if the file is good.
+	void SetSelectionSize(const uint8_t V) { this->SelectionSize = V; }; // Set the Selection size.
+	uint32_t EditStart() const { return this->EditStartOffs; }; // Return the Editing start offset.
+
+	std::string GetChar(const uint32_t Cursor) {
+		if (Cursor >= this->GetDisplaySize()) return ".";
+		return this->Encoding[this->_DisplayData[Cursor]];
 	};
 
-
-	template<class T> T Read(const uint32_t Offs, const bool BigEndian = false) {
-		if (!this->IsGood() || !this->GetData() || (Offs + (sizeof(T)) - 1) >= this->GetSize()) return 0;
+	/* Only use this if you KNOW WHAT YOU DO!!! */
+	template <class T> T ReadFromEditBuffer(const uint32_t Offs, const bool BigEndian = false) {
+		if (!this->EditData() || !this->IsGood() || (Offs + sizeof(T) >= this->GetEditSize())) return 0;
 		T Val = 0;
 
-		if (BigEndian) { // Big Endian.
-			for (size_t Idx = 0; Idx < sizeof(T) && Offs + Idx < this->GetSize(); Idx++) {
-				Val |= *(this->GetData() + Offs + Idx) << (sizeof(T) - 1 - Idx) * 8;
-			};
-
-		} else { // Little Endian.
-			for (size_t Idx = 0; Idx < sizeof(T) && Offs + Idx < this->GetSize(); Idx++) {
-				Val |= *(this->GetData() + Offs + Idx) << Idx * 8;
+		if (BigEndian) {
+			for (size_t Idx = 0; Idx < sizeof(T) && Offs + Idx < this->GetEditSize(); Idx++) {
+				Val |= *(this->EditData() + Offs + Idx) << (sizeof(T) - 1 - Idx) * 8;
 			};
 		};
 
 		return Val;
 	};
 
-	/* Write from uint8_t, uint16_t, uint32_t and so on, or better said: Any type that has the '>>=' operator. */
-	template<class T> void Write(const uint32_t Offs, T Data, const bool BigEndian = false) {
-		if (!this->IsGood() || !this->GetData() || (Offs + (sizeof(T)) - 1) >= this->GetSize()) return; // Do nothing.
+	/* ^ Same as above, ONLY USE IT IF YOU KNOW WHAT YOU DO. */
+	template <class T> void WriteToEditBuffer(const uint32_t Offs, T Data, const bool BigEndian = false) {
+		if (!this->EditData() || !this->IsGood() || (Offs + sizeof(T) >= this->GetEditSize())) return;
 
 		if (BigEndian) { // Big Endian.
-			for (int Idx = (int)sizeof(T) - 1; Idx >= 0; Idx--) { // Write backwards.
-				this->GetData()[Offs + Idx] = (uint8_t)Data;
+			for (int Idx = (int)sizeof(T) - 1; Idx >= 0; Idx--) { // Backwards.
+				this->_EditData[Offs + Idx] = (uint8_t)Data;
+				this->Changes[this->EditStart() + Offs + Idx] = (uint8_t)Data;
+				Data >>= 8; // Go to the last byte.
+			};
+
+			this->UpdateDisplay();
+
+		} else { // Little Endian.
+			for (size_t Idx = 0; Idx < sizeof(T); Idx++) { // Forwards.
+				this->_EditData[Offs + Idx] = (uint8_t)Data;
+				this->Changes[this->EditStart() + Offs + Idx] = (uint8_t)Data;
+				Data >>= 8; // Go to the next byte.
+			};
+
+			this->UpdateDisplay();
+		};
+	};
+
+	/* Read things from the FILE. */
+	template <class T> T Read(const uint32_t Offs, const bool BigEndian = false) {
+		if (!this->FileHandler || !this->IsGood() || (Offs + sizeof(T) >= this->GetSize())) return 0;
+		T Read = 0;
+
+		fseek(this->FileHandler, Offs, SEEK_SET); // Seek to position.
+		fread(&Read, sizeof(T), 1, this->FileHandler); // Read.
+
+		if (BigEndian) {
+			T Val = 0;
+			for (size_t Idx = 0; Idx < sizeof(T) && Offs + Idx < this->GetSize(); Idx++) {
+				Val |= (uint8_t)(Read >> (Offs + Idx) * 8) << (sizeof(T) - 1 - Idx) * 8;
+			};
+
+			return Val;
+		};
+
+		return Read;
+	};
+
+
+	/* Write from uint8_t, uint16_t, uint32_t and so on, or better said: Any type that has the '>>=' operator. */
+	template<class T> void Write(const uint32_t Offs, T Data, const bool BigEndian = false) {
+		if (!this->FileHandler || !this->IsGood() || (Offs + sizeof(T) >= this->GetSize())) return;
+
+		if (BigEndian) { // Big Endian.
+			for (int Idx = (int)sizeof(T) - 1; Idx >= 0; Idx--) { // Backwards.
+				this->Changes[Offs + Idx] = (uint8_t)Data; // Set data to our changes map.
 				Data >>= 8; // Go to the last byte.
 			};
 
 		} else { // Little Endian.
-			for (size_t Idx = 0; Idx < sizeof(T); Idx++) { // Write forwards.
-				this->GetData()[Offs + Idx] = (uint8_t)Data;
+			for (size_t Idx = 0; Idx < sizeof(T); Idx++) { // Forwards.
+				this->Changes[Offs + Idx] = (uint8_t)Data; // Set data to our changes map.
 				Data >>= 8; // Go to the next byte.
 			};
 		};
-
-		this->SetChanges(true);
 	};
+
 
 	/* Bit Operations. */
 	bool ReadBit(const uint32_t Offs, const uint8_t BitIndex);
+	bool ReadBitFromEditBuffer(const uint32_t Offs, const uint8_t BitIndex); // Same as above, but instead of FILE, load from EDIT buffer.
 	void WriteBit(const uint32_t Offs, const uint8_t BitIndex, const bool IsSet);
-	
+	void WriteBitToEditBuffer(const uint32_t Offs, const uint8_t BitIndex, const bool IsSet); // Same as above, but instead of FILE, load from EDIT buffer.
+
 	/* Bits Operations. */
 	uint8_t ReadBits(const uint32_t Offs, const bool First);
 	void WriteBits(const uint32_t Offs, const bool First, const uint8_t Data);
 
-	/* Insert bytes to the HexData. */
-	int InsertBytes(const uint32_t Offs, const std::vector<uint8_t> &ToInsert);
-	int EraseBytes(const uint32_t Offs, const uint32_t Size);
+	std::string ByteToString(const uint32_t Cursor); // Return the cursor's position byte to a hex string such as `00` or `FF`.
 
-	bool WriteBack(const std::string &File);
+	/* Actions! */
+	void DOWN();
+	void UP();
+	void LEFT();
+	void RIGHT();
+	void APress();
+	void BPress();
 
-	std::string ByteToString(const uint32_t Offs);
-	std::string EditFile() const { return this->File; };
+	/* Switch to modes, but ehh just use the calls above for proper handling. */
+	void SwitchToEditMode(const bool FromScroll);
+	void SwitchToScrollMode();
+	void SwitchToChangeMode();
+
+	/* Some misc features, such as fetching the buffer, updating the display loading encoding AND jumping to an offset. */
+	void FetchBuffer();
+	void UpdateDisplay();
 	void LoadEncoding(const std::string &ENCFile);
+	void JumpOffs(const uint32_t Offs);
+	FILE *GetFileHandler() { return this->FileHandler; };
 private:
-	std::string File = "";
-	std::vector<uint8_t> FileData;
-	bool FileGood = false, ChangesMade = false;
+	FILE *FileHandler = nullptr; // The Handler of the currently OPEN file.
+	bool FileGood = false; // If the file was a success.
+	uint32_t FileSize = 0; // Update THIS when insert or removes happen.
+	std::string File = ""; // The path to the currently open FILE.
+	EditMode Mode = EditMode::Scroll; // The current Hex Editor Mode.
 
-	std::string Encoding[256];
+	/* Edit, Scroll Mode related. */
+	std::map<uint32_t, uint8_t> Changes; // All changes made while edit mode listed HERE.
+	uint8_t MaxLines = 0x1, SelectionSize = 1; // Max amount of lines.
+	uint32_t EditStartOffs = 0, EditLen = 0x1000; // Start offset of the EDIT Mode Buffer, and the LENGTH of it.
+	uint32_t OffsIdx = 0, CursorPos = 0, BytesPerList = 0; // Offset scroll index, cursor position and the bytes per list.
+
+	/* Buffers and such. */
+	std::vector<uint8_t> _DisplayData, _EditData; // The display buffer, for what's on screen AND the Edit-Mode buffer.
+	std::string Encoding[256]; // Encoding; Being 256 signs.
 };
 
 #endif

@@ -32,8 +32,6 @@
 #define BYTES_PER_OFFS 0x10
 #define LINES 0xA
 
-size_t HexEditor::CursorIdx = 0, HexEditor::OffsIdx = 0;
-uint8_t HexEditor::SelectionSize = 1;
 #define ByteGroupSize UniversalEdit::UE->CData->ByteGroup()
 
 void HexEditor::DrawHexOnly() {
@@ -49,89 +47,12 @@ void HexEditor::DrawTop() {
 
 void HexEditor::Handler() {
 	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile && UniversalEdit::UE->CurrentFile->IsGood() && UniversalEdit::UE->CurrentFile->GetSize() > 0) {
-		if (this->IsEditMode()) { // Edit the selected byte.
-			if (UniversalEdit::UE->Repeat & KEY_UP) {
-				if (UniversalEdit::UE->CurrentFile->GetData()[(HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx)] < 0xFF) {
-					UniversalEdit::UE->CurrentFile->GetData()[(HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx)]++;
-					UniversalEdit::UE->CurrentFile->SetChanges(true);
-				};
-			};
-
-			if (UniversalEdit::UE->Repeat & KEY_DOWN) {
-				if (UniversalEdit::UE->CurrentFile->GetData()[(HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx)] > 0x0) {
-					UniversalEdit::UE->CurrentFile->GetData()[(HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx)]--;
-					UniversalEdit::UE->CurrentFile->SetChanges(true);
-				};
-			};
-
-			if (UniversalEdit::UE->Repeat & KEY_RIGHT) {
-				if (UniversalEdit::UE->CurrentFile->GetData()[(HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx)] < 0xF0) {
-					UniversalEdit::UE->CurrentFile->GetData()[(HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx)] += 0x10;
-					UniversalEdit::UE->CurrentFile->SetChanges(true);
-				};
-			};
-
-			if (UniversalEdit::UE->Repeat & KEY_LEFT) {
-				if (UniversalEdit::UE->CurrentFile->GetData()[(HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx)] > 0xF) {
-					UniversalEdit::UE->CurrentFile->GetData()[(HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx)] -= 0x10;
-					UniversalEdit::UE->CurrentFile->SetChanges(true);
-				};
-			};
-
-			if (UniversalEdit::UE->Down & KEY_B) {
-				this->EditMode = false;
-			};
-
-		} else { // Change the Offset.
-			if (UniversalEdit::UE->Repeat & KEY_RIGHT) {
-				if ((HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx) < UniversalEdit::UE->CurrentFile->GetSize() - 1) {
-					if (HexEditor::CursorIdx < BYTES_PER_LIST - 1) HexEditor::CursorIdx++;
-					else {
-						HexEditor::CursorIdx = BYTES_PER_LIST - BYTES_PER_OFFS;
-						HexEditor::OffsIdx++; // One offset row down.
-					};
-				};
-			};
-
-			if (UniversalEdit::UE->Repeat & KEY_LEFT) {
-				if ((HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx) > 0) {
-					if (HexEditor::CursorIdx > 0) HexEditor::CursorIdx--;
-					else {
-						HexEditor::CursorIdx = 0xF; // 0xF.
-						HexEditor::OffsIdx--; // One offset row down.
-					};
-				};
-			};
-
-			if (UniversalEdit::UE->Repeat & KEY_DOWN) {
-				if ((HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx) < UniversalEdit::UE->CurrentFile->GetSize() - BYTES_PER_OFFS) {
-					if (HexEditor::CursorIdx >= BYTES_PER_LIST - BYTES_PER_OFFS) HexEditor::OffsIdx++;
-					else HexEditor::CursorIdx += BYTES_PER_OFFS;
-
-					if ((HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx) >= UniversalEdit::UE->CurrentFile->GetSize()) {
-						if (UniversalEdit::UE->CurrentFile->GetSize() < BYTES_PER_LIST) {
-							HexEditor::CursorIdx = UniversalEdit::UE->CurrentFile->GetSize() - 1;
-
-						} else {
-							HexEditor::CursorIdx += BYTES_PER_LIST - BYTES_PER_OFFS; // TODO: Set to max.
-						};
-					};
-				};
-			};
-
-			if (UniversalEdit::UE->Repeat & KEY_UP) {
-				if ((HexEditor::OffsIdx * BYTES_PER_OFFS + HexEditor::CursorIdx) > BYTES_PER_OFFS - 1) {
-					if (HexEditor::CursorIdx > 0xF) HexEditor::CursorIdx -= BYTES_PER_OFFS;
-					else {
-						HexEditor::OffsIdx--; // One offset row up.
-					};
-				};
-			};
-
-			if (UniversalEdit::UE->Down & KEY_A) {
-				this->EditMode = true;
-			};
-		};
+		if (UniversalEdit::UE->Repeat & KEY_UP) UniversalEdit::UE->CurrentFile->UP();
+		if (UniversalEdit::UE->Repeat & KEY_DOWN) UniversalEdit::UE->CurrentFile->DOWN();
+		if (UniversalEdit::UE->Repeat & KEY_LEFT) UniversalEdit::UE->CurrentFile->LEFT();
+		if (UniversalEdit::UE->Repeat & KEY_RIGHT) UniversalEdit::UE->CurrentFile->RIGHT();
+		if (UniversalEdit::UE->Down & KEY_B) UniversalEdit::UE->CurrentFile->BPress();
+		if (UniversalEdit::UE->Down & KEY_A) UniversalEdit::UE->CurrentFile->APress();
 	};
 		
 	if (UniversalEdit::UE->Down & KEY_R) {
@@ -145,38 +66,5 @@ void HexEditor::Handler() {
 	if (UniversalEdit::UE->Down & KEY_SELECT) {
 		if (ByteGroupSize < 4) UniversalEdit::UE->CData->ByteGroup(ByteGroupSize + 1);
 		else UniversalEdit::UE->CData->ByteGroup(0);
-	};
-
-	if (UniversalEdit::UE->Down & KEY_X) {
-		if (FileHandler::Loaded) {
-			if ((HexEditor::OffsIdx * BYTES_PER_OFFS) + HexEditor::CursorIdx + HexEditor::SelectionSize <= UniversalEdit::UE->CurrentFile->GetSize()) {
-				UniversalEdit::UE->CurrentFile->EraseBytes((HexEditor::OffsIdx * BYTES_PER_OFFS) + HexEditor::CursorIdx, HexEditor::SelectionSize);
-
-				if (UniversalEdit::UE->CurrentFile->GetSize() == 0) {
-					HexEditor::OffsIdx = 0;
-					HexEditor::CursorIdx = 0;
-					return;
-				};
-			
-				/* Now properly check for cursor index and set it to not go out of screen. */
-				if (((HexEditor::OffsIdx * BYTES_PER_OFFS) + HexEditor::CursorIdx) >= UniversalEdit::UE->CurrentFile->GetSize()) {
-					if (UniversalEdit::UE->CurrentFile->GetSize() < BYTES_PER_LIST) {
-						HexEditor::OffsIdx = 0;
-						HexEditor::CursorIdx = UniversalEdit::UE->CurrentFile->GetSize() - 1;
-
-					} else {
-						/* Larger than one screen, so set the row & cursor idx. */
-						HexEditor::OffsIdx = 1 + (((UniversalEdit::UE->CurrentFile->GetSize() - 0x1) - BYTES_PER_LIST) / BYTES_PER_OFFS);
-						HexEditor::CursorIdx = (BYTES_PER_LIST - BYTES_PER_OFFS) + ((UniversalEdit::UE->CurrentFile->GetSize() - 1) % BYTES_PER_OFFS);
-					};
-				};
-			};
-		};
-	};
-
-	if (UniversalEdit::UE->Down & KEY_Y) {
-		if (FileHandler::Loaded) {
-			UniversalEdit::UE->CurrentFile->InsertBytes((HexEditor::OffsIdx * BYTES_PER_OFFS) + HexEditor::CursorIdx, { 0x0 });
-		};
 	};
 };

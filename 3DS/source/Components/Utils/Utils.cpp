@@ -31,11 +31,7 @@
 #include "PromptMessage.hpp"
 #include "Utils.hpp"
 
-#define BYTES_PER_LIST 0xD0
-#define BYTES_PER_OFFS 0x10
-
 Utils::SubMode Utils::Mode = Utils::SubMode::Main;
-
 
 void Utils::Draw() {
 	if (Utils::Mode == Utils::SubMode::Main) {
@@ -82,16 +78,7 @@ void Utils::Labels() {
 			std::unique_ptr<LabelSelector> Label = std::make_unique<LabelSelector>();
 			const int Offs = Label->Handler(LBFile);
 
-			if (Offs != -1 && Offs < (int)UniversalEdit::UE->CurrentFile->GetSize()) {
-				if (Offs < BYTES_PER_LIST) {
-					HexEditor::OffsIdx = 0;
-					HexEditor::CursorIdx = Offs;
-
-				} else {
-					HexEditor::OffsIdx = 1 + ((Offs - BYTES_PER_LIST) / BYTES_PER_OFFS);
-					HexEditor::CursorIdx = (BYTES_PER_LIST - BYTES_PER_OFFS) + (Offs % BYTES_PER_OFFS);
-				};
-			};
+			if (Offs != -1) UniversalEdit::UE->CurrentFile->JumpOffs((uint32_t)Offs);
 		};
 	};
 };

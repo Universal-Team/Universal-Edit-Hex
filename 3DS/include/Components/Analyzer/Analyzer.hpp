@@ -34,13 +34,15 @@
 #include <vector>
 
 #include "Analyze.hpp"
+#include "Changes.hpp"
 #include "EditBytes.hpp"
 
 class Analyzer {
 public:
-	enum class SubMode : uint8_t { Main = 0, Analyze = 1, Edit = 2 };
+	enum class SubMode : uint8_t { Main = 0, Analyze = 1, Edit = 2, Changes = 3 };
 	Analyzer() {
 		this->_Analyze = std::make_unique<Analyze>();
+		this->CH = std::make_unique<Changes>();
 		this->EB = std::make_unique<EditBytes>();
 	};
 	void Draw();
@@ -51,19 +53,23 @@ public:
 private:
 	void AccessAnalyze();
 	void AccessEdit();
+	void AccessChanges();
 
 	const std::vector<Structs::ButtonPos> Menu = {
 		{ 114, 40, 140, 30 }, // Analyze.
-		{ 114, 90, 140, 30 } // Edit Bytes.
+		{ 114, 90, 140, 30 }, // Edit Bytes.
+		{ 114, 140, 140, 30 } // Changes.
 	};
 
-	const std::vector<std::string> MenuOptions = { "ANALYZE", "EDIT_BYTES" };
+	const std::vector<std::string> MenuOptions = { "ANALYZE", "EDIT_BYTES", "CHANGE_LIST" };
 	const std::vector<std::function<void()>> Funcs = {
 		{ [this]() { this->AccessAnalyze(); } },
-		{ [this]() { this->AccessEdit(); } }
+		{ [this]() { this->AccessEdit(); } },
+		{ [this]() { this->AccessChanges(); } }
 	};
 
 	std::unique_ptr<Analyze> _Analyze = nullptr;
+	std::unique_ptr<Changes> CH = nullptr;
 	std::unique_ptr<EditBytes> EB = nullptr;
 };
 

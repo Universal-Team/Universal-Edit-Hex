@@ -26,6 +26,7 @@
 
 #include "Common.hpp"
 #include "Navigation.hpp"
+#include "StatusMessage.hpp"
 
 Navigation::SubMode Navigation::Mode = Navigation::SubMode::Main;
 
@@ -82,22 +83,25 @@ void Navigation::Handler() {
 };
 
 
-void Navigation::AccessSearch() { Navigation::Mode = Navigation::SubMode::Search; };
-void Navigation::AccessRemInsert() { Navigation::Mode = Navigation::SubMode::Reminsert; };
+void Navigation::AccessSearch() {
+	//std::unique_ptr<StatusMessage> SMsg = std::make_unique<StatusMessage>();
+	//SMsg->Handler(Common::GetStr("FEATURE_NOT_WORKING_YET"), -1);
+	//return;
+
+	Navigation::Mode = Navigation::SubMode::Search;
+};
+
+void Navigation::AccessRemInsert() {
+	//std::unique_ptr<StatusMessage> SMsg = std::make_unique<StatusMessage>();
+	//SMsg->Handler(Common::GetStr("FEATURE_NOT_WORKING_YET"), -1);
+	//return;
+
+	Navigation::Mode = Navigation::SubMode::Reminsert; // Not working YET.
+};
 
 void Navigation::JumpTo() {
 	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->GetSize() > 0) {
-		const uint32_t Offs = Common::HexPad(Common::GetStr("ENTER_OFFSET_IN_HEX"), (HexEditor::OffsIdx * 0x10) + HexEditor::CursorIdx, 0, UniversalEdit::UE->CurrentFile->GetSize() - 1, 10);
-
-		if (Offs != (HexEditor::OffsIdx * 0x10) + HexEditor::CursorIdx) {
-			if (Offs < 0xD0) {
-				HexEditor::OffsIdx = 0;
-				HexEditor::CursorIdx = Offs;
-
-			} else {
-				HexEditor::OffsIdx = 1 + ((Offs - 0xD0) / 0x10);
-				HexEditor::CursorIdx = (0xD0 - 0x10) + (Offs % 0x10);
-			};
-		};
+		const uint32_t Offs = Common::HexPad(Common::GetStr("ENTER_OFFSET_IN_HEX"), (UniversalEdit::UE->CurrentFile->GetOffs() * 0x10) + UniversalEdit::UE->CurrentFile->GetCursor(), 0, UniversalEdit::UE->CurrentFile->GetSize() - 1, 10);
+		UniversalEdit::UE->CurrentFile->JumpOffs(Offs);
 	};
 };

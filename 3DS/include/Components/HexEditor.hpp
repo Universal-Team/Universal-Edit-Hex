@@ -35,13 +35,7 @@ class HexEditor {
 public:
 	void DrawTop();
 	void Handler();
-
-	bool IsEditMode() const { return this->EditMode; };
-	static size_t CursorIdx, OffsIdx; // Needs to be accessible elsewhere.
-	static uint8_t SelectionSize;
 private:
-	bool EditMode = false, Loaded = false;
-
 	std::string OffsToStr(const int Offs);
 	void DrawHexOnly();
 	void DrawTextOnly();

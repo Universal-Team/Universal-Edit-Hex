@@ -24,19 +24,31 @@
 *         reasonable ways as different from the original version.
 */
 
-#ifndef _UNIVERSAL_EDIT_HEX_EDITOR_HPP
-#define _UNIVERSAL_EDIT_HEX_EDITOR_HPP
+#ifndef _UNIVERSAL_EDIT_CHANGES_PROMPT_HPP
+#define _UNIVERSAL_EDIT_CHANGES_PROMPT_HPP
 
+#include "structs.hpp"
 #include <string>
 #include <vector>
 
-class HexEditor {
+class ChangesPrompt {
 public:
-	void DrawTop();
 	void Handler();
-	
 private:
-	void DrawHexOnly();
+	bool Confirmed = false, Res = false;
+	uint32_t SPos = 0, Selection = 0;
+
+	const std::vector<Structs::ButtonPos> Menu = {
+		{ 30, 35, 260, 30 },
+		{ 30, 70, 260, 30 },
+		{ 30, 105, 260, 30 },
+		{ 30, 140, 260, 30 }
+	};
+
+	const Structs::ButtonPos Buttons[2] = {
+		{ 45, 200, 110, 25 },
+		{ 165, 200, 110, 25 }
+	};
 };
 
 #endif

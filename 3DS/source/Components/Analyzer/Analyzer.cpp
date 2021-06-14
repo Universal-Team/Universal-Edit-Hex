@@ -38,7 +38,7 @@ void Analyzer::Draw() {
 			Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("ANALYZER"), 310);
 
 			if (FileHandler::Loaded) {
-				for (uint8_t Idx = 0; Idx < 2; Idx++) {
+				for (uint8_t Idx = 0; Idx < 3; Idx++) {
 					Gui::Draw_Rect(this->Menu[Idx].x - 2, this->Menu[Idx].y - 2, this->Menu[Idx].w + 4, this->Menu[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 					Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 
@@ -54,11 +54,16 @@ void Analyzer::Draw() {
 		case Analyzer::SubMode::Edit:
 			this->EB->Draw();
 			break;
+
+		case Analyzer::SubMode::Changes:
+			this->CH->Draw();
+			break;
 	};
 };
 
 void Analyzer::AccessAnalyze() { Analyzer::Mode = Analyzer::SubMode::Analyze; };
 void Analyzer::AccessEdit() { Analyzer::Mode = Analyzer::SubMode::Edit; };
+void Analyzer::AccessChanges() { Analyzer::Mode = Analyzer::SubMode::Changes; };
 
 
 void Analyzer::Handler() {
@@ -66,7 +71,7 @@ void Analyzer::Handler() {
 		case Analyzer::SubMode::Main:
 			if (FileHandler::Loaded) {
 				if (UniversalEdit::UE->Down & KEY_TOUCH) {
-					for (uint8_t Idx = 0; Idx < 2; Idx++) {
+					for (uint8_t Idx = 0; Idx < 3; Idx++) {
 						if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 							this->Funcs[Idx]();
 							break;
@@ -82,6 +87,10 @@ void Analyzer::Handler() {
 
 		case Analyzer::SubMode::Edit:
 			this->EB->Handler();
+			break;
+
+		case Analyzer::SubMode::Changes:
+			this->CH->Handler();
 			break;
 	};
 };

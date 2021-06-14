@@ -28,7 +28,6 @@
 #include "DirSelector.hpp"
 #include "FileHandler.hpp"
 #include "FileBrowser.hpp"
-#include "HexEditor.hpp"
 #include "PromptMessage.hpp"
 #include "StatusMessage.hpp"
 
@@ -60,13 +59,6 @@ void FileHandler::Handler() {
 
 
 void FileHandler::LoadFile() {
-	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->Changes()) {
-		std::unique_ptr<PromptMessage> PMessage = std::make_unique<PromptMessage>();
-		const bool Res = PMessage->Handler(Common::GetStr("CHANGES_MADE_LOAD"));
-
-		if (!Res) return;
-	};
-
 	std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
 	const std::string EditFile = FB->Handler("sdmc:/", false, Common::GetStr("SELECT_FILE"), { });
 
@@ -75,93 +67,19 @@ void FileHandler::LoadFile() {
 
 		/* If nullptr, initialize the unique_ptr. */
 		if (!UniversalEdit::UE->CurrentFile) UniversalEdit::UE->CurrentFile = std::make_unique<HexData>();
-		const int Res = UniversalEdit::UE->CurrentFile->Load(EditFile);
-
-		if (Res == -1) { // File might be too large!
-			std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
-			Ovl->Handler(Common::GetStr("ERROR_IN_FILE_LOAD"), Res);
-			HexEditor::CursorIdx = 0;
-			HexEditor::OffsIdx = 0;
-			FileHandler::Loaded = false;
-
-			return;
-		};
-
-		if (Res == -2) {
-			std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
-			Ovl->Handler(Common::GetStr("FILE_NOT_EXIST"), Res);
-			HexEditor::CursorIdx = 0;
-			HexEditor::OffsIdx = 0;
-			FileHandler::Loaded = false;
-
-			return;
-		};
-
-		if (UniversalEdit::UE->CurrentFile->IsGood()) {
-			UniversalEdit::UE->CurrentFile->SetChanges(false);
-			HexEditor::CursorIdx = 0; // After sucessful loading, also reset the Hex Editor cursor.
-			HexEditor::OffsIdx = 0;
-			FileHandler::Loaded = true;
-		};
+		UniversalEdit::UE->CurrentFile->Load(EditFile, 0xD, 0x2000);
+		FileHandler::Loaded = true;
 	};
 };
 
 void FileHandler::NewFile() {
-	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->Changes()) {
-		std::unique_ptr<PromptMessage> PMessage = std::make_unique<PromptMessage>();
-		const bool Res = PMessage->Handler(Common::GetStr("CHANGES_MADE_LOAD"));
 
-		if (!Res) return;
-	};
-
-	UniversalEdit::UE->CurrentFile = std::make_unique<HexData>();
-	HexEditor::CursorIdx = 0; // After sucessful loading, also reset the Hex Editor cursor.
-	HexEditor::OffsIdx = 0;
-	FileHandler::Loaded = true;
 };
 
 void FileHandler::SaveFile() {
-	if (FileHandler::Loaded) {
-		if (UniversalEdit::UE->CurrentFile->Changes()) { // Only write if changes have been made.
-			Common::ProgressMessage(Common::GetStr("SAVING_FILE"));
-			const bool Success = UniversalEdit::UE->CurrentFile->WriteBack(UniversalEdit::UE->CurrentFile->EditFile());
 
-			std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
-			Ovl->Handler((Success ? Common::GetStr("PROPERLY_SAVED_TO_FILE") : Common::GetStr("SAVED_FILE_ERROR")), (Success ? 0 : -1));
-			UniversalEdit::UE->CurrentFile->SetChanges(false); // Since we saved, no changes have been made.
-
-		} else {
-			std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
-			Ovl->Handler(Common::GetStr("NO_CHANGES_MADE"), -1);
-		};
-
-	} else {
-		std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
-		Ovl->Handler(Common::GetStr("NO_SAVE_ON_NO_LOAD"), -1);
-	};
 };
 
 void FileHandler::SaveFileAs() {
-	if (FileHandler::Loaded) {
-		std::unique_ptr<DirSelector> DS = std::make_unique<DirSelector>();
-		const std::string Dest = DS->Handler("sdmc:/", Common::GetStr("SELECT_DEST"));
 
-		if (Dest != "") {
-			const std::string FName = Common::Keyboard(Common::GetStr("ENTER_FILE_NAME"), "", 100);
-
-			if (FName != "") {
-				Common::ProgressMessage(Common::GetStr("SAVING_FILE"));
-				const bool Success = UniversalEdit::UE->CurrentFile->WriteBack(Dest + FName);
-
-				std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
-				Ovl->Handler((Success ? Common::GetStr("PROPERLY_SAVED_TO_FILE") : Common::GetStr("SAVED_FILE_ERROR")), (Success ? 0 : -1));
-				UniversalEdit::UE->CurrentFile->SetChanges(false); // Since we saved, no changes have been made.
-				UniversalEdit::UE->CurrentFile->SetNewPath(Dest + FName); // Set new default file path.
-			};
-		};
-
-	} else {
-		std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
-		Ovl->Handler(Common::GetStr("NO_SAVE_ON_NO_LOAD"), -1);
-	};
 };

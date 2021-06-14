@@ -24,19 +24,33 @@
 *         reasonable ways as different from the original version.
 */
 
-#ifndef _UNIVERSAL_EDIT_HEX_EDITOR_HPP
-#define _UNIVERSAL_EDIT_HEX_EDITOR_HPP
+#ifndef _UNIVERSAL_EDIT_CHANGES_HPP
+#define _UNIVERSAL_EDIT_CHANGES_HPP
 
+#include "structs.hpp"
+#include <functional>
+#include <memory>
 #include <string>
 #include <vector>
 
-class HexEditor {
+class Changes {
 public:
-	void DrawTop();
+	void Draw();
 	void Handler();
-	
 private:
-	void DrawHexOnly();
+	uint32_t SPos = 0, Selection = 0;
+	void Back();
+
+	const std::vector<Structs::ButtonPos> Menu = {
+		{ 50, 0, 20, 20 }, // Back.
+
+		{ 104, 28, 161, 30 },
+		{ 104, 63, 161, 30 },
+		{ 104, 98, 161, 30 },
+		{ 104, 133, 161, 30 },
+		{ 104, 168, 161, 30 },
+		{ 104, 203, 161, 30 }
+	};
 };
 
 #endif

@@ -128,7 +128,7 @@ int UniversalEdit::Handler() {
 		this->Repeat = hidKeysDownRepeat();
 
 		if (this->Down & KEY_START) {
-			if (FileHandler::Loaded && this->CurrentFile->Changes()) {
+			if (FileHandler::Loaded && this->CurrentFile->GetCurMode() != HexData::EditMode::Scroll && UniversalEdit::UE->CurrentFile->GetChanges().size() > 0) {
 				std::unique_ptr<PromptMessage> PMessage = std::make_unique<PromptMessage>();
 				const bool Res = PMessage->Handler(Common::GetStr("EXIT_WARNING"));
 
@@ -138,7 +138,11 @@ int UniversalEdit::Handler() {
 
 
 		this->_Tab->Handler();
-		if (Navigation::Mode != Navigation::SubMode::Search || this->ActiveTab != Tabs::Navigator) this->HE->Handler(); // Only handle, if not in the search results.
+		if (Navigation::Mode != Navigation::SubMode::Search || this->ActiveTab != Tabs::Navigator) {
+			if (Analyzer::Mode != Analyzer::SubMode::Changes || this->ActiveTab != Tabs::Analyzer) {
+				this->HE->Handler();
+			};
+		};
 
 		switch(this->ActiveTab) {
 			case Tabs::FileHandler:

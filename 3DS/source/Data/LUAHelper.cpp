@@ -25,6 +25,7 @@
 */
 
 #include "Common.hpp"
+#include "ChangesPrompt.hpp"
 #include "DirSelector.hpp"
 #include "FileBrowser.hpp"
 #include "JSONListSelector.hpp"
@@ -57,7 +58,7 @@ static int Read(lua_State *LState) {
 	/* The pushes. */
 	if (Type == "uint8_t" || Type == "u8") {
 		if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
-		lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->GetData()[Offs]);
+		lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->Read<uint8_t>(Offs, IsBigEndian));
 
 	} else if (Type == "uint16_t" || Type == "u16") {
 		if (Offs + 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
@@ -395,12 +396,13 @@ static int DumpBytes(lua_State *LState) {
 
 	const std::string File = (std::string)(luaL_checkstring(LState, 3));
 
+/*
 	FILE *Out = fopen(File.c_str(), "w");
 	if (Out) {
 		fwrite(UniversalEdit::UE->CurrentFile->GetData() + Offs, 1, Size, Out);
 		fclose(Out);
 	};
-
+*/
 	return 0;
 };
 
@@ -408,7 +410,7 @@ static int DumpBytes(lua_State *LState) {
 	Inject a file into the current file's data.
 
 	Usage:
-		UniversalEdit.InjectFile(0x100, "sdmc:/Test.txt");
+		UniversalEdit.InjectFile(0x100, "sd:/Test.txt");
 
 	First: The offset where to inject the data.
 	Second: The file to inject.
@@ -440,7 +442,9 @@ static int InjectFile(lua_State *LState) {
 		fread(Data.get(), 1, Size, F);
 		fclose(F);
 
-		memcpy(UniversalEdit::UE->CurrentFile->GetData() + Offs, Data.get(), Size);
+		for (size_t Idx = 0; Idx < Size; Idx++) {
+			UniversalEdit::UE->CurrentFile->Write<uint8_t>(Offs, Data.get()[Idx], false);
+		};
 	};
 
 	return 0;
@@ -471,7 +475,10 @@ static int InjectBytes(lua_State *LState) {
 
 	if (Offs + DataList.size() >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 
-	memcpy(UniversalEdit::UE->CurrentFile->GetData() + Offs, DataList.data(), DataList.size());
+	for (size_t Idx = 0; Idx < DataList.size(); Idx++) {
+		UniversalEdit::UE->CurrentFile->Write<uint8_t>(Offs, DataList[Idx], false);
+	};
+	
 	return 0;
 };
 
@@ -624,5 +631,12 @@ void LUAHelper::RunScript() {
 	if (Status.first) {
 		std::unique_ptr<StatusMessage> Ovl = std::make_unique<StatusMessage>();
 		Ovl->Handler(Status.second.substr(44), Status.first);
-	};
+
+
+	} else { // Script was fine, do the handle action for writes.
+		if (UniversalEdit::UE->CurrentFile->GetChanges().size() > 0) {
+			std::unique_ptr<ChangesPrompt> ChangePrompt = std::make_unique<ChangesPrompt>();
+			ChangePrompt->Handler();
+		};
+	};	
 };

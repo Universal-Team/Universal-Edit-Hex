@@ -26,7 +26,7 @@
 
 #include "Common.hpp"
 #include "Reminsert.hpp" // Remove Insert FYI.
-#include "StatusMessage.hpp"
+#include "PromptMessage.hpp"
 
 
 void Reminsert::Draw() {
@@ -73,7 +73,7 @@ void Reminsert::SetOffs() {
 
 void Reminsert::SetSize() {
 	if (FileHandler::Loaded) {
-		this->Size = Common::HexPad(Common::GetStr("ENTER_SIZE_IN_HEX"), this->Size, 0x0, 0xFFFFFF, 10);
+		this->Size = Common::HexPad(Common::GetStr("ENTER_SIZE_IN_HEX"), this->Size, 0x0, 0xFFFFFFFF, 10);
 	};
 };
 
@@ -84,50 +84,169 @@ void Reminsert::SetVal() {
 };
 
 void Reminsert::Insert() {
-	if (FileHandler::Loaded && this->Size > 0) {
-		std::vector<uint8_t> Vec; Vec.resize(this->Size);
-		std::fill(Vec.begin(), Vec.end(), this->ValueToInsert); // Fill the vector.
+	if (FileHandler::Loaded && this->Size > 0 && this->Offset <= UniversalEdit::UE->CurrentFile->GetSize()) {
+		std::unique_ptr<PromptMessage> PM = std::make_unique<PromptMessage>();
+		const bool ShouldDo = PM->Handler(Common::GetStr("INSERT_WARNING"));
 
-		const int Res = UniversalEdit::UE->CurrentFile->InsertBytes(this->Offset, Vec);
+		if (ShouldDo) {
+			FILE *TEMPFILE = fopen("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", "wb");
 
-		if (Res == -1) {
-			std::unique_ptr<StatusMessage> SMsg = std::make_unique<StatusMessage>();
-			SMsg->Handler(Common::GetStr("ERROR_IN_FILE_INSERT"), Res);
+			uint32_t SizeToInsert = this->Offset, FullSize = this->Offset; // Up until the offset.
+			std::vector<uint8_t> DataToCopy;
+
+			Common::ProgressMessage(
+				Common::GetStr("INSERT_STEP_1") + "\n" +
+				Common::ToHex<uint32_t>(SizeToInsert) + " | " + Common::ToHex<uint32_t>(FullSize)
+			);
+
+			/* Action 1: COPY until offset to TEMPFILE. */
+			while(SizeToInsert > 0) {
+				if (SizeToInsert > 0x50000) DataToCopy.resize(0x50000);
+				else DataToCopy.resize(SizeToInsert);
+
+				fseek(UniversalEdit::UE->CurrentFile->GetFileHandler(), this->Offset - SizeToInsert, SEEK_SET);
+				fread(DataToCopy.data(), DataToCopy.size(), 1, UniversalEdit::UE->CurrentFile->GetFileHandler()); // Read.
+				fwrite(DataToCopy.data(), DataToCopy.size(), 1, TEMPFILE); // Write.
+
+				SizeToInsert -= DataToCopy.size();
+				DataToCopy.clear();
+
+				Common::ProgressMessage(
+					Common::GetStr("INSERT_STEP_1") + "\n" +
+					Common::ToHex<uint32_t>(SizeToInsert) + " | " + Common::ToHex<uint32_t>(FullSize)
+				);
+			};
+
+			fclose(TEMPFILE);
+
+			/* Action 2: Append the new data AND then the rest of the FILE. */
+			TEMPFILE = fopen("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", "a"); // APPEND.
+			SizeToInsert = this->Size;
+			FullSize = SizeToInsert;
+			Common::ProgressMessage(
+				Common::GetStr("INSERT_STEP_2") + "\n" +
+				Common::ToHex<uint32_t>(SizeToInsert) + " | " + Common::ToHex<uint32_t>(FullSize)
+			);
+
+			while(SizeToInsert > 0) {
+				if (SizeToInsert > 0x50000) DataToCopy.resize(0x50000);
+				else DataToCopy.resize(SizeToInsert);
+
+				std::fill_n(DataToCopy.begin(), DataToCopy.size(), this->ValueToInsert); // Fill vector with the values to insert.
+				fwrite(DataToCopy.data(), DataToCopy.size(), 1, TEMPFILE);
+				SizeToInsert -= DataToCopy.size();
+				DataToCopy.clear();
+
+				Common::ProgressMessage(
+					Common::GetStr("INSERT_STEP_2") + "\n" +
+					Common::ToHex<uint32_t>(SizeToInsert) + " | " + Common::ToHex<uint32_t>(FullSize)
+				);
+			};
+
+			SizeToInsert = UniversalEdit::UE->CurrentFile->GetSize() - this->Offset; // Is that right?
+			Common::ProgressMessage(
+				Common::GetStr("INSERT_STEP_3") + "\n" +
+				Common::ToHex<uint32_t>(SizeToInsert) + " | " + Common::ToHex<uint32_t>(FullSize)
+			);
+			fseek(UniversalEdit::UE->CurrentFile->GetFileHandler(), UniversalEdit::UE->CurrentFile->GetSize() - SizeToInsert , SEEK_SET);
+
+			while(SizeToInsert > 0) {
+				if (SizeToInsert > 0x50000) DataToCopy.resize(0x50000);
+				else DataToCopy.resize(SizeToInsert);
+
+				fread(DataToCopy.data(), DataToCopy.size(), 1, UniversalEdit::UE->CurrentFile->GetFileHandler()); // Read.
+				fwrite(DataToCopy.data(), DataToCopy.size(), 1, TEMPFILE); // Write.
+
+				SizeToInsert -= DataToCopy.size();
+				DataToCopy.clear();
+
+				Common::ProgressMessage(
+					Common::GetStr("INSERT_STEP_3") + "\n" +
+					Common::ToHex<uint32_t>(SizeToInsert) + " | " + Common::ToHex<uint32_t>(FullSize)
+				);
+			};
+
+			fclose(TEMPFILE);
+
+			/* Action 3: Set to CURRENT File. */
+			UniversalEdit::UE->CurrentFile->End(); // Close.
+			std::remove(UniversalEdit::UE->CurrentFile->EditFile().c_str());
+			std::rename("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", UniversalEdit::UE->CurrentFile->EditFile().c_str()); // Move.
+			UniversalEdit::UE->CurrentFile->Load(UniversalEdit::UE->CurrentFile->EditFile().c_str(), 0xD, 0x20000); // RELOAD.
 		};
 	};
 };
 
 void Reminsert::Remove() {
-	if (FileHandler::Loaded && this->Size > 0) {
-		if (this->Offset + this->Size <= UniversalEdit::UE->CurrentFile->GetSize()) {
-			const int Res = UniversalEdit::UE->CurrentFile->EraseBytes(this->Offset, this->Size); // Erase.
+	if (FileHandler::Loaded && this->Size > 0 && this->Offset + this->Size <= UniversalEdit::UE->CurrentFile->GetSize()) {
+		std::unique_ptr<PromptMessage> PM = std::make_unique<PromptMessage>();
+		const bool ShouldDo = PM->Handler(Common::GetStr("REMOVE_WARNING"));
 
-			if (Res == -1) {
-				std::unique_ptr<StatusMessage> SMsg = std::make_unique<StatusMessage>();
-				SMsg->Handler(Common::GetStr("ERROR_IN_FILE_ERASE"), Res);
-				return;
+		if (ShouldDo) {
+			FILE *TEMPFILE = fopen("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", "wb");
+
+			uint32_t SizeToInsert = this->Offset, FullSize = this->Offset; // Up until the offset.
+			std::vector<uint8_t> DataToCopy;
+
+			Common::ProgressMessage(
+				Common::GetStr("REMOVE_STEP_1") + "\n" +
+				Common::ToHex<uint32_t>(SizeToInsert) + " | " + Common::ToHex<uint32_t>(FullSize)
+			);
+			/* Action 1: COPY until offset to TEMPFILE. */
+			while(SizeToInsert > 0) {
+				if (SizeToInsert > 0x50000) DataToCopy.resize(0x50000);
+				else DataToCopy.resize(SizeToInsert);
+
+				fseek(UniversalEdit::UE->CurrentFile->GetFileHandler(), this->Offset - SizeToInsert, SEEK_SET);
+				fread(DataToCopy.data(), DataToCopy.size(), 1, UniversalEdit::UE->CurrentFile->GetFileHandler()); // Read.
+				fwrite(DataToCopy.data(), DataToCopy.size(), 1, TEMPFILE); // Write.
+
+				SizeToInsert -= DataToCopy.size();
+				DataToCopy.clear();
+
+				Common::ProgressMessage(
+					Common::GetStr("REMOVE_STEP_1") + "\n" +
+					Common::ToHex<uint32_t>(SizeToInsert) + " | " + Common::ToHex<uint32_t>(FullSize)
+				);
 			};
 
-			if (Res == 0) {
-				if (UniversalEdit::UE->CurrentFile->GetSize() == 0) {
-					HexEditor::OffsIdx = 0;
-					HexEditor::CursorIdx = 0;
-					return;
-				};
-			
-				/* Now properly check for cursor index and set it to not go out of screen. */
-				if (((HexEditor::OffsIdx * 0x10) + HexEditor::CursorIdx) >= UniversalEdit::UE->CurrentFile->GetSize()) {
-					if (UniversalEdit::UE->CurrentFile->GetSize() < 0xD0) {
-						HexEditor::OffsIdx = 0;
-						HexEditor::CursorIdx = UniversalEdit::UE->CurrentFile->GetSize() - 1;
+			fclose(TEMPFILE);
 
-					} else {
-						/* Larger than one screen, so set the row & cursor idx. */
-						HexEditor::OffsIdx = 1 + (((UniversalEdit::UE->CurrentFile->GetSize() - 0x1) - 0xD0) / 0x10);
-						HexEditor::CursorIdx = (0xD0 - 0x10) + ((UniversalEdit::UE->CurrentFile->GetSize() - 1) % 0x10);
-					};
-				};
+			/* Action 2: SKIP the offset + size data and copy the rest. */
+			TEMPFILE = fopen("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", "a"); // APPEND.
+			SizeToInsert = UniversalEdit::UE->CurrentFile->GetSize() - (this->Offset + this->Size);
+			FullSize = SizeToInsert;
+
+			Common::ProgressMessage(
+				Common::GetStr("REMOVE_STEP_2") + "\n" +
+				Common::ToHex<uint32_t>(SizeToInsert) + " | " + Common::ToHex<uint32_t>(FullSize)
+			);
+			fseek(UniversalEdit::UE->CurrentFile->GetFileHandler(), UniversalEdit::UE->CurrentFile->GetSize() - SizeToInsert , SEEK_SET);
+
+			while(SizeToInsert > 0) {
+				if (SizeToInsert > 0x50000) DataToCopy.resize(0x50000);
+				else DataToCopy.resize(SizeToInsert);
+
+				fread(DataToCopy.data(), DataToCopy.size(), 1, UniversalEdit::UE->CurrentFile->GetFileHandler()); // Read.
+				fwrite(DataToCopy.data(), DataToCopy.size(), 1, TEMPFILE); // Write.
+
+				SizeToInsert -= DataToCopy.size();
+				DataToCopy.clear();
+
+				/* Update progress display. */
+				Common::ProgressMessage(
+					Common::GetStr("REMOVE_STEP_2") + "\n" +
+					Common::ToHex<uint32_t>(SizeToInsert) + " | " + Common::ToHex<uint32_t>(FullSize)
+				);
 			};
+
+			fclose(TEMPFILE);
+
+			/* Action 3: Set to CURRENT File. */
+			UniversalEdit::UE->CurrentFile->End(); // Close.
+			std::remove(UniversalEdit::UE->CurrentFile->EditFile().c_str());
+			std::rename("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", UniversalEdit::UE->CurrentFile->EditFile().c_str()); // Move.
+			UniversalEdit::UE->CurrentFile->Load(UniversalEdit::UE->CurrentFile->EditFile().c_str(), 0xD, 0x20000); // RELOAD.
 		};
 	};
 };

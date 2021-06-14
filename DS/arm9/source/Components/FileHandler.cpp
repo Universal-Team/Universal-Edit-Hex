@@ -37,9 +37,7 @@ void FileHandler::Draw() {
 void FileHandler::Handler() {
 	if (UniversalEdit::UE->Down & KEY_SELECT) {
 		UniversalEdit::UE->CurrentFile = std::make_unique<HexData>();
-	
-		HexEditor::CursorIdx = 0; // After sucessful loading, also reset the Hex Editor cursor.
-		HexEditor::OffsIdx = 0;
+		UniversalEdit::UE->CurrentFile->Load("sd:/Test.bin", 10, 0x1000);
 		FileHandler::Loaded = true;
 	};
 };
@@ -49,20 +47,11 @@ void FileHandler::LoadFile() {
 };
 
 void FileHandler::NewFile() {
-	UniversalEdit::UE->CurrentFile = std::make_unique<HexData>();
-	
-	HexEditor::CursorIdx = 0; // After sucessful loading, also reset the Hex Editor cursor.
-	HexEditor::OffsIdx = 0;
-	FileHandler::Loaded = true;
+
 };
 
 void FileHandler::SaveFile() {
-	if (FileHandler::Loaded) {
-		if (UniversalEdit::UE->CurrentFile->Changes()) { // Only write if changes have been made.
-			const bool Success = UniversalEdit::UE->CurrentFile->WriteBack(UniversalEdit::UE->CurrentFile->EditFile());
-			UniversalEdit::UE->CurrentFile->SetChanges(false); // Since we saved, no changes have been made.
-		};
-	};
+
 };
 
 void FileHandler::SaveFileAs() { };

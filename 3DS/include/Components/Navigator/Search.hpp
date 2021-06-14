@@ -36,11 +36,16 @@ public:
 	void Draw();
 	void Handler();
 private:
-	enum class DisplayMode : uint8_t { Sequence = 0, Results = 1 };
-	DisplayMode Mode = DisplayMode::Sequence;
-	uint32_t SPos = 0, Selection = 0;
+	enum class DisplayMode : uint8_t { Main = 0, Sequence = 1, Results = 2 };
+	DisplayMode Mode = DisplayMode::Main;
+	uint32_t SPos = 0, Selection = 0, Offs = 0, Size = 0;
 	std::vector<uint8_t> Sequences; // All the sequences.
 	std::vector<uint32_t> FoundResults; // Found results.
+
+	void EnterOffs();
+	void EnterSize();
+	void SyncSettings();
+	void AccessSequence();
 
 	/* Sequence Stuff. */
 	void DrawSequenceList();
@@ -56,6 +61,15 @@ private:
 	void SearchAction();
 	void ResultHandler();
 	void JumpToSelected(const uint32_t Selected);
+
+	const std::vector<Structs::ButtonPos> Menu = {
+		{ 50, 0, 20, 20 }, // Back.
+
+		{ 114, 40, 140, 30 }, // Offset.
+		{ 114, 90, 140, 30 }, // Size.
+		{ 114, 140, 140, 30 }, // Sequence.
+		{ 114, 190, 140, 30 } // Search.
+	};
 
 	const std::vector<Structs::ButtonPos> SeqMenu = {
 		{ 50, 0, 20, 20 }, // Back.
@@ -73,7 +87,6 @@ private:
 		{ 250, 168, 30, 30 },
 
 		{ 70, 210, 50, 20 }, // Add.
-		{ 160, 210, 50, 20 }, // Search.
 		{ 240, 210, 50, 20 } // Clear.
 	};
 
@@ -89,8 +102,15 @@ private:
 	/* Sequence Menu Actions. */
 	const std::vector<std::function<void()>> Funcs = {
 		{ [this]() { this->AddSequence(); } },
-		{ [this]() { this->SearchAction(); } },
 		{ [this]() { this->ClearSequence(); } }
+	};
+
+	const std::vector<std::function<void()>> FuncsMain = {
+		{ [this]() { this->Back(); } },
+		{ [this]() { this->EnterOffs(); } },
+		{ [this]() { this->EnterSize(); } },
+		{ [this]() { this->AccessSequence(); } },
+		{ [this]() { this->SearchAction(); } }
 	};
 };
 

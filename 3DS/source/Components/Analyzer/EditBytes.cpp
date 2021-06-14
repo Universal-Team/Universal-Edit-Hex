@@ -24,7 +24,6 @@
 *         reasonable ways as different from the original version.
 */
 
-
 #include "Common.hpp"
 #include "EditBytes.hpp"
 
@@ -50,7 +49,7 @@ void EditBytes::Draw() {
 			Gui::Draw_Rect(this->Menu[Idx + 4].x - 2, this->Menu[Idx + 4].y - 2, this->Menu[Idx + 4].w + 4, this->Menu[Idx + 4].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 			Gui::Draw_Rect(this->Menu[Idx + 4].x, this->Menu[Idx + 4].y, this->Menu[Idx + 4].w, this->Menu[Idx + 4].h, UniversalEdit::UE->TData->ButtonColor());
 
-			Gui::DrawString(this->Menu[4 + Idx].x + 6, this->Menu[4 + Idx].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), (UniversalEdit::UE->CurrentFile->ReadBit(HexEditor::OffsIdx * 0x10 + HexEditor::CursorIdx, Idx) == 0 ? "0" : "1"));
+			Gui::DrawString(this->Menu[4 + Idx].x + 6, this->Menu[4 + Idx].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), (UniversalEdit::UE->CurrentFile->ReadBitFromEditBuffer(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Idx) == 0 ? "0" : "1"));
 		};
 	};
 };
@@ -68,36 +67,37 @@ void EditBytes::Handler() {
 
 
 void EditBytes::SetU8() {
-	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->GetSize() > 0) {
-		UniversalEdit::UE->CurrentFile->GetData()[((HexEditor::OffsIdx * 0x10) + HexEditor::CursorIdx)] = Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), UniversalEdit::UE->CurrentFile->GetData()[((HexEditor::OffsIdx * 0x10) + HexEditor::CursorIdx)], 0x0, 0xFF, 4);
-		UniversalEdit::UE->CurrentFile->SetChanges(true);
+	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->GetEditSize() > 0) {
+		const uint8_t V = Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), UniversalEdit::UE->CurrentFile->EditData()[UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart()], 0x0, 0xFF, 4);
+
+		UniversalEdit::UE->CurrentFile->EditData()[UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart()] = V;
+		UniversalEdit::UE->CurrentFile->GetChanges()[UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart()] = V;
 	};
 };
 
 void EditBytes::SetU16() {
-	if (FileHandler::Loaded) {
-		if (HexEditor::OffsIdx * 0x10 + HexEditor::CursorIdx + 1 <= UniversalEdit::UE->CurrentFile->GetSize()) {
-			const uint16_t Val = Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), UniversalEdit::UE->CurrentFile->Read<uint16_t>(HexEditor::OffsIdx * 0x10 + HexEditor::CursorIdx, Analyzer::Endian), 0x0, 0xFFFF, 6);
-			UniversalEdit::UE->CurrentFile->Write<uint16_t>(HexEditor::OffsIdx * 0x10 + HexEditor::CursorIdx, Val, Analyzer::Endian);
-			UniversalEdit::UE->CurrentFile->SetChanges(true);
+	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->GetEditSize() > 0) {
+		if (UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart() + 1 <= UniversalEdit::UE->CurrentFile->GetEditSize()) {
+			const uint16_t Val = Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), UniversalEdit::UE->CurrentFile->ReadFromEditBuffer<uint16_t>(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Analyzer::Endian), 0x0, 0xFFFF, 6);
+
+			UniversalEdit::UE->CurrentFile->WriteToEditBuffer<uint16_t>(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Val, Analyzer::Endian);
 		};
 	};
 };
 
 void EditBytes::SetU32() {
 	if (FileHandler::Loaded) {
-		if (HexEditor::OffsIdx * 0x10 + HexEditor::CursorIdx + 3 <= UniversalEdit::UE->CurrentFile->GetSize()) {
-			const uint32_t Val = Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), UniversalEdit::UE->CurrentFile->Read<uint32_t>(HexEditor::OffsIdx * 0x10 + HexEditor::CursorIdx, Analyzer::Endian), 0x0, 0xFFFFFFFF, 10);
-			UniversalEdit::UE->CurrentFile->Write<uint32_t>(HexEditor::OffsIdx * 0x10 + HexEditor::CursorIdx, Val, Analyzer::Endian);
-			UniversalEdit::UE->CurrentFile->SetChanges(true);
+		if (UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart() + 3 <= UniversalEdit::UE->CurrentFile->GetEditSize()) {
+			const uint32_t Val = Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), UniversalEdit::UE->CurrentFile->ReadFromEditBuffer<uint32_t>(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Analyzer::Endian), 0x0, 0xFFFFFFFF, 10);
+
+			UniversalEdit::UE->CurrentFile->WriteToEditBuffer<uint32_t>(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Val, Analyzer::Endian);
 		};
 	};
 };
 
 void EditBytes::ToggleBit(const uint8_t Idx) {
 	if (FileHandler::Loaded) {
-		UniversalEdit::UE->CurrentFile->WriteBit(HexEditor::OffsIdx * 0x10 + HexEditor::CursorIdx, Idx, !UniversalEdit::UE->CurrentFile->ReadBit(HexEditor::OffsIdx * 0x10 + HexEditor::CursorIdx, Idx));
-		UniversalEdit::UE->CurrentFile->SetChanges(true);
+		UniversalEdit::UE->CurrentFile->WriteBitToEditBuffer(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Idx, !UniversalEdit::UE->CurrentFile->ReadBitFromEditBuffer(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Idx));
 	};
 };
 

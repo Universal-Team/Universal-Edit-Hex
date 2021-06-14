@@ -50,7 +50,7 @@ static int Read(lua_State *LState) {
 	/* The pushes. */
 	if (Type == "uint8_t" || Type == "u8") {
 		if (Offs >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
-		lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->GetData()[Offs]);
+		lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->Read<uint8_t>(Offs, IsBigEndian));
 
 	} else if (Type == "uint16_t" || Type == "u16") {
 		if (Offs + 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
@@ -315,20 +315,8 @@ static int Kbd(lua_State *LState) {
 	Second: The size in bytes to dump.
 	Third: Where to write the data to.
 */
-static int DumpBytes(lua_State *LState) {
+static int DumpBytes(lua_State *LState) { // TODO.
 	if (lua_gettop(LState) != 3) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
-	const uint32_t Offs = luaL_checkinteger(LState, 1);
-	const uint32_t Size = luaL_checkinteger(LState, 2);
-
-	if (Offs + Size >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
-
-	const std::string File = (std::string)(luaL_checkstring(LState, 3));
-
-	FILE *Out = fopen(File.c_str(), "w");
-	if (Out) {
-		fwrite(UniversalEdit::UE->CurrentFile->GetData() + Offs, 1, Size, Out);
-		fclose(Out);
-	};
 
 	return 0;
 };
@@ -369,7 +357,9 @@ static int InjectFile(lua_State *LState) {
 		fread(Data.get(), 1, Size, F);
 		fclose(F);
 
-		memcpy(UniversalEdit::UE->CurrentFile->GetData() + Offs, Data.get(), Size);
+		for (size_t Idx = 0; Idx < Size; Idx++) {
+			UniversalEdit::UE->CurrentFile->Write<uint8_t>(Offs, Data.get()[Idx], false);
+		};
 	};
 
 	return 0;
@@ -400,7 +390,10 @@ static int InjectBytes(lua_State *LState) {
 
 	if (Offs + DataList.size() >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 
-	memcpy(UniversalEdit::UE->CurrentFile->GetData() + Offs, DataList.data(), DataList.size());
+	for (size_t Idx = 0; Idx < DataList.size(); Idx++) {
+		UniversalEdit::UE->CurrentFile->Write<uint8_t>(Offs, DataList[Idx], false);
+	};
+
 	return 0;
 };
 

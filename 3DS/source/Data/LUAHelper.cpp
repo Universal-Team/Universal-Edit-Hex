@@ -206,7 +206,9 @@ static int Write(lua_State *LState) {
 
 		DT.shrink_to_fit(); // Shrink the vector size to only the size we need.
 		if (Offs + DT.size() >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
-		UniversalEdit::UE->CurrentFile->WriteScript<uint8_t>(Offs, DT);
+
+		const bool Res = Actions::Backup();
+		if (Res) UniversalEdit::UE->CurrentFile->WriteScript<uint8_t>(Offs, DT);
 
 	} else if (Type == "uint16_t" || Type == "u16") {
 		std::vector<uint16_t> DT;
@@ -230,7 +232,9 @@ static int Write(lua_State *LState) {
 
 		DT.shrink_to_fit(); // Shrink the vector size to only the size we need.
 		if (Offs + (DT.size() * 2) - 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
-		UniversalEdit::UE->CurrentFile->WriteScript<uint16_t>(Offs, DT);
+
+		const bool Res = Actions::Backup();
+		if (Res) UniversalEdit::UE->CurrentFile->WriteScript<uint16_t>(Offs, DT);
 
 	} else if (Type == "uint32_t" || Type == "u32") {
 		std::vector<uint32_t> DT;
@@ -254,7 +258,9 @@ static int Write(lua_State *LState) {
 
 		DT.shrink_to_fit(); // Shrink the vector size to only the size we need.
 		if (Offs + (DT.size() * 4) - 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
-		UniversalEdit::UE->CurrentFile->WriteScript<uint32_t>(Offs, DT);
+
+		const bool Res = Actions::Backup();
+		if (Res) UniversalEdit::UE->CurrentFile->WriteScript<uint32_t>(Offs, DT);
 
 	} else return luaL_error(LState, Common::GetStr("NOT_A_VALID_TYPE").c_str());
 
@@ -281,7 +287,8 @@ static int WriteBit(lua_State *LState) {
 	if (BitIndex > 7) return luaL_error(LState, Common::GetStr("BIT_INDEX_VALID").c_str());
 	const bool Set = lua_toboolean(LState, 3);
 
-	UniversalEdit::UE->CurrentFile->WriteBit(Offs, BitIndex, Set, false);
+	const bool Res = Actions::Backup();
+	if (Res) UniversalEdit::UE->CurrentFile->WriteBit(Offs, BitIndex, Set, false);
 	return 0;
 };
 
@@ -304,7 +311,8 @@ static int WriteBits(lua_State *LState) {
 	const bool First = lua_toboolean(LState, 2);
 	const uint8_t Val = luaL_checkinteger(LState, 3);
 
-	UniversalEdit::UE->CurrentFile->WriteBits(Offs, First, Val, false);
+	const bool Res = Actions::Backup();
+	if (Res) UniversalEdit::UE->CurrentFile->WriteBits(Offs, First, Val, false);
 	return 0;
 };
 
@@ -548,17 +556,19 @@ static int InjectFile(lua_State *LState) {
 			return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 		};
 
+		const bool Res = Actions::Backup();
 		
-		try { // Ensure it works fine.
-			std::vector<uint8_t> Data; Data.resize(Size);
-			fread(Data.data(), 1, Size, F);
-			UniversalEdit::UE->CurrentFile->WriteScript<uint8_t>(Offs, Data);
+		if (Res) {
+			try { // Ensure it works fine.
+				std::vector<uint8_t> Data; Data.resize(Size);
+				fread(Data.data(), 1, Size, F);
+				UniversalEdit::UE->CurrentFile->WriteScript<uint8_t>(Offs, Data);
 
-		} catch(...) {
-			fclose(F);
-			return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
+			} catch(...) {
+				fclose(F);
+				return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
+			};
 		};
-
 
 		fclose(F);
 	};
@@ -696,15 +706,7 @@ void LUAHelper::RunScript() {
 	std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
 	const std::string LUAFile = FB->Handler("sdmc:/3ds/Universal-Edit/Hex-Editor/Scripts/", true, Common::GetStr("SELECT_SCRIPT"), { "lua" });
 	if (LUAFile == "") return;
-
-	std::unique_ptr<PromptMessage> PM = std::make_unique<PromptMessage>();
-	const bool ShouldDo = PM->Handler(Common::GetStr("CREATE_BACKUP"));
-
-	if (ShouldDo) {
-		if (!Actions::Backup()) return;
-	};
-
-
+	
 	std::pair<int, std::string> Status = std::make_pair(0, "");
 	lua_State *LUAScript = luaL_newstate();
 	InitLibraries(LUAScript); // Universal-Edit related modules, such as Read, Write and standard libraries.

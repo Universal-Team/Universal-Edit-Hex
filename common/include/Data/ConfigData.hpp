@@ -37,7 +37,6 @@ public:
 	void Initialize();
 	void Sav();
 
-
 	/* The current Language. */
 	std::string Lang() const { return this->VLang; };
 	void Lang(const std::string &V) { this->VLang = V; if (!this->ChangesMade) this->ChangesMade = true; };
@@ -53,6 +52,14 @@ public:
 	/* Byte Group size. */
 	int ByteGroup() const { return this->VByteGroup; };
 	void ByteGroup(const int V) { this->VByteGroup = V; if (!this->ChangesMade) this->ChangesMade = true; };
+
+	/* 0: Create Backups, 1: Don't, 2: Ask. */
+	int Backup() const { return this->VBackup; };
+	void Backup(const int V) { this->VBackup = V; if (!this->ChangesMade) this->ChangesMade = true; };
+
+	/* Script default backup path. */
+	std::string BackupPath() const { return this->VBackupPath; };
+	void BackupPath(const std::string &V) { this->VBackupPath = V; if (!this->ChangesMade) this->ChangesMade = true; };
 private:
 	template <class T>
 	T Get(const std::string &Key, const T IfNotFound) {
@@ -69,8 +76,8 @@ private:
 	/* Returns the language code of the system language. */
 	std::string SysLang(void);
 
-	std::string VLang = "en", VTheme = "Default";
-	int VDefaultHexView = 0, VByteGroup = 0;
+	std::string VLang = "en", VTheme = "Default", VBackupPath = "";
+	int VDefaultHexView = 0, VByteGroup = 0, VBackup = 2;
 	bool ChangesMade = false;
 	nlohmann::json CFG = nullptr;
 };

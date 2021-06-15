@@ -24,6 +24,7 @@
 *         reasonable ways as different from the original version.
 */
 
+#include "Actions.hpp"
 #include "Common.hpp"
 #include "ChangesPrompt.hpp"
 #include "HexEditor.hpp"
@@ -163,8 +164,12 @@ void HexEditor::Handler() {
 		if (UniversalEdit::UE->Down & KEY_B) {
 			if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Edit) {
 				if (UniversalEdit::UE->CurrentFile->GetChanges().size() > 0) {
-					std::unique_ptr<ChangesPrompt> ChangePrompt = std::make_unique<ChangesPrompt>();
-					ChangePrompt->Handler();
+					const bool Res = Actions::Backup();
+
+					if (Res) {
+						std::unique_ptr<ChangesPrompt> ChangePrompt = std::make_unique<ChangesPrompt>();
+						ChangePrompt->Handler();
+					};
 				};
 			};
 

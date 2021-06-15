@@ -480,7 +480,7 @@ static int InjectFile(lua_State *LState) {
 		try { // Ensure it works fine.
 			std::vector<uint8_t> Data; Data.resize(Size);
 			fread(Data.data(), 1, Size, F);
-			UniversalEdit::UE->CurrentFile->WriteScript<uint8_t>(Offs, Data, false);
+			UniversalEdit::UE->CurrentFile->WriteScript<uint8_t>(Offs, Data);
 
 		} catch(...) {
 			fclose(F);

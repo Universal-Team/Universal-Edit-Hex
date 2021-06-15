@@ -30,8 +30,10 @@
 
 #ifdef _3DS
 	#define CONFIG_PATH "sdmc:/3ds/Universal-Edit/Config.json"
-#else
+	#define BACKUP_PATH "sdmc:/3ds/Univeral-Edit/Hex-Editor/Backups/"
+#elif ARM9
 	#define CONFIG_PATH "sd:/_nds/Universal-Edit/Config.json"
+	#define BACKUP_PATH "sd:/_nds/Univeral-Edit/Hex-Editor/Backups/"
 #endif
 
 /* Detects system language and is used later to set app language to system language. */
@@ -89,7 +91,11 @@ void ConfigData::Load() {
 	this->CFG = nlohmann::json::parse(File, nullptr, false);
 	fclose(File);
 
+	this->VBackupPath = BACKUP_PATH; // Still set to default here.
+
 	if (!this->CFG.is_discarded()) {
+		this->Backup(this->Get<nlohmann::json::number_integer_t>("Backup", this->Backup()));
+		this->BackupPath(this->Get<std::string>("BackupPath", BACKUP_PATH));
 		this->ByteGroup(this->Get<nlohmann::json::number_integer_t>("ByteGroup", this->ByteGroup()));
 		this->DefaultHexView(this->Get<nlohmann::json::number_integer_t>("DefaultHexView", this->DefaultHexView()));
 		this->Lang(this->Get<std::string>("Lang", this->Lang()));
@@ -102,6 +108,8 @@ void ConfigData::Initialize() {
 	FILE *Temp = fopen(CONFIG_PATH, "w");
 
 	const nlohmann::json OBJ = {
+		{ "Backup", this->Backup() },
+		{ "BackupPath", BACKUP_PATH },
 		{ "ByteGroup", this->ByteGroup() },
 		{ "DefaultHexView", this->DefaultHexView() },
 		{ "Lang", this->SysLang() },
@@ -116,6 +124,8 @@ void ConfigData::Initialize() {
 /* SAV changes to the Configuration, if changes made. */
 void ConfigData::Sav() {
 	if (this->ChangesMade) {
+		this->Set<nlohmann::json::number_integer_t>("Backup", this->Backup());
+		this->Set<std::string>("BackupPath", this->BackupPath());
 		this->Set<nlohmann::json::number_integer_t>("ByteGroup", this->ByteGroup());
 		this->Set<nlohmann::json::number_integer_t>("DefaultHexView", this->DefaultHexView());
 		this->Set<std::string>("Lang", this->Lang());

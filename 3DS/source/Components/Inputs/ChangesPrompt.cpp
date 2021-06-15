@@ -40,7 +40,7 @@ void ChangesPrompt::Handler() {
 		UniversalEdit::UE->GData->DrawBottom();
 
 		Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
-		Gui::DrawStringCentered(0, 1, 0.6f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("CHANGES_MADE") + std::to_string(UniversalEdit::UE->CurrentFile->GetChanges().size()), 310);
+		Gui::DrawStringCentered(0, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("CHANGES_MADE") + std::to_string(UniversalEdit::UE->CurrentFile->GetChanges().size()), 310);
 
 		auto IT = UniversalEdit::UE->CurrentFile->GetChanges().begin();
 		if (this->SPos < UniversalEdit::UE->CurrentFile->GetChanges().size()) std::advance(IT, this->SPos); // Go to the proper idx.
@@ -64,18 +64,17 @@ void ChangesPrompt::Handler() {
 		uint32_t Down = 0, Repeat = 0;
 		touchPosition T;
 		
-		do {
-			gspWaitForVBlank();
-			hidScanInput();
-			Down = hidKeysDown();
-			Repeat = hidKeysDownRepeat();
-			hidTouchRead(&T);
-		} while(!Down || !Repeat);
+		gspWaitForVBlank();
+		hidScanInput();
+		Down = hidKeysDown();
+		Repeat = hidKeysDownRepeat();
+		hidTouchRead(&T);
 
 		if (Down & KEY_LEFT || Down & KEY_RIGHT) this->Res = !this->Res;
 		if (Down & KEY_A) {
 			this->Confirmed = true;
 		};
+
 		if (Repeat & KEY_DOWN) {
 			if (this->Selection < UniversalEdit::UE->CurrentFile->GetChanges().size() - 1) this->Selection++;
 		};

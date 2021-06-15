@@ -46,6 +46,8 @@
 	Action 4: Remove current file, move temp file to current file and reload.
 */
 void Actions::Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToInsert) {
+	Actions::Backup();
+
 	if (Common::GetFreeSpace() >= (UniversalEdit::UE->CurrentFile->GetSize() * 2) + Size) {
 		std::unique_ptr<PromptMessage> PM = std::make_unique<PromptMessage>();
 		const bool ShouldDo = PM->Handler(Common::GetStr("INSERT_WARNING"));
@@ -139,6 +141,8 @@ void Actions::Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToI
 	Action 3: Remove current file, move temp file to current file and reload.
 */
 void Actions::Remove(const uint32_t Offs, const uint32_t Size) {
+	Actions::Backup();
+	
 	if (Common::GetFreeSpace() >= (UniversalEdit::UE->CurrentFile->GetSize() * 2) - Size) {
 		std::unique_ptr<PromptMessage> PM = std::make_unique<PromptMessage>();
 		const bool ShouldDo = PM->Handler(Common::GetStr("REMOVE_WARNING"));
@@ -208,50 +212,84 @@ void Actions::Remove(const uint32_t Offs, const uint32_t Size) {
 };
 
 /*
-	Create a backup of the current file, for usage in Scripts.
+	Create a backup of the current file.
 
-	Returns false if size of space is not enough and cancelled script execution on second prompt, else true.
+	Returns false if size of space is not enough and cancelled action on second prompt, else true.
 */
 bool Actions::Backup() {
-	if (Common::GetFreeSpace() >= (UniversalEdit::UE->CurrentFile->GetSize() * 2)) {
-		std::unique_ptr<DirSelector> DS = std::make_unique<DirSelector>();
-		const std::string Dest = DS->Handler("sdmc:/", Common::GetStr("SELECT_DEST"));
+	if (!UniversalEdit::UE->CurrentFile->FirstWrite()) {
+		bool Cancelled = false;
 
-		if (Dest != "") {
-			const std::string FName = Common::Keyboard(Common::GetStr("ENTER_FILE_NAME"), "", 100);
+		switch(UniversalEdit::UE->CData->Backup()) {
+			case 0: // Directly do backups.
+				break;
 
-			if (FName != "") {
-				uint32_t ToWrite = UniversalEdit::UE->CurrentFile->GetSize();
-				std::vector<uint8_t> DataToCopy;
+			case 1: // Don't even bother making one.
+				Cancelled = true;
+				break;
 
-				FILE *Temp = fopen(FName.c_str(), "wb");
-				fseek(UniversalEdit::UE->CurrentFile->GetFileHandler(), 0, SEEK_SET); // Seek to start.
+			default:
+			case 2: { // Ask first.
+				std::unique_ptr<PromptMessage> PM = std::make_unique<PromptMessage>();
+				Cancelled = !PM->Handler(Common::GetStr("CREATE_BACKUP"));
+			};
+			break;
+		};
 
-				aptSetSleepAllowed(false); // DON'T WHILE WRITTING!
-				aptSetHomeAllowed(false);
+		if (Cancelled) {
+			UniversalEdit::UE->CurrentFile->SetWrite(true); // First write done.
+			return true;
+		};
 
-				Common::ProgressMessage(Common::GetStr("BACKING_UP_FILE") + "\n" + Common::ToHex<uint32_t>(ToWrite));
-				while(ToWrite > 0 && aptMainLoop()) {
-					if (ToWrite > BUFFER_SIZE) DataToCopy.resize(BUFFER_SIZE);
-					else DataToCopy.resize(ToWrite);
+		if (!UniversalEdit::UE->CurrentFile->FirstWrite()) {
+			if (Common::GetFreeSpace() >= (UniversalEdit::UE->CurrentFile->GetSize() * 2)) {
+				std::string Path = UniversalEdit::UE->CData->BackupPath();
 
-					fread(DataToCopy.data(), 0x1, DataToCopy.size(), UniversalEdit::UE->CurrentFile->GetFileHandler());
-					fwrite(DataToCopy.data(), 1, DataToCopy.size(), Temp);
-					ToWrite -= DataToCopy.size();
-
-					/* Update. */
-					Common::ProgressMessage(Common::GetStr("BACKING_UP_FILE") + "\n" + Common::ToHex<uint32_t>(ToWrite));
+				if (UniversalEdit::UE->CData->BackupPath()[UniversalEdit::UE->CData->BackupPath().size() - 1] != '/') {
+					Path += "/"; // Add the trailing slash there.
 				};
 
-				fclose(Temp);
-				aptSetSleepAllowed(true); // Re-Allow Sleep and HOME, since we are done.
-				aptSetHomeAllowed(true);
+				const std::string FName = Common::Keyboard(Common::GetStr("ENTER_BACKUP_FILENAME"), "", 100);
+
+				if (FName != "") {
+					Path += FName; // Add filename to PATH.
+
+					uint32_t ToWrite = UniversalEdit::UE->CurrentFile->GetSize();
+					std::vector<uint8_t> DataToCopy;
+
+					FILE *Temp = fopen(Path.c_str(), "wb");
+					fseek(UniversalEdit::UE->CurrentFile->GetFileHandler(), 0, SEEK_SET); // Seek to start.
+
+					aptSetSleepAllowed(false); // DON'T WHILE WRITTING!
+					aptSetHomeAllowed(false);
+
+					Common::ProgressMessage(Common::GetStr("BACKING_UP_FILE") + "\n" + Common::ToHex<uint32_t>(ToWrite));
+					while(ToWrite > 0 && aptMainLoop()) {
+						if (ToWrite > BUFFER_SIZE) DataToCopy.resize(BUFFER_SIZE);
+						else DataToCopy.resize(ToWrite);
+
+						fread(DataToCopy.data(), 0x1, DataToCopy.size(), UniversalEdit::UE->CurrentFile->GetFileHandler());
+						fwrite(DataToCopy.data(), 1, DataToCopy.size(), Temp);
+						ToWrite -= DataToCopy.size();
+
+						/* Update. */
+						Common::ProgressMessage(Common::GetStr("BACKING_UP_FILE") + "\n" + Common::ToHex<uint32_t>(ToWrite));
+					};
+
+					fclose(Temp);
+					aptSetSleepAllowed(true); // Re-Allow Sleep and HOME, since we are done.
+					aptSetHomeAllowed(true);
+				};
+
+			} else {
+				UniversalEdit::UE->CurrentFile->SetWrite(true); // First write done.
+
+				std::unique_ptr<PromptMessage> Msg = std::make_unique<PromptMessage>();
+				if (!Msg->Handler(Common::GetStr("NOT_ENOUGH_SPACE_BACKUP"))) return false;
 			};
 		};
 
-	} else {
-		std::unique_ptr<PromptMessage> Msg = std::make_unique<PromptMessage>();
-		if (!Msg->Handler(Common::GetStr("NOT_ENOUGH_SPACE_BACKUP"))) return false;
+		UniversalEdit::UE->CurrentFile->SetWrite(true); // First write done.
 	};
 
 	return true;

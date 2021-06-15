@@ -31,6 +31,13 @@
 
 #define BYTES_PER_OFFS 0x10 // That's always the case.
 
+HexData::HexData() {
+	#ifdef _3DS // 3DS -> sdmc and romfs.
+		this->LoadEncoding("romfs:/encodings/ascii.json");
+	#elif ARM9 // DS(i) -> sd and nitro.
+		this->LoadEncoding("nitro:/encodings/ascii.json");
+	#endif
+};
 
 HexData::~HexData() { this->End(); };
 
@@ -46,6 +53,7 @@ void HexData::Load(const std::string &File, const uint8_t MaxLines, const uint32
 	this->FileSize = 0;
 	this->FileGood = false;
 	this->EditLen = EditModeBufferLen;
+	this->_FirstWrite = false;
 	this->End(); // Close FILE handle, if not already closed.
 
 	this->MaxLines = MaxLines;
@@ -64,12 +72,6 @@ void HexData::Load(const std::string &File, const uint8_t MaxLines, const uint32
 			this->UpdateDisplay();
 		};
 	};
-
-	#ifdef _3DS // 3DS -> sdmc and romfs.
-		this->LoadEncoding("romfs:/encodings/ascii.json");
-	#elif ARM9 // DS(i) -> sd and nitro.
-		this->LoadEncoding("nitro:/encodings/ascii.json");
-	#endif
 };
 
 /* Close the FILE stream. */
@@ -81,6 +83,7 @@ void HexData::End() {
 	IS THIS A GOOD WAY?!
 	
 	Write made changes to file.
+	const bool DoChanges: If actually writing the changes or not.
 */
 void HexData::WriteChanges(const bool DoChanges) {
 	if (this->Changes.empty()) return; // Don't do ANYTHING if empty.

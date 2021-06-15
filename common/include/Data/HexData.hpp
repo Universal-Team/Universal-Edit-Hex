@@ -34,6 +34,7 @@
 class HexData {
 public:
 	enum class EditMode : uint8_t { Scroll = 0, Edit = 1, Change = 2 };
+	HexData();
 	~HexData(); // Literally calls End().
 
 	void Load(const std::string &File, const uint8_t MaxLines = 0xD, const uint32_t EditModeBufferLen = 0x5000);
@@ -62,6 +63,8 @@ public:
 	bool IsGood() const { return this->FileGood; }; // Return if the file is good.
 	void SetSelectionSize(const uint8_t V) { this->SelectionSize = V; }; // Set the Selection size.
 	uint32_t EditStart() const { return this->EditStartOffs; }; // Return the Editing start offset.
+	bool FirstWrite() const { return this->_FirstWrite; };
+	void SetWrite(const bool V) { this->_FirstWrite = V; };
 
 	std::string GetChar(const uint32_t Cursor) {
 		if (Cursor >= this->GetDisplaySize()) return ".";
@@ -231,6 +234,7 @@ public:
 	FILE *GetFileHandler() { return this->FileHandler; };
 private:
 	FILE *FileHandler = nullptr; // The Handler of the currently OPEN file.
+	bool _FirstWrite = false;
 	bool FileGood = false; // If the file was a success.
 	uint32_t FileSize = 0; // Update THIS when insert or removes happen.
 	std::string File = ""; // The path to the currently open FILE.

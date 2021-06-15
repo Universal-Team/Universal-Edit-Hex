@@ -43,6 +43,7 @@ UniversalEdit::UniversalEdit() {
 
 	/* Hex Editor related. */
 	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor", 0777);
+	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor/Backups", 0777);
 	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor/Labels", 0777);
 	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor/Scripts", 0777);
 	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor/Encodings", 0777);
@@ -135,7 +136,6 @@ int UniversalEdit::Handler() {
 				if (Res) this->Exiting = true;
 			} else this->Exiting = true;
 		};
-
 
 		this->_Tab->Handler();
 		if (Navigation::Mode != Navigation::SubMode::Search || this->ActiveTab != Tabs::Navigator) {

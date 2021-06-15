@@ -74,6 +74,7 @@ void EditBytes::SetU8() {
 
 		UniversalEdit::UE->CurrentFile->EditData()[UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart()] = V;
 		UniversalEdit::UE->CurrentFile->GetChanges()[UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart()] = V;
+		UniversalEdit::UE->CurrentFile->UpdateDisplay();
 	};
 };
 
@@ -83,6 +84,7 @@ void EditBytes::SetU16() {
 			const uint16_t Val = Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), UniversalEdit::UE->CurrentFile->ReadFromEditBuffer<uint16_t>(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Analyzer::Endian), 0x0, 0xFFFF, 6);
 
 			UniversalEdit::UE->CurrentFile->WriteToEditBuffer<uint16_t>(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Val, Analyzer::Endian);
+			UniversalEdit::UE->CurrentFile->UpdateDisplay();
 		};
 	};
 };
@@ -93,6 +95,7 @@ void EditBytes::SetU32() {
 			const uint32_t Val = Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), UniversalEdit::UE->CurrentFile->ReadFromEditBuffer<uint32_t>(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Analyzer::Endian), 0x0, 0xFFFFFFFF, 10);
 
 			UniversalEdit::UE->CurrentFile->WriteToEditBuffer<uint32_t>(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Val, Analyzer::Endian);
+			UniversalEdit::UE->CurrentFile->UpdateDisplay();
 		};
 	};
 };
@@ -100,6 +103,7 @@ void EditBytes::SetU32() {
 void EditBytes::ToggleBit(const uint8_t Idx) {
 	if (FileHandler::Loaded) {
 		UniversalEdit::UE->CurrentFile->WriteBitToEditBuffer(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Idx, !UniversalEdit::UE->CurrentFile->ReadBitFromEditBuffer(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Idx));
+		UniversalEdit::UE->CurrentFile->UpdateDisplay();
 	};
 };
 

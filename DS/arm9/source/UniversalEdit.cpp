@@ -121,6 +121,7 @@ int main(int argc, char **argv) {
 
 	/* Hex Editor related. */
 	mkdir("sd:/_nds/Universal-Edit/Hex-Editor", 0777);
+	mkdir("sd:/_nds/Universal-Edit/Hex-Editor/Backups", 0777);
 	mkdir("sd:/_nds/Universal-Edit/Hex-Editor/Labels", 0777);
 	mkdir("sd:/_nds/Universal-Edit/Hex-Editor/Scripts", 0777);
 	mkdir("sd:/_nds/Universal-Edit/Hex-Editor/Encodings", 0777);

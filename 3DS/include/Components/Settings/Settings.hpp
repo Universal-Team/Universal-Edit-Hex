@@ -36,28 +36,61 @@
 
 class Settings {
 public:
-	enum class SubMode : uint8_t { Main = 0, Credits = 1 };
+	enum class SubMode : uint8_t { Main = 0, Credits = 1, Settings = 2 };
 	Settings() { this->CE = std::make_unique<Credits>(); };
 	void Draw();
 	void Handler();
 
 	static SubMode Mode;
 private:
+	void DrawMain();
+	void HandleMain();
 	void LanguageHandler();
 	void ThemeHandler();
 	void AccessCredits();
+	void GotoSettings();
+
+	/* Settings related, such as Backup Path, Backup Mode etc. */
+	void DrawSettings();
+	void HandleSettings();
+	void SetBackup(const uint8_t V);
+	void SetBackupPath();
+	void BackToMain();
 
 	const std::vector<Structs::ButtonPos> Menu = {
 		{ 114, 40, 140, 30 }, // Language.
 		{ 114, 90, 140, 30 }, // Themes.
-		{ 114, 140, 140, 30 } // Credits.
+		{ 114, 140, 140, 30 }, // Credits.
+		{ 114, 190, 140, 30 } // Settings.
 	};
 
-	const std::vector<std::string> MenuOptions = { "LANGUAGE", "THEMES", "CREDITS" };
+	const std::vector<Structs::ButtonPos> SMenu = {
+		{ 50, 0, 20, 20 }, // Back.
+
+		/* Should a backup be made before a script is running? */
+		{ 74, 70, 60, 20 }, // Yes.
+		{ 154, 70, 60, 20 }, // No.
+		{ 234, 70, 60, 20 }, // ASK.
+
+		{ 70, 120, 250, 20 } // Backup Path.
+	};
+
+	const std::vector<std::string> MenuOptions = { "LANGUAGE", "THEMES", "CREDITS", "SETTINGS" };
 	const std::vector<std::function<void()>> Funcs = {
 		{ [this]() { this->LanguageHandler(); } },
 		{ [this]() { this->ThemeHandler(); } },
-		{ [this]() { this->AccessCredits(); } }
+		{ [this]() { this->AccessCredits(); } },
+		{ [this]() { this->GotoSettings(); } }
+	};
+
+	const std::vector<std::function<void()>> SFuncs = {
+		{ [this]() { this->BackToMain(); } },
+
+		{ [this]() { this->SetBackup(0); } },
+		{ [this]() { this->SetBackup(1); } },
+		{ [this]() { this->SetBackup(2); } },
+
+		{ [this]() { this->SetBackupPath(); } }
 	};
 
 	std::unique_ptr<Credits> CE = nullptr;

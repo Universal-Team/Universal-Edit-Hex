@@ -24,36 +24,18 @@
 *         reasonable ways as different from the original version.
 */
 
-#ifndef _UNIVERSAL_EDIT_COMMON_HPP
-#define _UNIVERSAL_EDIT_COMMON_HPP
+#ifndef _UNIVERSAL_EDIT_ACTIONS_HPP
+#define _UNIVERSAL_EDIT_ACTIONS_HPP
 
-#include "GFXData.hpp"
-#include "ThemeData.hpp"
-#include "UniversalEdit.hpp"
-#include "screenCommon.hpp"
+#include <string>
+#include <vector>
 
-namespace Common {
-	bool Touching(const touchPosition T, const Structs::ButtonPos P);
+namespace Actions {
+	void Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToInsert);
+	void Remove(const uint32_t Offs, const uint32_t Size);
 
-	template <class T> std::string ToHex(T Value) {
-		char Buffer[sizeof(T) * 2 + 1] = { 0 };
-
-		for (int Idx = sizeof(T) * 2 - 1; Idx >= 0; Idx--) {
-			Buffer[Idx] = ((Value & 0xF) >= 0xA ? 'A' + (Value & 0xF) - 0xA : '0' + (Value & 0xF));
-			Value >>= 4;
-		};
-
-		return Buffer;
-	};
-
-	uint32_t Numpad(const std::string &Text, const uint32_t CurVal, const uint32_t MinVal, const uint32_t MaxVal, const int Length);
-	uint32_t HexPad(const std::string &Text, const uint32_t CurVal, const uint32_t MinVal, const uint32_t MaxVal, const int Length);
-	std::string Keyboard(const std::string &Text, const std::string &CurStr, const int Length);
-	void ProgressMessage(const std::string &Msg);
-
-	const std::string &GetStr(const std::string &Key);
-	void LoadLanguage();
-	uint64_t GetFreeSpace();
+	bool Backup();
+	std::vector<uint32_t> Search(const uint32_t StartOffs, const uint32_t EndOffs, const std::vector<uint8_t> &Seq);
 };
 
 #endif

@@ -131,7 +131,7 @@ std::string DirSelector::Handler(const std::string &BasePath, const std::string 
 			};
 		};
 
-		if (Down & KEY_X) return this->Browser->GetPath();
+		if (Down & KEY_START || Down & KEY_X) return this->Browser->GetPath();
 
 		if (Down & KEY_TOUCH) {
 			if (Common::Touching(T, this->FBPos[0])) return "";

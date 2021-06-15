@@ -24,7 +24,9 @@
 *         reasonable ways as different from the original version.
 */
 
+#include "Actions.hpp"
 #include "Common.hpp"
+#include "EncodingChar.hpp"
 #include "Search.hpp"
 #include "StatusMessage.hpp"
 
@@ -45,10 +47,10 @@ void Search::Draw() {
 					Gui::Draw_Rect(this->Menu[Idx + 1].x, this->Menu[Idx + 1].y, this->Menu[Idx + 1].w, this->Menu[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 				};
 
-				Gui::DrawStringCentered(24, this->Menu[1].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("OFFSET") + "0x" + Common::ToHex<uint32_t>(this->Offs));
-				Gui::DrawStringCentered(24, this->Menu[2].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SIZE") + "0x" + Common::ToHex<uint32_t>(this->Size));
-				Gui::DrawStringCentered(24, this->Menu[3].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SEQUENCES"));
-				Gui::DrawStringCentered(24, this->Menu[4].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SEARCH"));
+				Gui::DrawStringCentered(24, this->Menu[1].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("OFFSET") + "0x" + Common::ToHex<uint32_t>(this->Offs), 135);
+				Gui::DrawStringCentered(24, this->Menu[2].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SIZE") + "0x" + Common::ToHex<uint32_t>(this->Size), 135);
+				Gui::DrawStringCentered(24, this->Menu[3].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SEQUENCES"), 135);
+				Gui::DrawStringCentered(24, this->Menu[4].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SEARCH"), 135);
 			};
 			break;
 
@@ -134,7 +136,7 @@ void Search::DrawSequenceList() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
 	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 50, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
-	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SEQUENCE_MENU"), 310);
+	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), (this->SeqMode ? Common::GetStr("SEQUENCE_MENU_VALUE") : Common::GetStr("SEQUENCE_MENU_ENCODING")), 310);
 
 	if (FileHandler::Loaded) {
 		for (uint8_t Idx = 0; Idx < SEQUENCE_PER_LIST && Idx < this->Sequences.size(); Idx++) {
@@ -143,8 +145,9 @@ void Search::DrawSequenceList() {
 			Gui::Draw_Rect(this->SeqMenu[Idx + 1].x, this->SeqMenu[Idx + 1].y, this->SeqMenu[Idx + 1].w, this->SeqMenu[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 
 			/* Draw Sequence. */
-			Gui::DrawStringCentered(15, this->SeqMenu[Idx + 1].y + 6, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::ToHex<uint8_t>(this->Sequences[this->SPos + Idx]));
-			
+			if (this->SeqMode) Gui::DrawStringCentered(15, this->SeqMenu[Idx + 1].y + 6, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::ToHex<uint8_t>(this->Sequences[this->SPos + Idx]));
+			else Gui::DrawStringCentered(15, this->SeqMenu[Idx + 1].y + 6, 0.5f, UniversalEdit::UE->TData->TextColor(), UniversalEdit::UE->CurrentFile->GetEncodingChar(this->Sequences[this->SPos + Idx]));
+
 			/* Display Remove button next to sequence. */
 			Gui::Draw_Rect(this->SeqMenu[Idx + 6].x, this->SeqMenu[Idx + 6].y, this->SeqMenu[Idx + 6].w, this->SeqMenu[Idx + 6].h, UniversalEdit::UE->TData->ButtonColor());
 		};
@@ -161,8 +164,16 @@ void Search::DrawSequenceList() {
 /* Edit Sequence. */
 void Search::EditSequence(const size_t Idx) {
 	if (FileHandler::Loaded) {
-		if (Idx < this->Sequences.size()) {
-			this->Sequences[Idx] = (uint8_t)Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), this->Sequences[Idx], 0x0, 0xFF, 4);
+		if (this->SeqMode) {
+			if (Idx < this->Sequences.size()) {
+				this->Sequences[Idx] = (uint8_t)Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), this->Sequences[Idx], 0x0, 0xFF, 4);
+			};
+
+		} else {
+			if (Idx < this->Sequences.size()) {
+				std::unique_ptr<EncodingChar> ENCChar = std::make_unique<EncodingChar>();
+				this->Sequences[Idx] = ENCChar->Handler(this->Sequences[Idx]);
+			};
 		};
 	};
 };
@@ -173,9 +184,14 @@ void Search::RemoveSequence(const size_t Idx) {
 		if (Idx < this->Sequences.size()) {
 			this->Sequences.erase(this->Sequences.begin() + Idx);
 
-			if (this->Selection > this->Sequences.size() - 1) {
-				this->Selection = this->Sequences.size() - 1;
-			};
+			if (this->Selection > this->Sequences.size() - 1) this->Selection = this->Sequences.size() - 1;
+
+			if (this->Selection > SEQUENCE_PER_LIST) {
+				this->SPos = this->Selection - SEQUENCE_PER_LIST;
+
+			} else {
+				this->SPos = 0;
+			}
 		};
 	};
 };
@@ -183,7 +199,8 @@ void Search::RemoveSequence(const size_t Idx) {
 /* Add Sequence. */
 void Search::AddSequence() {
 	if (FileHandler::Loaded) {
-		this->Sequences.push_back((uint8_t)Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), 0x0, 0x0, 0xFF, 4));
+		if (this->SeqMode) this->Sequences.push_back((uint8_t)Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), 0x0, 0x0, 0xFF, 4));
+		else this->EnterChar(false);
 	};
 };
 
@@ -196,10 +213,45 @@ void Search::ClearSequence() {
 	};
 };
 
+void Search::EnterChar(const bool FromKBD) {
+	if (FileHandler::Loaded) {
+		if (FromKBD) {
+			const std::string V = Common::Keyboard(Common::GetStr("ENTER_SEARCH"), "", 100);
+			
+			if (V != "") {
+				this->Sequences.clear();
+
+				bool Match = false;
+				uint8_t IdxToPush = 0;
+
+				for (size_t Str = 0; Str < V.size(); Str++) { // Check each character.
+					Match = false, IdxToPush = 0;
+
+					for (size_t Idx = 0; Idx < 256; Idx++) { // Loop through the encoding.
+						if (UniversalEdit::UE->CurrentFile->GetEncodingChar(Idx) == std::string(1, V[Str])) {
+							Match = true;
+							IdxToPush = Idx;
+							break;
+						};
+					};
+
+					if (Match) this->Sequences.push_back(IdxToPush);
+				};
+			};
+
+		} else {
+			std::unique_ptr<EncodingChar> ENCCHar = std::make_unique<EncodingChar>();
+			this->Sequences.push_back(ENCCHar->Handler());
+		};
+	};
+};
+
 
 /* Handle of the Sequence List. */
 void Search::SequenceHandler() {
 	if (FileHandler::Loaded) {
+		if (UniversalEdit::UE->Down & KEY_L || UniversalEdit::UE->Down & KEY_R) this->SeqMode = !this->SeqMode;
+
 		if (this->Sequences.size() > 0) {
 			if (UniversalEdit::UE->Repeat & KEY_UP) {
 				if (this->Selection > 0) this->Selection--;
@@ -207,6 +259,7 @@ void Search::SequenceHandler() {
 
 			if (UniversalEdit::UE->Repeat & KEY_DOWN) {
 				if (this->Selection < this->Sequences.size() - 1) this->Selection++;
+				else this->Selection = this->Sequences.size() - 1;
 			};
 
 			if (UniversalEdit::UE->Repeat & KEY_LEFT) {
@@ -224,6 +277,10 @@ void Search::SequenceHandler() {
 		if (UniversalEdit::UE->Down & KEY_X) this->RemoveSequence(this->Selection); // X: Remove.
 		if (UniversalEdit::UE->Down & KEY_Y) this->AddSequence(); // Y: Add.
 		if (UniversalEdit::UE->Down & KEY_B) this->Back(); // B: Back.
+
+		if (UniversalEdit::UE->Down & KEY_SELECT) {
+			if (!this->SeqMode) this->EnterChar(true);
+		};
 
 		if (UniversalEdit::UE->Down & KEY_TOUCH) {
 			if (Common::Touching(UniversalEdit::UE->T, this->SeqMenu[0])) {
@@ -293,50 +350,8 @@ void Search::DrawResultList() {
 
 /* Search Handler. */
 void Search::SearchAction() {
-	if (FileHandler::Loaded && this->Sequences.size() > 0) {
-		bool Matched = true;
-
-		for (size_t Idx = 0; Idx < this->Size && Idx < UniversalEdit::UE->CurrentFile->GetCurModeSize(); Idx++) {
-			Common::ProgressMessage(Common::GetStr("SEARCH_MATCHES") + "\n\n" + Common::GetStr("CURRENT_INDEX") + Common::ToHex<uint32_t>(this->Offs + Idx) + " | " + Common::ToHex<uint32_t>(this->Offs + this->Size) + "\n\n" + Common::GetStr("FOUND_RESULTS") + std::to_string(this->FoundResults.size()));
-			Matched = true; // Always set to true first.
-
-			hidScanInput();
-			if (hidKeysDown() & KEY_B) break; // Let B cancel the search.
-
-			for (size_t Idx2 = 0; Idx2 < this->Sequences.size(); Idx2++) {
-				if (Idx + Idx2 < UniversalEdit::UE->CurrentFile->GetCurModeSize()) {
-					if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) { // Scroll Mode.
-						if (UniversalEdit::UE->CurrentFile->Read<uint8_t>(this->Offs + Idx + Idx2, false) != this->Sequences[Idx2]) {
-							Matched = false;
-							break;
-						};
-
-					} else { // Edit / Change Mode.
-						if (UniversalEdit::UE->CurrentFile->EditData()[(this->Offs - UniversalEdit::UE->CurrentFile->EditStart()) + Idx + Idx2] != this->Sequences[Idx2]) {
-							Matched = false;
-							break;
-						};
-					};
-
-				} else { // Index too large.
-					Matched = false;
-					break;
-				};
-			};
-
-			if (Matched) {
-				try { // If can push, then do it, else we break it here.
-					if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) {
-						this->FoundResults.push_back(this->Offs + Idx);
-
-					} else {
-						this->FoundResults.push_back(this->Offs + Idx);
-					};
-				} catch(...) {
-					break;
-				};
-			};
-		};
+	if (FileHandler::Loaded) {
+		if (this->Sequences.size() > 0) this->FoundResults = Actions::Search(this->Offs, this->Size, this->Sequences);
 
 		if (this->FoundResults.empty()) {
 			std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();

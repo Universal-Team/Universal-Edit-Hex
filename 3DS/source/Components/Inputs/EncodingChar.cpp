@@ -25,10 +25,10 @@
 */
 
 #include "Common.hpp"
-#include "PromptMessage.hpp"
+#include "EncodingChar.hpp"
 
-bool PromptMessage::Handler(const std::string &Msg) {
-	this->Msg = Msg;
+uint8_t EncodingChar::Handler(const uint8_t Old) {
+	this->Selection = Old;
 
 	while(aptMainLoop()) {
 		C2D_TargetClear(Top, C2D_Color32(0, 0, 0, 0));
@@ -39,39 +39,47 @@ bool PromptMessage::Handler(const std::string &Msg) {
 		UniversalEdit::UE->DrawTop(); // Keep the top screen for sure.
 		UniversalEdit::UE->GData->DrawBottom();
 
-		Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
-		Gui::DrawStringCentered(0, 1, 0.6f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("PROMPT"), 310);
+		for (size_t Idx = 0; Idx < 0x10; Idx++) { // Upper Nums.
+			Gui::DrawString(this->XPos[Idx], 10, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::ToHex<uint8_t>(Idx));
+		};
 
-		Gui::DrawStringCentered(0, 60, 0.5f, UniversalEdit::UE->TData->TextColor(), this->Msg, 300, 120, nullptr, C2D_WordWrap);
+		for (size_t Idx = 0; Idx < 0x10; Idx++) { // Offset row.
+			Gui::DrawString(3, this->YPos[Idx], 0.4f, UniversalEdit::UE->TData->TextColor(), Common::ToHex<uint8_t>(Idx * 0x10));
+		};
 
-		for (uint8_t Idx = 0; Idx < 2; Idx++) {
-			if (Idx == this->Confirmed) Gui::Draw_Rect(this->Buttons[Idx].x - 2, this->Buttons[Idx].y - 2, this->Buttons[Idx].w + 4, this->Buttons[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
-			Gui::Draw_Rect(this->Buttons[Idx].x, this->Buttons[Idx].y, this->Buttons[Idx].w, this->Buttons[Idx].h, UniversalEdit::UE->TData->ButtonColor());
+		for (size_t Idx = 0; Idx < 256; Idx++) { // Encoding chars.
+			if (Idx == this->Selection) Gui::Draw_Rect(this->XPos[Idx % 0x10], this->YPos[Idx / 0x10], 18, 13, UniversalEdit::UE->TData->SelectedByte());
+			else Gui::Draw_Rect(this->XPos[Idx % 0x10], this->YPos[Idx / 0x10], 18, 13, UniversalEdit::UE->TData->BarColor());
 
-			Gui::DrawStringCentered((Idx ? 60 : -60), this->Buttons[Idx].y + 3, 0.6f, UniversalEdit::UE->TData->TextColor(), (Idx ? Common::GetStr("CONFIRM") : Common::GetStr("CANCEL")));
+			Gui::DrawString(this->XPos[Idx % 0x10] + 3, this->YPos[Idx / 0x10] + 1, 0.4f, UniversalEdit::UE->TData->TextColor(), UniversalEdit::UE->CurrentFile->GetEncodingChar(Idx));
 		};
 
 		C3D_FrameEnd(0);
 
-		uint32_t Down = 0;
-		touchPosition T;
-		
-		do {
-			gspWaitForVBlank();
-			hidScanInput();
-			Down = hidKeysDown();
-			hidTouchRead(&T);
-		} while(!Down);
+		uint32_t Down = 0, Repeat = 0;
+		hidScanInput();
+		Down = hidKeysDown();
+		Repeat = hidKeysDownRepeat();
 
-		if (Down & KEY_LEFT || Down & KEY_RIGHT) this->Confirmed = !this->Confirmed;
-		if (Down & KEY_A) return this->Confirmed;
-		
-		if (Down & KEY_TOUCH) {
-			for (uint8_t Idx = 0; Idx < 2; Idx++) {
-				if (Common::Touching(T, this->Buttons[Idx])) return Idx;
-			};
+		if (Repeat & KEY_UP) {
+			if (this->Selection > 0xF) this->Selection -= 0x10;
 		};
+
+		if (Repeat & KEY_DOWN) {
+			if (this->Selection < 0xF0) this->Selection += 0x10;
+		};
+
+		if (Repeat & KEY_LEFT) {
+			if (this->Selection > 0) this->Selection--;
+		};
+
+		if (Repeat & KEY_RIGHT) {
+			if (this->Selection < 255) this->Selection++;
+		};
+
+		if (Down & KEY_A) return this->Selection;
+		if (Down & KEY_B) return Old;
 	};
 
-	return true;
+	return Old;
 };

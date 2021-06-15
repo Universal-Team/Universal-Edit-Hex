@@ -68,6 +68,21 @@ public:
 		return this->Encoding[this->_DisplayData[Cursor]];
 	};
 
+	std::string GetEncChar(const uint32_t Offs, const bool FromFile = true) {
+		if (FromFile) {
+			if (Offs < this->GetSize()) return this->Encoding[this->Read<uint8_t>(Offs, false)];
+			else return ".";
+
+		} else {
+			if (Offs < this->GetEditSize()) return this->Encoding[this->ReadFromEditBuffer<uint8_t>(Offs, false)];
+			else return ".";
+		};
+
+		return ".";
+	};
+
+	std::string GetEncodingChar(const uint8_t Idx) { return this->Encoding[Idx]; };
+
 
 	/* Only use this if you KNOW WHAT YOU DO!!! */
 	template <class T> T ReadFromEditBuffer(const uint32_t Offs, const bool BigEndian = false) {

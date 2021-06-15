@@ -24,36 +24,20 @@
 *         reasonable ways as different from the original version.
 */
 
-#ifndef _UNIVERSAL_EDIT_COMMON_HPP
-#define _UNIVERSAL_EDIT_COMMON_HPP
+#ifndef _UNIVERSAL_EDIT_ENCODING_CHAR_HPP
+#define _UNIVERSAL_EDIT_ENCODING_CHAR_HPP
 
-#include "GFXData.hpp"
-#include "ThemeData.hpp"
-#include "UniversalEdit.hpp"
-#include "screenCommon.hpp"
+#include <string>
 
-namespace Common {
-	bool Touching(const touchPosition T, const Structs::ButtonPos P);
+class EncodingChar {
+public:
+	uint8_t Handler(const uint8_t Old = 0);
+private:
+	uint8_t Selection = 0;
 
-	template <class T> std::string ToHex(T Value) {
-		char Buffer[sizeof(T) * 2 + 1] = { 0 };
-
-		for (int Idx = sizeof(T) * 2 - 1; Idx >= 0; Idx--) {
-			Buffer[Idx] = ((Value & 0xF) >= 0xA ? 'A' + (Value & 0xF) - 0xA : '0' + (Value & 0xF));
-			Value >>= 4;
-		};
-
-		return Buffer;
-	};
-
-	uint32_t Numpad(const std::string &Text, const uint32_t CurVal, const uint32_t MinVal, const uint32_t MaxVal, const int Length);
-	uint32_t HexPad(const std::string &Text, const uint32_t CurVal, const uint32_t MinVal, const uint32_t MaxVal, const int Length);
-	std::string Keyboard(const std::string &Text, const std::string &CurStr, const int Length);
-	void ProgressMessage(const std::string &Msg);
-
-	const std::string &GetStr(const std::string &Key);
-	void LoadLanguage();
-	uint64_t GetFreeSpace();
+	/* X: 25 start += 18. Y: 25 start += 13. */
+	static constexpr int XPos[0x10] = { 25, 43, 61, 79, 97, 115, 133, 151, 169, 187, 205, 223, 241, 259, 277, 295 };
+	static constexpr int YPos[0x10] = { 25, 38, 51, 64, 77, 90, 103, 116, 129, 142, 155, 168, 181, 194, 207, 220 };
 };
 
 #endif

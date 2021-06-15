@@ -64,10 +64,13 @@ void ChangesPrompt::Handler() {
 		uint32_t Down = 0, Repeat = 0;
 		touchPosition T;
 		
-		hidScanInput();
-		Down = hidKeysDown();
-		Repeat = hidKeysDownRepeat();
-		hidTouchRead(&T);
+		do {
+			gspWaitForVBlank();
+			hidScanInput();
+			Down = hidKeysDown();
+			Repeat = hidKeysDownRepeat();
+			hidTouchRead(&T);
+		} while(!Down || !Repeat);
 
 		if (Down & KEY_LEFT || Down & KEY_RIGHT) this->Res = !this->Res;
 		if (Down & KEY_A) {

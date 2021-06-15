@@ -25,6 +25,7 @@
 */
 
 #include "Common.hpp"
+#include <sys/statvfs.h>
 #include <unistd.h>
 
 bool Common::Touching(const touchPosition T, const Structs::ButtonPos P) {
@@ -223,4 +224,13 @@ void Common::LoadLanguage() {
 		fclose(In);
 		UniversalEdit::UE->CData->Lang("en"); // Set back to english too.
 	};
+};
+
+/* Code borrowed from GodMode9i:
+	https://github.com/DS-Homebrew/GodMode9i/blob/d68ac105e68b4a1fc2c706a08c7a394255c325c2/arm9/source/driveOperations.cpp#L166-L170
+*/
+uint64_t Common::GetFreeSpace() {
+	struct statvfs ST;
+	statvfs("sdmc:/", &ST);
+	return (uint64_t)ST.f_bsize * (uint64_t)ST.f_bavail;
 };

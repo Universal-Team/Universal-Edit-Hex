@@ -24,6 +24,7 @@
 *         reasonable ways as different from the original version.
 */
 
+#include "Actions.hpp"
 #include "Common.hpp"
 #include "ChangesPrompt.hpp"
 #include "DirSelector.hpp"
@@ -695,6 +696,14 @@ void LUAHelper::RunScript() {
 	std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
 	const std::string LUAFile = FB->Handler("sdmc:/3ds/Universal-Edit/Hex-Editor/Scripts/", true, Common::GetStr("SELECT_SCRIPT"), { "lua" });
 	if (LUAFile == "") return;
+
+	std::unique_ptr<PromptMessage> PM = std::make_unique<PromptMessage>();
+	const bool ShouldDo = PM->Handler(Common::GetStr("CREATE_BACKUP"));
+
+	if (ShouldDo) {
+		if (!Actions::Backup()) return;
+	};
+
 
 	std::pair<int, std::string> Status = std::make_pair(0, "");
 	lua_State *LUAScript = luaL_newstate();

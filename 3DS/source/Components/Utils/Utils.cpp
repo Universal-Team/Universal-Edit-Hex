@@ -29,6 +29,7 @@
 #include "LabelSelector.hpp"
 #include "LUAHelper.hpp"
 #include "PromptMessage.hpp"
+#include "StatusMessage.hpp"
 #include "Utils.hpp"
 
 Utils::SubMode Utils::Mode = Utils::SubMode::Main;
@@ -71,23 +72,35 @@ void Utils::Handler() {
 
 void Utils::Labels() {
 	if (FileHandler::Loaded) {
-		std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
-		const std::string LBFile = FB->Handler("sdmc:/3ds/Universal-Edit/Hex-Editor/Labels/", true, Common::GetStr("SELECT_LABEL"), { "json" });
+		if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) {
+			std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
+			const std::string LBFile = FB->Handler("sdmc:/3ds/Universal-Edit/Hex-Editor/Labels/", true, Common::GetStr("SELECT_LABEL"), { "json" });
 
-		if (LBFile != "") {
-			std::unique_ptr<LabelSelector> Label = std::make_unique<LabelSelector>();
-			const int Offs = Label->Handler(LBFile);
+			if (LBFile != "") {
+				std::unique_ptr<LabelSelector> Label = std::make_unique<LabelSelector>();
+				const int Offs = Label->Handler(LBFile);
 
-			if (Offs != -1) UniversalEdit::UE->CurrentFile->JumpOffs((uint32_t)Offs);
+				if (Offs != -1) UniversalEdit::UE->CurrentFile->JumpOffs((uint32_t)Offs);
+			};
+
+		} else {
+			std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
+			Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_SCROLLMODE"), -1);
 		};
 	};
 };
 
 
 void Utils::Scripts() {
-	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) {
-		std::unique_ptr<LUAHelper> LH = std::make_unique<LUAHelper>();
-		LH->RunScript();
+	if (FileHandler::Loaded) {
+		if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) {
+			std::unique_ptr<LUAHelper> LH = std::make_unique<LUAHelper>();
+			LH->RunScript();
+
+		} else {
+			std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
+			Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_SCROLLMODE"), -1);
+		};
 	};
 };
 

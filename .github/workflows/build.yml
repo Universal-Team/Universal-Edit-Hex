@@ -1,4 +1,4 @@
-name: Build Universal-Edit
+name: Build Universal-Edit-Hex
 
 on:
   push:
@@ -49,8 +49,8 @@ jobs:
         run: |
           make
           mkdir -p ~/artifacts
-          cp 3DS/Universal-Edit.3dsx ~/artifacts
-          cp 3DS/Universal-Edit.cia ~/artifacts
+          cp 3DS/Universal-Edit-Hex.3dsx ~/artifacts
+          cp 3DS/Universal-Edit-Hex.cia ~/artifacts
           echo ::set-output name=commit_tag::$(git describe --abbrev=0 --tags)
           echo ::set-output name=commit_hash::$(git log --format=%h -1)
 
@@ -111,13 +111,13 @@ jobs:
           git config --global user.email "flamekat54@aol.com"
           git config --global user.name "TWLBot"
           git clone --depth 1 https://${{ secrets.TWLBOT_TOKEN }}@github.com/Universal-Team/extras.git
-          mkdir -p extras/builds/Universal-Edit/
-          cd extras/builds/Universal-Edit/
-          qrencode -o Universal-Edit.png https://github.com/Universal-Team/extras/raw/v$CURRENT_DATE/builds/Universal-Edit/Universal-Edit.cia
-          qrencode -o Universal-Edit-release.png https://github.com/Universal-Team/Universal-Edit/releases/download/$COMMIT_TAG/Universal-Edit.cia
+          mkdir -p extras/builds/Universal-Edit-Hex/
+          cd extras/builds/Universal-Edit-Hex/
+          qrencode -o Universal-Edit-Hex.png https://github.com/Universal-Team/extras/raw/v$CURRENT_DATE/builds/Universal-Edit-Hex/Universal-Edit-Hex.cia
+          qrencode -o Universal-Edit-Hex-release.png https://github.com/Universal-Team/Universal-Edit-Hex/releases/download/$COMMIT_TAG/Universal-Edit-Hex.cia
           cp ${{ github.workspace }}/build/* .
           git stage .
-          git commit -m "Universal-Edit | $COMMIT_HASH"
+          git commit -m "Universal-Edit-Hex | $COMMIT_HASH"
           git tag v$CURRENT_DATE
           git push origin master v$CURRENT_DATE
       - name: Release to Universal-Team/extras
@@ -125,7 +125,7 @@ jobs:
           AUTH_HEADER="Authorization: token ${{ secrets.TWLBOT_TOKEN }}"
           CONTENT_TYPE="Content-Type: application/json"
           API_URL="https://api.github.com/repos/Universal-Team/extras/releases"
-          RELEASE_INFO="{\"tag_name\": \"v${{ steps.commit.outputs.current_date }}\", \"name\": \"Universal-Edit | $COMMIT_HASH\", \"body\": \"$AUTHOR_NAME - $COMMIT_SUBJECT\n\n$COMMIT_MESSAGE\", \"prerelease\": true}"
+          RELEASE_INFO="{\"tag_name\": \"v${{ steps.commit.outputs.current_date }}\", \"name\": \"Universal-Edit-Hex | $COMMIT_HASH\", \"body\": \"$AUTHOR_NAME - $COMMIT_SUBJECT\n\n$COMMIT_MESSAGE\", \"prerelease\": true}"
 
           RESPONSE=$(curl -XPOST -H "$AUTH_HEADER" -H "$CONTENT_TYPE" "$API_URL" -d "$RELEASE_INFO")
 
@@ -157,7 +157,7 @@ jobs:
         run: |
           curl -o send.sh https://raw.githubusercontent.com/Universal-Team/discord-webhooks/master/send-ghactions.sh
           chmod +x send.sh
-          export IMAGE=https://raw.githubusercontent.com/Universal-Team/extras/v$CURRENT_DATE/builds/Universal-Edit/Universal-Edit.png
+          export IMAGE=https://raw.githubusercontent.com/Universal-Team/extras/v$CURRENT_DATE/builds/Universal-Edit-Hex/Universal-Edit-Hex.png
           ./send.sh success ${{ secrets.WEBHOOK_URL }}
       - name: Send failure webhook
         if: ${{ failure() }}

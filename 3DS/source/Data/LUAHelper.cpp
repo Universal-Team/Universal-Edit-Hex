@@ -625,6 +625,19 @@ static int FileSize(lua_State *LState) {
 	return 1;
 };
 
+/*
+	Return the base path of the app.
+
+	Usage:
+		local Path = UniversalEdit.BasePath();
+*/
+static int BasePath(lua_State *LState) {
+	if (lua_gettop(LState) != 0) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+
+	lua_pushstring(LState, "sdmc:/3ds/Universal-Edit/");
+	return 1;
+};
+
 
 /*
 	Displays a frame / progress message.
@@ -685,6 +698,7 @@ static constexpr luaL_Reg UniversalEditFunctions[] = {
 	{ "InjectFile", InjectFile },
 	{ "SelectFile", SelectFile },
 	{ "FileSize", FileSize },
+	{ "BasePath", BasePath },
 	{ "ProgressMessage", ProgressMessage },
 	{ "SelectDir", SelectDir },
 	{ 0, 0 }

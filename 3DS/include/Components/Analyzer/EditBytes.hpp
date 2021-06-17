@@ -38,6 +38,10 @@ public:
 	void Handler();
 private:
 	void Back();
+	bool HexMode = true, Endian = false; // Hexadecimal Mode and Little Endian.
+
+	void ChangeInputMethod();
+	void ChangeEndian();
 
 	void SetU8();
 	void SetU16();
@@ -47,28 +51,34 @@ private:
 	const std::vector<Structs::ButtonPos> Menu = {
 		{ 50, 0, 20, 20 }, // Back.
 
-		/* uint8_t. */
-		{ 134, 40, 100, 20 },
+		/* Hex | Dec. */
+		{ 70, 40, 100, 20 },
+		{ 200, 40, 100, 20 },
 
-		/* uint16_t. */
+		/* uint8_t. */
 		{ 134, 80, 100, 20 },
 
-		/* uint32_t. */
+		/* uint16_t. */
 		{ 134, 120, 100, 20 },
 
+		/* uint32_t. */
+		{ 134, 160, 100, 20 },
+
 		/* Bits. */
-		{ 69, 190, 20, 20 },
-		{ 99, 190, 20, 20 },
-		{ 129, 190, 20, 20 },
-		{ 159, 190, 20, 20 },
-		{ 189, 190, 20, 20 },
-		{ 219, 190, 20, 20 },
-		{ 249, 190, 20, 20 },
-		{ 279, 190, 20, 20 }
+		{ 69, 200, 20, 20 },
+		{ 99, 200, 20, 20 },
+		{ 129, 200, 20, 20 },
+		{ 159, 200, 20, 20 },
+		{ 189, 200, 20, 20 },
+		{ 219, 200, 20, 20 },
+		{ 249, 200, 20, 20 },
+		{ 279, 200, 20, 20 }
 	};
 
 	const std::vector<std::function<void()>> Funcs = {
 		{ [this]() { this->Back(); } },
+		{ [this]() { this->ChangeInputMethod(); } },
+		{ [this]() { this->ChangeEndian(); } },
 
 		{ [this]() { this->SetU8(); } },
 		{ [this]() { this->SetU16(); } },

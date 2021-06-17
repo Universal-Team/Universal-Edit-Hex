@@ -55,6 +55,7 @@ void StatusMessage::Handler(const std::string &Msg, const int Res) {
 		touchPosition T;
 
 		do {
+			gspWaitForVBlank();
 			hidScanInput();
 			Down = hidKeysDown();
 			hidTouchRead(&T);

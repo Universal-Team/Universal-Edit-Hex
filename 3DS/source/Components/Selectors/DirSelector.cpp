@@ -43,11 +43,11 @@ void DirSelector::Draw() {
 	Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(0, 20, 320, 1, UniversalEdit::UE->TData->BarOutline());
 	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 0, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
-	Gui::DrawStringCentered(0, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), this->Text, 310);
+	Gui::DrawStringCentered(0, 2, 0.48f, UniversalEdit::UE->TData->TextColor(), this->Text, 300);
 
 	Gui::Draw_Rect(0, 220, 320, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(0, 219, 320, 1, UniversalEdit::UE->TData->BarOutline());
-	Gui::DrawStringCentered(0, 222, 0.5f, UniversalEdit::UE->TData->TextColor(), this->Browser->GetPath(), 310);
+	Gui::DrawStringCentered(0, 222, 0.48f, UniversalEdit::UE->TData->TextColor(), this->Browser->GetPath(), 310);
 
 	/* Now begin to draw the filebrowser. */
 	for (int Idx = 0; Idx < ENTRIES_ON_LIST && Idx < (int)this->CurrentFileData.size(); Idx++) {

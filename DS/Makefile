@@ -5,7 +5,7 @@ ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
 
-export TARGET	:= Universal-Edit
+export TARGET	:= Universal-Edit-Hex
 export TOPDIR	:= $(CURDIR)
 
 # specify a directory which contains the nitro filesystem
@@ -13,7 +13,7 @@ export TOPDIR	:= $(CURDIR)
 NITRO_FILES		:= nitrofiles
 
 # These set the information text in the nds file
-GAME_TITLE		:= Universal-Edit
+GAME_TITLE		:= Universal-Edit-Hex
 GAME_SUBTITLE1	:= Universal-Team
 
 include $(DEVKITARM)/ds_rules

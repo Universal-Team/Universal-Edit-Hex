@@ -41,7 +41,7 @@ void ThemeSelector::Draw() {
 	Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(0, 20, 320, 1, UniversalEdit::UE->TData->BarOutline());
 	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 0, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
-	Gui::DrawStringCentered(0, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SELECT_THEME"), 310);
+	Gui::DrawStringCentered(0, 2, 0.48f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SELECT_THEME"), 300);
 
 	/* Now begin to draw the Theme List. */
 	for (uint8_t Idx = 0; Idx < THEMES_ON_LIST && Idx < UniversalEdit::UE->ThemeNames.size(); Idx++) {

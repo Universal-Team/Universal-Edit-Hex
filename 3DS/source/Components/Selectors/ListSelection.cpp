@@ -27,7 +27,7 @@
 #include "Common.hpp"
 #include "ListSelection.hpp"
 
-#define ENTRIES_ON_LIST 5
+#define ENTRIES_ON_LIST 6
 
 void ListSelection::Draw() {
 	C2D_TargetClear(Top, C2D_Color32(0, 0, 0, 0));
@@ -40,7 +40,7 @@ void ListSelection::Draw() {
 	Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(0, 20, 320, 1, UniversalEdit::UE->TData->BarOutline());
 	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 0, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
-	Gui::DrawStringCentered(0, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), this->Text, 310);
+	Gui::DrawStringCentered(0, 2, 0.48f, UniversalEdit::UE->TData->TextColor(), this->Text, 300);
 
 	/* Now begin to draw the contents. */
 	for (int Idx = 0; Idx < ENTRIES_ON_LIST && Idx < (int)this->SelectData.size(); Idx++) {

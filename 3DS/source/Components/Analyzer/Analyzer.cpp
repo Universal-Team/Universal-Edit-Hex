@@ -26,6 +26,7 @@
 
 #include "Analyzer.hpp"
 #include "Common.hpp"
+#include "StatusMessage.hpp"
 
 bool Analyzer::Endian = false; // Little Endian.
 Analyzer::SubMode Analyzer::Mode = Analyzer::SubMode::Main;
@@ -64,6 +65,10 @@ void Analyzer::Draw() {
 void Analyzer::AccessAnalyze() { Analyzer::Mode = Analyzer::SubMode::Analyze; };
 void Analyzer::AccessEdit() {
 	if (UniversalEdit::UE->CurrentFile->GetCurMode() != HexData::EditMode::Scroll) Analyzer::Mode = Analyzer::SubMode::Edit;
+	else {
+		std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
+		Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_EDITMODE"), -1);
+	};
 };
 void Analyzer::AccessChanges() { Analyzer::Mode = Analyzer::SubMode::Changes; };
 

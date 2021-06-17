@@ -35,6 +35,9 @@ namespace Actions {
 	void Remove(const uint32_t Offs, const uint32_t Size);
 
 	bool Backup();
+	bool SaveFileAs();
+	bool NewFile();
+
 	std::vector<uint32_t> Search(const uint32_t StartOffs, const uint32_t EndOffs, const std::vector<uint8_t> &Seq);
 };
 

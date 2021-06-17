@@ -32,6 +32,7 @@
 
 #define BUFFER_SIZE 0x80000 // TODO: Find the best size or so..
 
+
 /*
 	Insert bytes to the current file. SD Card and size affect the speed too.
 
@@ -129,6 +130,7 @@ void Actions::Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToI
 	};
 };
 
+
 /*
 	Remove bytes from the current file. SD Card and size affect the speed too.
 
@@ -210,6 +212,7 @@ void Actions::Remove(const uint32_t Offs, const uint32_t Size) {
 		Msg->Handler(Common::GetStr("NOT_ENOUGH_SPACE_REMOVE"), -1);
 	};
 };
+
 
 /*
 	Create a backup of the current file.
@@ -294,6 +297,94 @@ bool Actions::Backup() {
 
 	return true;
 };
+
+
+/*
+	Save the current file as a different file.
+
+	It will have the new file as the active file and returns true, if succeeded.
+*/
+bool Actions::SaveFileAs() {
+	if (FileHandler::Loaded) {
+		std::unique_ptr<DirSelector> DS = std::make_unique<DirSelector>();
+		const std::string Dest = DS->Handler("sdmc:/", Common::GetStr("SELECT_DEST"));
+
+		if (Dest != "") { // Ensure a directory got selected.
+			const std::string FName = Common::Keyboard(Common::GetStr("ENTER_FILE_NAME"), "", 100);
+
+			if (FName != "") { // Ensure a filename got entered.
+				Common::ProgressMessage(Common::GetStr("SAVING_TO_FILE"));
+
+				if (Common::GetFreeSpace() >= (UniversalEdit::UE->CurrentFile->GetSize() * 2)) {
+					std::string Path = Dest + FName;
+
+					uint32_t ToWrite = UniversalEdit::UE->CurrentFile->GetSize();
+					std::vector<uint8_t> DataToCopy;
+
+					FILE *Temp = fopen(Path.c_str(), "wb");
+					fseek(UniversalEdit::UE->CurrentFile->GetFileHandler(), 0, SEEK_SET); // Seek to start.
+
+					aptSetSleepAllowed(false); // DON'T WHILE WRITTING!
+					aptSetHomeAllowed(false);
+
+					Common::ProgressMessage(Common::GetStr("SAVING_FILE") + "\n" + Common::ToHex<uint32_t>(ToWrite));
+					while(ToWrite > 0 && aptMainLoop()) {
+						if (ToWrite > BUFFER_SIZE) DataToCopy.resize(BUFFER_SIZE);
+						else DataToCopy.resize(ToWrite);
+
+						fread(DataToCopy.data(), 0x1, DataToCopy.size(), UniversalEdit::UE->CurrentFile->GetFileHandler());
+						fwrite(DataToCopy.data(), 1, DataToCopy.size(), Temp);
+						ToWrite -= DataToCopy.size();
+
+						/* Update. */
+						Common::ProgressMessage(Common::GetStr("SAVING_FILE") + "\n" + Common::ToHex<uint32_t>(ToWrite));
+					};
+
+					fclose(Temp);
+					aptSetSleepAllowed(true); // Re-Allow Sleep and HOME, since we are done.
+					aptSetHomeAllowed(true);
+
+					UniversalEdit::UE->CurrentFile->Load(Path, 0xD, 0x20000); // Load the new file.
+					return true;
+
+				} else {
+					std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
+					Msg->Handler(Common::GetStr("NOT_ENOUGH_SPACE_SAVE"), -1);
+				};
+			};
+		};
+	};
+
+	return false;
+};
+
+
+/*
+	Creates a new Temp file at "sdmc:/3ds/Universal-Edit/Temp.bin" with 1 byte.
+
+	Returns true if action succeeded.
+*/
+bool Actions::NewFile() {
+	if (Common::GetFreeSpace() >= 0x1) {
+		FILE *Out = fopen("sdmc:/3ds/Universal-Edit/Temp.bin", "w");
+
+		if (Out) {
+			const uint8_t V = 0x0;
+			fwrite(&V, 1, 1, Out);
+			fclose(Out);
+			UniversalEdit::UE->CurrentFile->Load("sdmc:/3ds/Universal-Edit/Temp.bin", 0xD, 0x20000); // Load.
+
+			return true;
+		};
+
+	} else {
+		std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
+		Msg->Handler(Common::GetStr("NOT_ENOUGH_SPACE_NEW"), -1);
+	};
+
+	return false;
+};
+
 
 /*
 	Searches the current file for sequences.

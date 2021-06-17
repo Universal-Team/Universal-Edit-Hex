@@ -65,7 +65,7 @@ UniversalEdit::UniversalEdit() {
 	this->SE = std::make_unique<Settings>();
 	this->_Tab = std::make_unique<Tab>();
 	this->_Utils = std::make_unique<Utils>();
-
+	this->CurrentFile = std::make_unique<HexData>();
 	this->ThemeNames = this->TData->ThemeNames();
 };
 

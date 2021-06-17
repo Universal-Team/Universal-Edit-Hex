@@ -24,6 +24,7 @@
 *         reasonable ways as different from the original version.
 */
 
+#include "Actions.hpp"
 #include "Common.hpp"
 #include "DirSelector.hpp"
 #include "FileHandler.hpp"
@@ -38,17 +39,24 @@ void FileHandler::Draw() {
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
 	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("FILE_HANDLER_MENU"), 310);
 
-	for (uint8_t Idx = 0; Idx < 1; Idx++) {
+	for (uint8_t Idx = 0; Idx < 2; Idx++) { // Load and New File are always visible.
 		Gui::Draw_Rect(this->Menu[Idx].x - 2, this->Menu[Idx].y - 2, this->Menu[Idx].w + 4, this->Menu[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 		Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
-		
+
 		Gui::DrawStringCentered(24, this->Menu[Idx].y + 9, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[Idx]));
+	};
+
+	if (FileHandler::Loaded) { // Save file as.. however is only visible if loaded.
+		Gui::Draw_Rect(this->Menu[2].x - 2, this->Menu[2].y - 2, this->Menu[2].w + 4, this->Menu[2].h + 4, UniversalEdit::UE->TData->ButtonSelected());
+		Gui::Draw_Rect(this->Menu[2].x, this->Menu[2].y, this->Menu[2].w, this->Menu[2].h, UniversalEdit::UE->TData->ButtonColor());
+
+		Gui::DrawStringCentered(24, this->Menu[2].y + 9, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[2]));
 	};
 };
 
 void FileHandler::Handler() {
 	if (UniversalEdit::UE->Down & KEY_TOUCH) {
-		for (uint8_t Idx = 0; Idx < 1; Idx++) {
+		for (uint8_t Idx = 0; Idx < 3; Idx++) {
 			if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 				this->Funcs[Idx]();
 				break;
@@ -59,27 +67,43 @@ void FileHandler::Handler() {
 
 
 void FileHandler::LoadFile() {
-	std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
-	const std::string EditFile = FB->Handler("sdmc:/", false, Common::GetStr("SELECT_FILE"), { });
+	if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) {
+		std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
+		const std::string EditFile = FB->Handler("sdmc:/", false, Common::GetStr("SELECT_FILE"), { });
 
-	if (EditFile != "") {
-		Common::ProgressMessage(Common::GetStr("LOADING_FILE"));
+		if (EditFile != "") {
+			Common::ProgressMessage(Common::GetStr("LOADING_FILE"));
 
-		/* If nullptr, initialize the unique_ptr. */
-		if (!UniversalEdit::UE->CurrentFile) UniversalEdit::UE->CurrentFile = std::make_unique<HexData>();
-		UniversalEdit::UE->CurrentFile->Load(EditFile, 0xD, 0x2000);
-		FileHandler::Loaded = true;
+			/* If nullptr, initialize the unique_ptr. */
+			if (!UniversalEdit::UE->CurrentFile) UniversalEdit::UE->CurrentFile = std::make_unique<HexData>();
+			UniversalEdit::UE->CurrentFile->Load(EditFile, 0xD, 0x2000);
+			FileHandler::Loaded = true;
+		};
+
+	} else {
+		std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
+		Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_SCROLLMODE"), -1);
 	};
 };
 
 void FileHandler::NewFile() {
+	if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) {
+		if (Actions::NewFile()) FileHandler::Loaded = true;
 
-};
-
-void FileHandler::SaveFile() {
-
+	} else {
+		std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
+		Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_SCROLLMODE"), -1);
+	};
 };
 
 void FileHandler::SaveFileAs() {
+	if (FileHandler::Loaded) {
+		if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) {
+			Actions::SaveFileAs();
 
+		} else {
+			std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
+			Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_SCROLLMODE"), -1);
+		};
+	};
 };

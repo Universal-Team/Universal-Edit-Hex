@@ -41,7 +41,7 @@ void LabelSelector::Draw() {
 	Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(0, 20, 320, 1, UniversalEdit::UE->TData->BarOutline());
 	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 0, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
-	Gui::DrawStringCentered(0, 1, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SELECT_LABEL"), 310);
+	Gui::DrawStringCentered(0, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SELECT_LABEL_JUMP"), 310);
 
 	/* Now begin to draw the Labels. */
 	for (int Idx = 0; Idx < ENTRIES_ON_LIST && Idx < (int)this->Labels.size(); Idx++) {

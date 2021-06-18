@@ -5,6 +5,8 @@ Features including:
 - [x] Custom Themes
 - [x] Labels
 - [x] Basic Hex Editing (such as insert, remove, value change, Jump to...)
+- [x] Compare 2 files for differences
+- [x] Convert Hexadecimal to Decimal and back
 - [x] LUA Scripts
 - [x] Custom Encoding
 - [x] Multi Language

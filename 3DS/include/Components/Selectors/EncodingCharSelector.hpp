@@ -24,20 +24,23 @@
 *         reasonable ways as different from the original version.
 */
 
-#ifndef _UNIVERSAL_EDIT_ENCODING_CHAR_HPP
-#define _UNIVERSAL_EDIT_ENCODING_CHAR_HPP
+#ifndef _UNIVERSAL_EDIT_ENCODING_CHAR_SELECTOR_HPP
+#define _UNIVERSAL_EDIT_ENCODING_CHAR_SELECTOR_HPP
 
+#include "structs.hpp"
 #include <string>
 
-class EncodingChar {
+class EncodingCharSelector {
 public:
 	uint8_t Handler(const uint8_t Old = 0);
 private:
 	uint8_t Selection = 0;
 
-	/* X: 25 start += 18. Y: 25 start += 13. */
-	static constexpr int XPos[0x10] = { 25, 43, 61, 79, 97, 115, 133, 151, 169, 187, 205, 223, 241, 259, 277, 295 };
-	static constexpr int YPos[0x10] = { 25, 38, 51, 64, 77, 90, 103, 116, 129, 142, 155, 168, 181, 194, 207, 220 };
+	/* X: 16 start += 18. Y: 35 start += 12. */
+	static constexpr int XPos[0x10] = { 16, 34, 52, 70, 88, 106, 124, 142, 160, 178, 196, 214, 232, 250, 268, 286 };
+	static constexpr int YPos[0x10] = { 35, 47, 59, 71, 83, 95, 107, 119, 131, 143, 155, 167, 179, 191, 203, 215 };
+
+	const Structs::ButtonPos Back = { 0, 0, 20, 20 };
 };
 
 #endif

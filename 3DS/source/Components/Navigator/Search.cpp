@@ -26,7 +26,7 @@
 
 #include "Actions.hpp"
 #include "Common.hpp"
-#include "EncodingChar.hpp"
+#include "EncodingCharSelector.hpp"
 #include "Search.hpp"
 #include "StatusMessage.hpp"
 
@@ -171,7 +171,7 @@ void Search::EditSequence(const size_t Idx) {
 
 		} else {
 			if (Idx < this->Sequences.size()) {
-				std::unique_ptr<EncodingChar> ENCChar = std::make_unique<EncodingChar>();
+				std::unique_ptr<EncodingCharSelector> ENCChar = std::make_unique<EncodingCharSelector>();
 				this->Sequences[Idx] = ENCChar->Handler(this->Sequences[Idx]);
 			};
 		};
@@ -240,7 +240,7 @@ void Search::EnterChar(const bool FromKBD) {
 			};
 
 		} else {
-			std::unique_ptr<EncodingChar> ENCCHar = std::make_unique<EncodingChar>();
+			std::unique_ptr<EncodingCharSelector> ENCCHar = std::make_unique<EncodingCharSelector>();
 			this->Sequences.push_back(ENCCHar->Handler());
 		};
 	};

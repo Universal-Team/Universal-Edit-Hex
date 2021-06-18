@@ -25,9 +25,9 @@
 */
 
 #include "Common.hpp"
-#include "EncodingChar.hpp"
+#include "EncodingCharSelector.hpp"
 
-uint8_t EncodingChar::Handler(const uint8_t Old) {
+uint8_t EncodingCharSelector::Handler(const uint8_t Old) {
 	this->Selection = Old;
 
 	while(aptMainLoop()) {
@@ -38,28 +38,27 @@ uint8_t EncodingChar::Handler(const uint8_t Old) {
 
 		UniversalEdit::UE->DrawTop(); // Keep the top screen for sure.
 		UniversalEdit::UE->GData->DrawBottom();
+		Gui::Draw_Rect(0, 0, 320, 20, UniversalEdit::UE->TData->BarColor());
+		Gui::Draw_Rect(0, 20, 320, 1, UniversalEdit::UE->TData->BarOutline());
+		UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 0, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
+		Gui::DrawStringCentered(0, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SELECT_ENCODING_CHAR"), 310);
 
-		for (size_t Idx = 0; Idx < 0x10; Idx++) { // Upper Nums.
-			Gui::DrawString(this->XPos[Idx], 10, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::ToHex<uint8_t>(Idx));
-		};
 
-		for (size_t Idx = 0; Idx < 0x10; Idx++) { // Offset row.
-			Gui::DrawString(3, this->YPos[Idx], 0.4f, UniversalEdit::UE->TData->TextColor(), Common::ToHex<uint8_t>(Idx * 0x10));
-		};
+		for (size_t Idx = 0; Idx < 256; Idx++) { // Encoding characters.
+			if (Idx == this->Selection) Gui::Draw_Rect(this->XPos[Idx % 0x10], this->YPos[Idx / 0x10], 18, 12, UniversalEdit::UE->TData->SelectedByte());
+			else Gui::Draw_Rect(this->XPos[Idx % 0x10], this->YPos[Idx / 0x10], 18, 12, UniversalEdit::UE->TData->BarColor());
 
-		for (size_t Idx = 0; Idx < 256; Idx++) { // Encoding chars.
-			if (Idx == this->Selection) Gui::Draw_Rect(this->XPos[Idx % 0x10], this->YPos[Idx / 0x10], 18, 13, UniversalEdit::UE->TData->SelectedByte());
-			else Gui::Draw_Rect(this->XPos[Idx % 0x10], this->YPos[Idx / 0x10], 18, 13, UniversalEdit::UE->TData->BarColor());
-
-			Gui::DrawString(this->XPos[Idx % 0x10] + 3, this->YPos[Idx / 0x10] + 1, 0.4f, UniversalEdit::UE->TData->TextColor(), UniversalEdit::UE->CurrentFile->GetEncodingChar(Idx));
+			Gui::DrawString(this->XPos[Idx % 0x10] + 4, this->YPos[Idx / 0x10], 0.4f, UniversalEdit::UE->TData->TextColor(), UniversalEdit::UE->CurrentFile->GetEncodingChar(Idx));
 		};
 
 		C3D_FrameEnd(0);
 
 		uint32_t Down = 0, Repeat = 0;
+		touchPosition T;
 		hidScanInput();
 		Down = hidKeysDown();
 		Repeat = hidKeysDownRepeat();
+		hidTouchRead(&T);
 
 		if (Repeat & KEY_UP) {
 			if (this->Selection > 0xF) this->Selection -= 0x10;
@@ -75,6 +74,10 @@ uint8_t EncodingChar::Handler(const uint8_t Old) {
 
 		if (Repeat & KEY_RIGHT) {
 			if (this->Selection < 255) this->Selection++;
+		};
+
+		if (Down & KEY_TOUCH) {
+			if (Common::Touching(T, this->Back)) return Old;
 		};
 
 		if (Down & KEY_A) return this->Selection;

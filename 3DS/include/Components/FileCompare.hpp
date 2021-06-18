@@ -24,67 +24,26 @@
 *         reasonable ways as different from the original version.
 */
 
-#ifndef _UNIVERSAL_EDIT_ANALYZER_ANALYZE_HPP
-#define _UNIVERSAL_EDIT_ANALYZER_ANALYZE_HPP
+#ifndef _UNIVERSAL_EDIT_FILE_COMPARE_HPP
+#define _UNIVERSAL_EDIT_FILE_COMPARE_HPP
 
+#include "Actions.hpp"
 #include "structs.hpp"
-#include <functional>
 #include <string>
 #include <vector>
 
-class Analyze {
+class FileCompare {
 public:
-	void Draw();
 	void Handler();
 private:
-	void Back();
+	static constexpr uint8_t XPos[3] = { 35, 100, 245 };
+	static constexpr uint8_t YPos[6] = { 28, 63, 98, 133, 168, 203 };
 
-	void SwitchByteSize(const uint8_t Size);
-	void ToggleEndian();
-	void ToggleHex();
+	bool Confirmed = false;
+	uint32_t SPos = 0, Selection = 0;
+	std::vector<Actions::CompareStruct> Changes;
 
-	bool Hex = true; // Hexadecimal.
-	bool Endian = false; // Little Endian.
-
-	const std::vector<Structs::ButtonPos> Menu = {
-		{ 50, 0, 20, 20 }, // Back.
-
-		/* Byte size selection. */
-		{ 150, 40, 20, 20 },
-		{ 180, 40, 20, 20 },
-		{ 210, 40, 20, 20 },
-
-		/* Endian/Hex buttons */
-		{ 280, 40, 30, 20 },
-		{ 280, 80, 30, 20 },
-
-		/* Unsigned Byte. */
-		{ 210, 80, 30, 20 },
-
-		/* Signed Byte. */
-		{ 210, 110, 30, 20 },
-
-		/* Float. */
-		{ 260, 140, 30, 20 },
-
-		/* Binary. */
-		{ 260, 170, 30, 20 },
-
-		/* UTF-8. */
-		{ 260, 200, 30, 20 }
-	};
-
-	const std::vector<std::function<void()>> Funcs = {
-		{ [this]() { this->Back(); } },
-
-		{ [this]() { this->SwitchByteSize(1); } },
-		{ [this]() { this->SwitchByteSize(2); } },
-		{ [this]() { this->SwitchByteSize(4); } },
-
-		{ [this]() { this->ToggleEndian(); } },
-
-		{ [this]() { this->ToggleHex(); } }
-	};
+	const Structs::ButtonPos Back = { 0, 0, 20, 20 };
 };
 
 #endif

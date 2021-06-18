@@ -29,6 +29,7 @@
 #include "DirSelector.hpp"
 #include "PromptMessage.hpp"
 #include "StatusMessage.hpp"
+#include <unistd.h>
 
 #define BUFFER_SIZE 0x80000 // TODO: Find the best size or so..
 
@@ -438,4 +439,70 @@ std::vector<uint32_t> Actions::Search(const uint32_t StartOffs, const uint32_t S
 	};
 
 	return Res;
+};
+
+
+/*
+	Compare 2 files and return a vector with the Compare Struct of the changes / differences.
+
+	const std::string &File1: The first file to compare.
+	const std::string &File2: The second file to compare.
+
+	NOTE: Is that implementation good? Changes needed?
+*/
+std::vector<Actions::CompareStruct> Actions::CompareFiles(const std::string &File1, const std::string &File2) {
+	std::vector<Actions::CompareStruct> Results;
+
+	if ((access(File1.c_str(), F_OK) == 0) && (access(File2.c_str(), F_OK) == 0)) { // Ensure both files exist.
+		FILE *F1 = nullptr, *F2 = nullptr;
+		uint32_t F1Size = 0, F2Size = 0;
+
+		F1 = fopen(File1.c_str(), "rb");
+		
+		if (F1) {
+			fseek(F1, 0, SEEK_END);
+			F1Size = ftell(F1);
+			fseek(F1, 0, SEEK_SET);
+
+			F2 = fopen(File2.c_str(), "rb");
+
+			if (F2) {
+				fseek(F2, 0, SEEK_END);
+				F2Size = ftell(F2);
+				fseek(F2, 0, SEEK_SET);
+
+				const bool WhichIsSmaller = (F2Size < F1Size); // true: F1Size larger, false: F2Size larger.
+
+				for (size_t Idx = 0; Idx < (WhichIsSmaller ? F2Size : F1Size); Idx++) {
+					Common::ProgressMessage(
+						Common::GetStr("COMPARING") + "\n\n" +
+						"0x" + Common::ToHex<uint32_t>(Idx) + " | " + "0x" + Common::ToHex<uint32_t>((WhichIsSmaller ? F2Size : F1Size)) + "\n" +
+						Common::GetStr("FOUND_CHANGES") + std::to_string(Results.size())
+					);
+
+					uint8_t Val1 = 0, Val2 = 0;
+
+					hidScanInput();
+					if (hidKeysDown() & KEY_B) break; // break with B.
+
+					fread(&Val1, 1, 1, F1); fread(&Val2, 1, 1, F2); // Read both variables.
+
+					if (Val1 != Val2) {
+						try {
+							Results.push_back({ Idx, Val1, Val2 });
+
+						} catch(...) {
+							break; // Can't push anymore due to out of resources or so.
+						};
+					};
+				};
+
+				fclose(F2);
+			};
+
+			fclose(F1);
+		};
+	};
+
+	return Results;
 };

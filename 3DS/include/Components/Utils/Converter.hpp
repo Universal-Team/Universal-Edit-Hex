@@ -44,8 +44,8 @@ private:
 
 	const std::vector<Structs::ButtonPos> Menu = {
 		{ 50, 0, 20, 20 }, // Back.
-		{ 70, 80, 100, 30 }, // Hex Input.
-		{ 200, 80, 100, 30 }  // Decimal Input.
+		{ 114, 60, 140, 30 }, // Hex Input.
+		{ 114, 140, 140, 30 } // Decimal Input.
 	};
 
 	const std::vector<std::function<void()>> Funcs = {

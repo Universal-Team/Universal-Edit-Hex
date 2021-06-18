@@ -31,6 +31,12 @@
 #include <vector>
 
 namespace Actions {
+	struct CompareStruct {
+		uint32_t Offs = 0x0;
+		uint8_t File1 = 0x0;
+		uint8_t File2 = 0x0;
+	};
+
 	void Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToInsert);
 	void Remove(const uint32_t Offs, const uint32_t Size);
 
@@ -39,6 +45,7 @@ namespace Actions {
 	bool NewFile();
 
 	std::vector<uint32_t> Search(const uint32_t StartOffs, const uint32_t EndOffs, const std::vector<uint8_t> &Seq);
+	std::vector<CompareStruct> CompareFiles(const std::string &File1, const std::string &File2);
 };
 
 #endif

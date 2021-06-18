@@ -35,22 +35,22 @@ void Converter::Draw() {
 
 	/* Hex. */
 	Gui::Draw_Rect(this->Menu[1].x, this->Menu[1].y, this->Menu[1].w, this->Menu[1].h, UniversalEdit::UE->TData->ButtonColor());
-	Gui::DrawString(this->Menu[1].x + 5, this->Menu[1].y - 20, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("HEX"));
+	Gui::DrawStringCentered(24, this->Menu[1].y - 20, 0.6f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("HEX"));
 
 	if (this->Val < 0x100) { // uint8_t.
-		Gui::DrawString(this->Menu[1].x + 5, this->Menu[1].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint8_t>(this->Val));
+		Gui::DrawStringCentered(24, this->Menu[1].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint8_t>(this->Val));
 
 	} else if (this->Val > 0xFF && this->Val < 0x10000) { // uint16_t.
-		Gui::DrawString(this->Menu[1].x + 5, this->Menu[1].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint16_t>(this->Val));
+		Gui::DrawStringCentered(24, this->Menu[1].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint16_t>(this->Val));
 
 	} else { // all over uint16_t.
-		Gui::DrawString(this->Menu[1].x + 5, this->Menu[1].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint32_t>(this->Val));
+		Gui::DrawStringCentered(24, this->Menu[1].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint32_t>(this->Val));
 	};
 
 	/* Decimal. */
 	Gui::Draw_Rect(this->Menu[2].x, this->Menu[2].y, this->Menu[2].w, this->Menu[2].h, UniversalEdit::UE->TData->ButtonColor());
-	Gui::DrawString(this->Menu[2].x + 5, this->Menu[2].y - 20, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("DECIMAL"));
-	Gui::DrawString(this->Menu[2].x + 5, this->Menu[2].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), std::to_string(this->Val));
+	Gui::DrawStringCentered(24, this->Menu[2].y - 20, 0.6f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("DECIMAL"));
+	Gui::DrawStringCentered(24, this->Menu[2].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), std::to_string(this->Val));
 };
 
 void Converter::Handler() {

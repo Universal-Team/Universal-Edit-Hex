@@ -48,7 +48,6 @@ public:
 	void Draw();
 	void Handler();
 
-	static bool Endian; // Little Endian.
 	static SubMode Mode;
 private:
 	void AccessAnalyze();

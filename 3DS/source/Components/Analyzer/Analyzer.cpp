@@ -28,7 +28,6 @@
 #include "Common.hpp"
 #include "StatusMessage.hpp"
 
-bool Analyzer::Endian = false; // Little Endian.
 Analyzer::SubMode Analyzer::Mode = Analyzer::SubMode::Main;
 
 void Analyzer::Draw() {

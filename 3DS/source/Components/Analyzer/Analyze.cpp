@@ -46,7 +46,7 @@ void Analyze::Draw() {
 
 		/* Draw Endian and Hex/Dec buttons. */
 		Gui::Draw_Rect(this->Menu[4].x, this->Menu[4].y, this->Menu[4].w, this->Menu[4].h, UniversalEdit::UE->TData->ButtonColor()); // LE / BE.
-		Gui::DrawString(this->Menu[4].x + 6, this->Menu[4].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), (Analyzer::Endian ? "BE" : "LE"));
+		Gui::DrawString(this->Menu[4].x + 6, this->Menu[4].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), (this->Endian ? "BE" : "LE"));
 
 		Gui::Draw_Rect(this->Menu[5].x, this->Menu[5].y, this->Menu[5].w, this->Menu[5].h, UniversalEdit::UE->TData->ButtonColor()); // Hex / Dec.
 		Gui::DrawString(this->Menu[5].x + 4, this->Menu[5].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), (this->Hex ? "Hex" : "Dec"));
@@ -59,7 +59,7 @@ void Analyze::Draw() {
 			float F;
 		} Val;
 
-		if (Analyzer::Endian) { // Big Endian.
+		if (this->Endian) { // Big Endian.
 			for (int Idx = 0; Idx < UniversalEdit::UE->CurrentFile->GetSelectionSize() && UniversalEdit::UE->CurrentFile->GetCursor() + Idx < UniversalEdit::UE->CurrentFile->GetDisplaySize(); Idx++) {
 				Val.U32 |= *(UniversalEdit::UE->CurrentFile->DisplayData() + UniversalEdit::UE->CurrentFile->GetCursor() + Idx) << (UniversalEdit::UE->CurrentFile->GetSelectionSize() - 1 - Idx) * 8;
 			};
@@ -113,7 +113,7 @@ void Analyze::SwitchByteSize(const uint8_t Size) {
 	};
 };
 
-void Analyze::ToggleEndian() { Analyzer::Endian = !Analyzer::Endian; };
+void Analyze::ToggleEndian() { this->Endian = !this->Endian; };
 void Analyze::ToggleHex() { this->Hex = !this->Hex; };
 
 void Analyze::Handler() {

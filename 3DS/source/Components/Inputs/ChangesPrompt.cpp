@@ -30,6 +30,9 @@
 #define CHANGES_PER_LIST 4
 
 void ChangesPrompt::Handler() {
+	gspWaitForVBlank();
+	hidScanInput();
+
 	while(aptMainLoop() && !this->Confirmed) {
 		C2D_TargetClear(Top, C2D_Color32(0, 0, 0, 0));
 		C2D_TargetClear(Bottom, C2D_Color32(0, 0, 0, 0));
@@ -64,7 +67,6 @@ void ChangesPrompt::Handler() {
 		uint32_t Down = 0, Repeat = 0;
 		touchPosition T;
 		
-		gspWaitForVBlank();
 		hidScanInput();
 		Down = hidKeysDown();
 		Repeat = hidKeysDownRepeat();

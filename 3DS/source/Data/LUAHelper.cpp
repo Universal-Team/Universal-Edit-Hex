@@ -36,7 +36,8 @@
 #include "PromptMessage.hpp"
 #include "StatusMessage.hpp"
 #include "UniversalEdit.hpp"
-#include <unistd.h>
+#include <dirent.h> // mkdir.
+#include <unistd.h> // access().
 
 
 /*
@@ -123,6 +124,7 @@ static int Read(lua_State *LState) {
 	return 1;
 };
 
+
 /*
 	Read bit indexes from the currently open file.
 
@@ -163,6 +165,7 @@ static int ReadBits(lua_State *LState) {
 	lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->ReadBits(Offs, First));
 	return 1;
 };
+
 
 /*
 	Write a value to the currently open file.
@@ -337,6 +340,7 @@ static int StatusMSG(lua_State *LState) {
 	return 0;
 };
 
+
 /*
 	Just a prompt message that returns true or false, depending on what the user selected.
 	
@@ -356,6 +360,7 @@ static int Prompt(lua_State *LState) {
 	lua_pushboolean(LState, Res);
 	return 1;
 };
+
 
 /*
 	Select something from a list and return the selected index as an integer.
@@ -416,6 +421,7 @@ static int SelectJSONList(lua_State *LState) {
 	return 1;
 };
 
+
 /*
 	Opens the system Numpad to enter a value.
 
@@ -466,6 +472,7 @@ static int HexPad(lua_State *LState) {
 	lua_pushinteger(LState, Common::HexPad(Msg, CurVal, MinVal, MaxVal, Length));
 	return 1;
 };
+
 
 /*
 	Opens the system keyboard to enter a string.
@@ -524,6 +531,7 @@ static int DumpBytes(lua_State *LState) {
 	return 0;
 };
 
+
 /*
 	Inject a file into the current file's data.
 
@@ -576,6 +584,7 @@ static int InjectFile(lua_State *LState) {
 	return 0;
 };
 
+
 /*
 	Select a file from the SD Card and return the selected filepath.
 
@@ -617,13 +626,48 @@ static int SelectFile(lua_State *LState) {
 
 	Usage:
 		local Size = UniversalEdit.FileSize();
+
+	Could optionally have a string passed in to check for the specified file.
 */
 static int FileSize(lua_State *LState) {
-	if (lua_gettop(LState) != 0) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+	if (lua_gettop(LState) != 0 && lua_gettop(LState) != 1) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+
+	if (lua_gettop(LState) == 1) {
+		const std::string F = (std::string)(luaL_checkstring(LState, 1));
+
+		FILE *In = fopen(F.c_str(), "rb");
+		if (In) {
+			fseek(In, 0, SEEK_END);
+			lua_pushinteger(LState, ftell(In));
+			fclose(In);
+			return 1;
+
+		} else { // If not good, return -1 as the size.
+			lua_pushinteger(LState, -1);
+			return 1;
+		};
+	};
+
 
 	lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->GetSize());
 	return 1;
 };
+
+
+/*
+	The basic mkdir function.
+
+	Usage:
+		UniversalEdit.Mkdir("sdmc:/Test");
+*/
+static int Mkdir(lua_State *LState) {
+	if (lua_gettop(LState) != 1) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
+
+	const std::string Dir = (std::string)(luaL_checkstring(LState, 1));
+	mkdir(Dir.c_str(), 0x777);
+	return 0;
+};
+
 
 /*
 	Return the base path of the app.
@@ -698,6 +742,7 @@ static constexpr luaL_Reg UniversalEditFunctions[] = {
 	{ "InjectFile", InjectFile },
 	{ "SelectFile", SelectFile },
 	{ "FileSize", FileSize },
+	{ "Mkdir", Mkdir },
 	{ "BasePath", BasePath },
 	{ "ProgressMessage", ProgressMessage },
 	{ "SelectDir", SelectDir },

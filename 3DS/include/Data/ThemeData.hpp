@@ -32,8 +32,8 @@
 
 class ThemeData {
 public:
-	ThemeData(const std::string &ThemeJSON = "sdmc:/3ds/Universal-Edit/Themes.json");
-	nlohmann::json InitWithDefaultColors(const std::string &ThemePath = "sdmc:/3ds/Universal-Edit/Themes.json");
+	ThemeData(const std::string &ThemeJSON = "sdmc:/3ds/Universal-Edit-Hex/Themes.json");
+	nlohmann::json InitWithDefaultColors(const std::string &ThemePath = "sdmc:/3ds/Universal-Edit-Hex/Themes.json");
 	void LoadTheme(const std::string &ThemeName);
 	std::vector<std::pair<std::string, std::string>> ThemeNames();
 	uint32_t GetThemeColor(const std::string &ThemeName, const std::string &Key, const uint32_t DefaultColor);

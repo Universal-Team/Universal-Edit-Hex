@@ -39,14 +39,11 @@ UniversalEdit::UniversalEdit() {
 
 	/* Create base folders if missing. */
 	mkdir("sdmc:/3ds", 0777);
-	mkdir("sdmc:/3ds/Universal-Edit", 0777);
-
-	/* Hex Editor related. */
-	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor", 0777);
-	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor/Backups", 0777);
-	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor/Labels", 0777);
-	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor/Scripts", 0777);
-	mkdir("sdmc:/3ds/Universal-Edit/Hex-Editor/Encodings", 0777);
+	mkdir("sdmc:/3ds/Universal-Edit-Hex", 0777);
+	mkdir("sdmc:/3ds/Universal-Edit-Hex/Backups", 0777);
+	mkdir("sdmc:/3ds/Universal-Edit-Hex/Labels", 0777);
+	mkdir("sdmc:/3ds/Universal-Edit-Hex/Scripts", 0777);
+	mkdir("sdmc:/3ds/Universal-Edit-Hex/Encodings", 0777);
 
 	this->CData = std::make_unique<ConfigData>();
 	this->GData = std::make_unique<GFXData>();

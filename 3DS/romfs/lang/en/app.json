@@ -122,8 +122,6 @@
 	"SETTINGS_SCRIPT_BACKUP": "Backup on first file changes?",
 	"SEQUENCES": "Sequences",
 	"SEQUENCE_MENU": "Sequence Menu",
-	"SEQUENCE_MENU_ENCODING": "Sequence-Encoding Menu",
-	"SEQUENCE_MENU_VALUE": "Sequence-Value Menu",
 	"SIGNED_INT": "Signed int: ",
 	"SIZE": "Size: ",
 	"STATUS": "Status",

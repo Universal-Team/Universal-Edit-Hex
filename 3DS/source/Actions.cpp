@@ -41,7 +41,7 @@
 	const uint32_t Size: The size to insert.
 	const uint8_t ToInsert: The uint8_t value to insert. (0x0 - 0xFF)
 
-	This basically creates a temp file at sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin;
+	This basically creates a temp file at sdmc:/3ds/Universal-Edit-Hex/Temp.bin;
 	Action 1: Write the data until the start offset to the file.
 	Action 2: Append the ToInsert value with the given amount of size to the TEMP file.
 	Action 3: Copy the rest of the file to the TEMP file.
@@ -55,7 +55,7 @@ void Actions::Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToI
 		const bool ShouldDo = PM->Handler(Common::GetStr("INSERT_WARNING"));
 
 		if (ShouldDo) {
-			FILE *TEMPFILE = fopen("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", "wb");
+			FILE *TEMPFILE = fopen("sdmc:/3ds/Universal-Edit-Hex/Temp.bin", "wb");
 			uint32_t SizeToInsert = Offs; // Up until the offset.
 			std::vector<uint8_t> DataToCopy;
 
@@ -81,7 +81,7 @@ void Actions::Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToI
 			fclose(TEMPFILE);
 
 			/* Action 2: Append the new data AND then the rest of the FILE. */
-			TEMPFILE = fopen("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", "a"); // APPEND.
+			TEMPFILE = fopen("sdmc:/3ds/Universal-Edit-Hex/Temp.bin", "a"); // APPEND.
 			SizeToInsert = Size;
 			Common::ProgressMessage(Common::GetStr("INSERT_STEP_2") + "\n" + Common::ToHex<uint32_t>(SizeToInsert));
 
@@ -121,7 +121,7 @@ void Actions::Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToI
 			/* Action 3: Set to CURRENT File. */
 			UniversalEdit::UE->CurrentFile->End(); // Close.
 			std::remove(UniversalEdit::UE->CurrentFile->EditFile().c_str());
-			std::rename("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", UniversalEdit::UE->CurrentFile->EditFile().c_str()); // Move.
+			std::rename("sdmc:/3ds/Universal-Edit-Hex/Temp.bin", UniversalEdit::UE->CurrentFile->EditFile().c_str()); // Move.
 			UniversalEdit::UE->CurrentFile->Load(UniversalEdit::UE->CurrentFile->EditFile().c_str(), 0xD, 0x20000); // RELOAD.
 		};
 
@@ -138,7 +138,7 @@ void Actions::Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToI
 	const uint32_t Offs: The offset from where to start the remove.
 	const uint32_t Size: The size to remove.
 
-	This basically creates a temp file at sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin;
+	This basically creates a temp file at sdmc:/3ds/Universal-Edit-Hex/Temp.bin;
 	Action 1: Write the data until the start offset to the file.
 	Action 2: Skip the Offset + Size and append the data after it to the TEMP file.
 	Action 3: Remove current file, move temp file to current file and reload.
@@ -151,7 +151,7 @@ void Actions::Remove(const uint32_t Offs, const uint32_t Size) {
 		const bool ShouldDo = PM->Handler(Common::GetStr("REMOVE_WARNING"));
 
 		if (ShouldDo) {
-			FILE *TEMPFILE = fopen("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", "wb");
+			FILE *TEMPFILE = fopen("sdmc:/3ds/Universal-Edit-Hex/Temp.bin", "wb");
 
 			uint32_t SizeToInsert = Offs; // Up until the offset.
 			std::vector<uint8_t> DataToCopy;
@@ -177,7 +177,7 @@ void Actions::Remove(const uint32_t Offs, const uint32_t Size) {
 			fclose(TEMPFILE);
 
 			/* Action 2: SKIP the offset + size data and copy the rest. */
-			TEMPFILE = fopen("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", "a"); // APPEND.
+			TEMPFILE = fopen("sdmc:/3ds/Universal-Edit-Hex/Temp.bin", "a"); // APPEND.
 			SizeToInsert = UniversalEdit::UE->CurrentFile->GetSize() - (Offs + Size);
 
 			Common::ProgressMessage(Common::GetStr("REMOVE_STEP_2") + "\n" + Common::ToHex<uint32_t>(SizeToInsert));
@@ -204,7 +204,7 @@ void Actions::Remove(const uint32_t Offs, const uint32_t Size) {
 			/* Action 3: Set to CURRENT File. */
 			UniversalEdit::UE->CurrentFile->End(); // Close.
 			std::remove(UniversalEdit::UE->CurrentFile->EditFile().c_str());
-			std::rename("sdmc:/3ds/Universal-Edit/Hex-Editor/Temp.bin", UniversalEdit::UE->CurrentFile->EditFile().c_str()); // Move.
+			std::rename("sdmc:/3ds/Universal-Edit-Hex/Temp.bin", UniversalEdit::UE->CurrentFile->EditFile().c_str()); // Move.
 			UniversalEdit::UE->CurrentFile->Load(UniversalEdit::UE->CurrentFile->EditFile().c_str(), 0xD, 0x20000); // RELOAD.
 		};
 
@@ -361,19 +361,19 @@ bool Actions::SaveFileAs() {
 
 
 /*
-	Creates a new Temp file at "sdmc:/3ds/Universal-Edit/Temp.bin" with 1 byte.
+	Creates a new Temp file at "sdmc:/3ds/Universal-Edit-Hex/Temp.bin" with 1 byte.
 
 	Returns true if action succeeded.
 */
 bool Actions::NewFile() {
 	if (Common::GetFreeSpace() >= 0x1) {
-		FILE *Out = fopen("sdmc:/3ds/Universal-Edit/Temp.bin", "w");
+		FILE *Out = fopen("sdmc:/3ds/Universal-Edit-Hex/Temp.bin", "w");
 
 		if (Out) {
 			const uint8_t V = 0x0;
 			fwrite(&V, 1, 1, Out);
 			fclose(Out);
-			UniversalEdit::UE->CurrentFile->Load("sdmc:/3ds/Universal-Edit/Temp.bin", 0xD, 0x20000); // Load.
+			UniversalEdit::UE->CurrentFile->Load("sdmc:/3ds/Universal-Edit-Hex/Temp.bin", 0xD, 0x20000); // Load.
 
 			return true;
 		};

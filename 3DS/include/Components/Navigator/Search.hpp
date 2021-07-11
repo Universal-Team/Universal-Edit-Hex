@@ -38,7 +38,6 @@ public:
 private:
 	enum class DisplayMode : uint8_t { Main = 0, Sequence = 1, Results = 2 };
 	DisplayMode Mode = DisplayMode::Main;
-	bool SeqMode = true; // False: Encoding.
 	uint32_t SPos = 0, Selection = 0, Offs = 0, Size = 0;
 	std::vector<uint8_t> Sequences; // All the sequences.
 	std::vector<uint32_t> FoundResults; // Found results.
@@ -52,10 +51,17 @@ private:
 	void DrawSequenceList();
 	void EditSequence(const size_t Idx);
 	void RemoveSequence(const size_t Idx);
-	void EnterChar(const bool FromKBD = false);
 	void AddSequence();
 	void ClearSequence();
 	void SequenceHandler();
+
+	void AddHexValue();
+	void AddEncodingGrid();
+	void AddEncodingString();
+	void AddUTF8String();
+	void AddUTF16LEString();
+	void AddUTF16BEString();
+
 
 	/* Some other Actions. */
 	void Back();

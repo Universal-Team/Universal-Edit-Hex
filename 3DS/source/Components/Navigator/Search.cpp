@@ -27,6 +27,7 @@
 #include "Actions.hpp"
 #include "Common.hpp"
 #include "EncodingCharSelector.hpp"
+#include "ListSelection.hpp"
 #include "Search.hpp"
 #include "StatusMessage.hpp"
 
@@ -136,7 +137,7 @@ void Search::DrawSequenceList() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
 	UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 50, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
-	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), (this->SeqMode ? Common::GetStr("SEQUENCE_MENU_VALUE") : Common::GetStr("SEQUENCE_MENU_ENCODING")), 310);
+	Gui::DrawStringCentered(24, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SEQUENCE_MENU"), 310);
 
 	if (FileHandler::Loaded) {
 		for (uint8_t Idx = 0; Idx < SEQUENCE_PER_LIST && Idx < this->Sequences.size(); Idx++) {
@@ -145,8 +146,7 @@ void Search::DrawSequenceList() {
 			Gui::Draw_Rect(this->SeqMenu[Idx + 1].x, this->SeqMenu[Idx + 1].y, this->SeqMenu[Idx + 1].w, this->SeqMenu[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 
 			/* Draw Sequence. */
-			if (this->SeqMode) Gui::DrawStringCentered(15, this->SeqMenu[Idx + 1].y + 6, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::ToHex<uint8_t>(this->Sequences[this->SPos + Idx]));
-			else Gui::DrawStringCentered(15, this->SeqMenu[Idx + 1].y + 6, 0.5f, UniversalEdit::UE->TData->TextColor(), UniversalEdit::UE->CurrentFile->GetEncodingChar(this->Sequences[this->SPos + Idx]));
+			Gui::DrawStringCentered(15, this->SeqMenu[Idx + 1].y + 6, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::ToHex<uint8_t>(this->Sequences[this->SPos + Idx]));
 
 			/* Display Remove button next to sequence. */
 			Gui::Draw_Rect(this->SeqMenu[Idx + 6].x, this->SeqMenu[Idx + 6].y, this->SeqMenu[Idx + 6].w, this->SeqMenu[Idx + 6].h, UniversalEdit::UE->TData->ButtonColor());
@@ -161,20 +161,14 @@ void Search::DrawSequenceList() {
 	};
 };
 
-/* Edit Sequence. */
+/*
+	TODO: Handle this. Not sure what's the best way.
+	
+	Edit Sequence.
+*/
 void Search::EditSequence(const size_t Idx) {
 	if (FileHandler::Loaded) {
-		if (this->SeqMode) {
-			if (Idx < this->Sequences.size()) {
-				this->Sequences[Idx] = (uint8_t)Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), this->Sequences[Idx], 0x0, 0xFF, 4);
-			};
 
-		} else {
-			if (Idx < this->Sequences.size()) {
-				std::unique_ptr<EncodingCharSelector> ENCChar = std::make_unique<EncodingCharSelector>();
-				this->Sequences[Idx] = ENCChar->Handler(this->Sequences[Idx]);
-			};
-		};
 	};
 };
 
@@ -196,11 +190,112 @@ void Search::RemoveSequence(const size_t Idx) {
 	};
 };
 
+
+void Search::AddHexValue() {
+	if (FileHandler::Loaded) {
+		this->Sequences.push_back((uint8_t)Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), 0x0, 0x0, 0xFF, 4));
+	};
+};
+
+void Search::AddEncodingGrid() {
+	if (FileHandler::Loaded) {
+		std::unique_ptr<EncodingCharSelector> ENCCHar = std::make_unique<EncodingCharSelector>();
+		this->Sequences.push_back(ENCCHar->Handler());
+	};
+};
+
+void Search::AddEncodingString() {
+	if (FileHandler::Loaded) {
+		const std::string V = Common::Keyboard(Common::GetStr("ENTER_SEARCH"), "", 100);
+			
+		if (V != "") {
+			this->Sequences.clear();
+
+			bool Match = false;
+			uint8_t IdxToPush = 0;
+
+			for (size_t Str = 0; Str < V.size(); Str++) { // Check each character.
+				Match = false, IdxToPush = 0;
+
+				for (size_t Idx = 0; Idx < 256; Idx++) { // Loop through the encoding.
+					if (UniversalEdit::UE->CurrentFile->GetEncodingChar(Idx) == std::string(1, V[Str])) {
+						Match = true;
+						IdxToPush = Idx;
+						break;
+					};
+				};
+
+				if (Match) this->Sequences.push_back(IdxToPush);
+			};
+		};
+	};
+};
+
+void Search::AddUTF8String() {
+	if (FileHandler::Loaded) {
+
+	};
+};
+
+void Search::AddUTF16LEString() {
+	if (FileHandler::Loaded) {
+
+	};
+};
+
+void Search::AddUTF16BEString() {
+	if (FileHandler::Loaded) {
+
+	};
+};
+
+
 /* Add Sequence. */
 void Search::AddSequence() {
 	if (FileHandler::Loaded) {
-		if (this->SeqMode) this->Sequences.push_back((uint8_t)Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), 0x0, 0x0, 0xFF, 4));
-		else this->EnterChar(false);
+		std::vector<std::string> Options = { "Hex Value", "Encoding Grid", "String From Keyboard" };
+		std::unique_ptr<ListSelection> List = std::make_unique<ListSelection>();
+		const int Res = List->Handler("Select what you like to add.", Options);
+
+		if (Res != -1) { // -1 -> Cancel.
+			switch(Res) {
+				case 0: // Hex Value.
+					this->AddHexValue();
+					break;
+
+				case 1: // Encoding Grid.
+					this->AddEncodingGrid();	
+					break;
+
+				case 2: { // String From Keyboard.
+					Options = { "Encoding", "UTF-8", "UTF-16 (LE)", "UTF-16 (BE)" };
+					List = std::make_unique<ListSelection>();
+					const int Res2 = List->Handler("Select the string type.", Options);
+
+					if (Res2 != -1) {
+						switch(Res2) {
+							case 0: // Encoding.
+								this->AddEncodingString();
+								break;
+
+							case 1: // UTF-8.
+								this->AddUTF8String();
+								break;
+
+							case 2: // UTF-16 LE.
+								this->AddUTF16LEString();
+								break;
+
+							case 3: // UTF-16 BE.
+								this->AddUTF16BEString();
+								break;
+						};
+					};
+				};
+
+				break;
+			};
+		};
 	};
 };
 
@@ -213,45 +308,9 @@ void Search::ClearSequence() {
 	};
 };
 
-void Search::EnterChar(const bool FromKBD) {
-	if (FileHandler::Loaded) {
-		if (FromKBD) {
-			const std::string V = Common::Keyboard(Common::GetStr("ENTER_SEARCH"), "", 100);
-			
-			if (V != "") {
-				this->Sequences.clear();
-
-				bool Match = false;
-				uint8_t IdxToPush = 0;
-
-				for (size_t Str = 0; Str < V.size(); Str++) { // Check each character.
-					Match = false, IdxToPush = 0;
-
-					for (size_t Idx = 0; Idx < 256; Idx++) { // Loop through the encoding.
-						if (UniversalEdit::UE->CurrentFile->GetEncodingChar(Idx) == std::string(1, V[Str])) {
-							Match = true;
-							IdxToPush = Idx;
-							break;
-						};
-					};
-
-					if (Match) this->Sequences.push_back(IdxToPush);
-				};
-			};
-
-		} else {
-			std::unique_ptr<EncodingCharSelector> ENCCHar = std::make_unique<EncodingCharSelector>();
-			this->Sequences.push_back(ENCCHar->Handler());
-		};
-	};
-};
-
-
 /* Handle of the Sequence List. */
 void Search::SequenceHandler() {
 	if (FileHandler::Loaded) {
-		if (UniversalEdit::UE->Down & KEY_L || UniversalEdit::UE->Down & KEY_R) this->SeqMode = !this->SeqMode;
-
 		if (this->Sequences.size() > 0) {
 			if (UniversalEdit::UE->Repeat & KEY_UP) {
 				if (this->Selection > 0) this->Selection--;
@@ -277,10 +336,6 @@ void Search::SequenceHandler() {
 		if (UniversalEdit::UE->Down & KEY_X) this->RemoveSequence(this->Selection); // X: Remove.
 		if (UniversalEdit::UE->Down & KEY_Y) this->AddSequence(); // Y: Add.
 		if (UniversalEdit::UE->Down & KEY_B) this->Back(); // B: Back.
-
-		if (UniversalEdit::UE->Down & KEY_SELECT) {
-			if (!this->SeqMode) this->EnterChar(true);
-		};
 
 		if (UniversalEdit::UE->Down & KEY_TOUCH) {
 			if (Common::Touching(UniversalEdit::UE->T, this->SeqMenu[0])) {

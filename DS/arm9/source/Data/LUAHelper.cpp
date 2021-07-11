@@ -349,7 +349,7 @@ static int SelectList(lua_State *LState) {
 	Select something from a JSON File list and return the selected index as an integer.
 
 	Usage:
-	local SelectedIdx = UniversalEdit.SelectJSONList("Select Something from the list.", "sd:/_nds/Universal-Edit/Hex-Editor/Scripts/Test.json");
+	local SelectedIdx = UniversalEdit.SelectJSONList("Select Something from the list.", "sd:/_nds/Universal-Edit-Hex/Scripts/Test.json");
 
 	First: Message to display of what should be selected or so.
 	Second: Path to the JSON File.
@@ -507,7 +507,7 @@ static int InjectFile(lua_State *LState) {
 	Select a file from the SD Card and return the selected filepath.
 
 	Usage:
-	local SelectedFilePath = UniversalEdit.SelectFile("Select a file", "sd:/_nds/Universal-Edit/", true, { "lua" });
+	local SelectedFilePath = UniversalEdit.SelectFile("Select a file", "sd:/_nds/Universal-Edit-Hex/", true, { "lua" });
 
 	First: Message to display of what should be selected or so.
 	Second: Default Path.
@@ -556,7 +556,7 @@ static int FileSize(lua_State *LState) {
 	The basic mkdir function.
 
 	Usage:
-		UniversalEdit.Mkdir("sdmc:/Test");
+		UniversalEdit.Mkdir("sd:/Test");
 */
 static int Mkdir(lua_State *LState) {
 	if (lua_gettop(LState) != 1) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
@@ -576,7 +576,7 @@ static int Mkdir(lua_State *LState) {
 static int BasePath(lua_State *LState) {
 	if (lua_gettop(LState) != 0) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
-	lua_pushstring(LState, "/_nds/Universal-Edit/");
+	lua_pushstring(LState, "/_nds/Universal-Edit-Hex/");
 	return 1;
 };
 
@@ -598,7 +598,7 @@ static int ProgressMessage(lua_State *LState) {
 	Select a Destination for a file or so.
 
 	Usage:
-	local SelectedPath = UniversalEdit.SelectDir("Select a destination for file x.", "sd:/_nds/Universal-Edit/");
+	local SelectedPath = UniversalEdit.SelectDir("Select a destination for file x.", "sd:/_nds/Universal-Edit-Hex/");
 
 	First: Message to display of what should be selected or so.
 	Second: Default Path.

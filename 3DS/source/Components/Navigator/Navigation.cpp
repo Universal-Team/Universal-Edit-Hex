@@ -84,19 +84,11 @@ void Navigation::Handler() {
 
 
 void Navigation::AccessSearch() {
-	//std::unique_ptr<StatusMessage> SMsg = std::make_unique<StatusMessage>();
-	//SMsg->Handler(Common::GetStr("FEATURE_NOT_WORKING_YET"), -1);
-	//return;
-
 	Navigation::Mode = Navigation::SubMode::Search;
 };
 
 void Navigation::AccessRemInsert() {
-	//std::unique_ptr<StatusMessage> SMsg = std::make_unique<StatusMessage>();
-	//SMsg->Handler(Common::GetStr("FEATURE_NOT_WORKING_YET"), -1);
-	//return;
-
-	Navigation::Mode = Navigation::SubMode::Reminsert; // Not working YET.
+	Navigation::Mode = Navigation::SubMode::Reminsert;
 };
 
 void Navigation::JumpTo() {

@@ -39,7 +39,6 @@
 #include <dirent.h> // mkdir.
 #include <unistd.h> // access().
 
-
 /*
 	Read a value from the currently open file.
 
@@ -397,7 +396,7 @@ static int SelectList(lua_State *LState) {
 	Select something from a JSON File list and return the selected index as an integer.
 
 	Usage:
-	local SelectedIdx = UniversalEdit.SelectJSONList("Select Something from the list.", "sdmc:/3ds/Universal-Edit/Hex-Editor/Scripts/Test.json");
+	local SelectedIdx = UniversalEdit.SelectJSONList("Select Something from the list.", "sdmc:/3ds/Universal-Edit-Hex/Scripts/Test.json");
 
 	First: Message to display of what should be selected or so.
 	Second: Path to the JSON File.
@@ -536,7 +535,7 @@ static int DumpBytes(lua_State *LState) {
 	Inject a file into the current file's data.
 
 	Usage:
-		UniversalEdit.InjectFile(0x100, "sd:/Test.txt");
+		UniversalEdit.InjectFile(0x100, "sdmc:/Test.txt");
 
 	First: The offset where to inject the data.
 	Second: The file to inject.
@@ -589,7 +588,7 @@ static int InjectFile(lua_State *LState) {
 	Select a file from the SD Card and return the selected filepath.
 
 	Usage:
-	local SelectedFilePath = UniversalEdit.SelectFile("Select a file", "sdmc:/3ds/Universal-Edit/", true, { "lua" });
+	local SelectedFilePath = UniversalEdit.SelectFile("Select a file", "sdmc:/3ds/Universal-Edit-Hex/", true, { "lua" });
 
 	First: Message to display of what should be selected or so.
 	Second: Default Path.
@@ -678,7 +677,7 @@ static int Mkdir(lua_State *LState) {
 static int BasePath(lua_State *LState) {
 	if (lua_gettop(LState) != 0) return luaL_error(LState, Common::GetStr("WRONG_NUMBER_OF_ARGUMENTS").c_str());
 
-	lua_pushstring(LState, "sdmc:/3ds/Universal-Edit/");
+	lua_pushstring(LState, "sdmc:/3ds/Universal-Edit-Hex/");
 	return 1;
 };
 
@@ -704,7 +703,7 @@ static int ProgressMessage(lua_State *LState) {
 	Select a Destination for a file or so.
 
 	Usage:
-	local SelectedPath = UniversalEdit.SelectDir("Select a destination for file x.", "sdmc:/3ds/Universal-Edit/");
+	local SelectedPath = UniversalEdit.SelectDir("Select a destination for file x.", "sdmc:/3ds/Universal-Edit-Hex/");
 
 	First: Message to display of what should be selected or so.
 	Second: Default Path.
@@ -763,7 +762,7 @@ static void InitLibraries(lua_State *LState) {
 void LUAHelper::RunScript() {
 	/* Find a file. */
 	std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
-	const std::string LUAFile = FB->Handler("sdmc:/3ds/Universal-Edit/Hex-Editor/Scripts/", true, Common::GetStr("SELECT_SCRIPT"), { "lua" });
+	const std::string LUAFile = FB->Handler("sdmc:/3ds/Universal-Edit-Hex/Scripts/", true, Common::GetStr("SELECT_SCRIPT"), { "lua" });
 	if (LUAFile == "") return;
 	
 	std::pair<int, std::string> Status = std::make_pair(0, "");

@@ -29,11 +29,11 @@
 #include <unistd.h>
 
 #ifdef _3DS
-	#define CONFIG_PATH "sdmc:/3ds/Universal-Edit/Config.json"
-	#define BACKUP_PATH "sdmc:/3ds/Univeral-Edit/Hex-Editor/Backups/"
+	#define CONFIG_PATH "sdmc:/3ds/Universal-Edit-Hex/Config.json"
+	#define BACKUP_PATH "sdmc:/3ds/Univeral-Edit-Hex/Backups/"
 #elif ARM9
-	#define CONFIG_PATH "sd:/_nds/Universal-Edit/Config.json"
-	#define BACKUP_PATH "sd:/_nds/Univeral-Edit/Hex-Editor/Backups/"
+	#define CONFIG_PATH "sd:/_nds/Universal-Edit-Hex/Config.json"
+	#define BACKUP_PATH "sd:/_nds/Univeral-Edit-Hex/Backups/"
 #endif
 
 /* Detects system language and is used later to set app language to system language. */

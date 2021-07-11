@@ -74,7 +74,7 @@ void Utils::Labels() {
 	if (FileHandler::Loaded) {
 		if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) {
 			std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
-			const std::string LBFile = FB->Handler("sdmc:/3ds/Universal-Edit/Hex-Editor/Labels/", true, Common::GetStr("SELECT_LABEL"), { "json" });
+			const std::string LBFile = FB->Handler("sdmc:/3ds/Universal-Edit-Hex/Labels/", true, Common::GetStr("SELECT_LABEL"), { "json" });
 
 			if (LBFile != "") {
 				std::unique_ptr<LabelSelector> Label = std::make_unique<LabelSelector>();
@@ -110,7 +110,7 @@ void Utils::Encoding() {
 		const bool Res = PMessage->Handler(Common::GetStr("ENCODING_LOAD"));
 
 		std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
-		const std::string EncodingFile = FB->Handler((Res ? "sdmc:/3ds/Universal-Edit/Hex-Editor/Encodings/" : "romfs:/encodings/"), true, "Select the Encoding you like to use.", { "json" });
+		const std::string EncodingFile = FB->Handler((Res ? "sdmc:/3ds/Universal-Edit-Hex/Encodings/" : "romfs:/encodings/"), true, "Select the Encoding you like to use.", { "json" });
 
 		if (EncodingFile != "") UniversalEdit::UE->CurrentFile->LoadEncoding(EncodingFile);
 	};

@@ -79,10 +79,12 @@ void ChangesPrompt::Handler() {
 
 		if (Repeat & KEY_DOWN) {
 			if (this->Selection < UniversalEdit::UE->CurrentFile->GetChanges().size() - 1) this->Selection++;
+			else this->Selection = 0;
 		};
 
 		if (Repeat & KEY_UP) {
 			if (this->Selection > 0) this->Selection--;
+			else this->Selection = UniversalEdit::UE->CurrentFile->GetChanges().size() - 1;
 		};
 
 		if (Down & KEY_TOUCH) {

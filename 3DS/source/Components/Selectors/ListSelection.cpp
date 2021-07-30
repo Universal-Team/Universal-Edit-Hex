@@ -69,10 +69,12 @@ int ListSelection::Handler(const std::string &Text, const std::vector<std::strin
 
 		if (Repeat & KEY_UP) {
 			if (this->Selection > 0) this->Selection--;
+			else this->Selection = (int)this->SelectData.size() - 1;
 		};
 
 		if (Repeat & KEY_DOWN) {
 			if (this->Selection < (int)this->SelectData.size() - 1) this->Selection++;
+			else this->Selection = 0;
 		};
 
 		if (Repeat & KEY_LEFT) {

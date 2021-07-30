@@ -58,10 +58,12 @@ void Changes::Handler() {
 	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile) {
 		if (UniversalEdit::UE->Repeat & KEY_DOWN) {
 			if (this->Selection < UniversalEdit::UE->CurrentFile->GetChanges().size() - 1) this->Selection++;
+			else this->Selection = 0;
 		};
 
 		if (UniversalEdit::UE->Repeat & KEY_UP) {
 			if (this->Selection > 0) this->Selection--;
+			else this->Selection = UniversalEdit::UE->CurrentFile->GetChanges().size() - 1;
 		};
 	};
 

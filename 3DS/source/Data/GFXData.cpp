@@ -52,8 +52,8 @@ void GFXData::Sprite(const size_t Idx, const int X, const int Y) {
 
 
 void GFXData::SpriteBlend(const int Idx, const int X, const int Y, const uint32_t Color, const float BlendPower) {
-	C2D_ImageTint tint;
-	C2D_PlainImageTint(&tint, Color, BlendPower);
+	C2D_ImageTint Tint;
+	C2D_PlainImageTint(&Tint, Color, BlendPower);
 
-	C2D_DrawImageAt(C2D_SpriteSheetGetImage(this->Sprites, Idx), X, Y, 0.5f, &tint);
+	C2D_DrawImageAt(C2D_SpriteSheetGetImage(this->Sprites, Idx), X, Y, 0.5f, &Tint);
 };

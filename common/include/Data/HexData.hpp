@@ -79,7 +79,7 @@ public:
 		} else {
 			if (Offs < this->GetEditSize()) return this->Encoding[this->ReadFromEditBuffer<uint8_t>(Offs, false)];
 			else return ".";
-		};
+		}
 
 		return ".";
 	};
@@ -95,8 +95,8 @@ public:
 		if (BigEndian) {
 			for (size_t Idx = 0; Idx < sizeof(T) && Offs + Idx < this->GetEditSize(); Idx++) {
 				Val |= *(this->EditData() + Offs + Idx) << (sizeof(T) - 1 - Idx) * 8;
-			};
-		};
+			}
+		}
 
 		return Val;
 	};
@@ -110,7 +110,7 @@ public:
 				this->_EditData[Offs + Idx] = (uint8_t)Data;
 				this->Changes[this->EditStart() + Offs + Idx] = (uint8_t)Data;
 				Data >>= 8; // Go to the last byte.
-			};
+			}
 
 			this->UpdateDisplay();
 
@@ -119,10 +119,10 @@ public:
 				this->_EditData[Offs + Idx] = (uint8_t)Data;
 				this->Changes[this->EditStart() + Offs + Idx] = (uint8_t)Data;
 				Data >>= 8; // Go to the next byte.
-			};
+			}
 
 			this->UpdateDisplay();
-		};
+		}
 	};
 
 	template <class T> std::vector<T> ReadScript(const uint32_t Offs, const uint32_t Count = 0x1, const bool BigEndian = false) {
@@ -136,7 +136,7 @@ public:
 
 		} catch(...) {
 			return { 0 }; // Likely out of space, so just return 0.
-		};
+		}
 
 		if (BigEndian) { // TODO: Correct that like before, for now hardcode the ways for u16 and u32, cause that's all you really need actually.
 			for (size_t Idx = 0; Idx < Count; Idx++) { // Get through the whole vector.
@@ -145,10 +145,10 @@ public:
 
 				} else if (sizeof(T) == 4) { // uint32_t.
 					Read[Idx] = (Read[Idx] >> 24) | ((Read[Idx] << 8) & 0x00FF0000) | ((Read[Idx] >> 8) & 0x0000FF00) | (Read[Idx] << 24);
-				};
-			};
+				}
+			}
 
-		};
+		}
 
 		return Read;
 	};
@@ -175,8 +175,8 @@ public:
 
 			} else if (sizeof(T) == 4) { // uint32_t.
 				Read = (Read >> 24) | ((Read << 8) & 0x00FF0000) | ((Read >> 8) & 0x0000FF00) | (Read << 24);
-			};
-		};
+			}
+		}
 
 		return Read;
 	};
@@ -190,14 +190,14 @@ public:
 			for (int Idx = (int)sizeof(T) - 1; Idx >= 0; Idx--) { // Backwards.
 				this->Changes[Offs + Idx] = (uint8_t)Data; // Set data to our changes map.
 				Data >>= 8; // Go to the last byte.
-			};
+			}
 
 		} else { // Little Endian.
 			for (size_t Idx = 0; Idx < sizeof(T); Idx++) { // Forwards.
 				this->Changes[Offs + Idx] = (uint8_t)Data; // Set data to our changes map.
 				Data >>= 8; // Go to the next byte.
-			};
-		};
+			}
+		}
 	};
 
 

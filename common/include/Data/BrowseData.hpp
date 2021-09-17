@@ -73,8 +73,8 @@ private:
 	std::vector<std::string> ListEntries = { }; // Only used in List mode.
 	std::vector<std::string> ExtensionList; // Well, the Extensions for File mode.
 
-	bool NameEndsWith(const std::string &Name, const std::vector<std::string> &ExtensionList);
-	std::vector<std::string> GetFileList();
+	bool NameEndsWith(const std::string &Name, const std::vector<std::string> &ExtensionList) const;
+	std::vector<std::string> GetFileList() const;
 	void FetchDirectoryEntries(const std::vector<std::string> &ExtList = { });
 };
 

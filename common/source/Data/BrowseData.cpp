@@ -43,6 +43,7 @@ BrowseData::BrowseData(const std::string &Path, const std::vector<std::string> &
 	this->FetchDirectoryEntries(this->ExtensionList);
 };
 
+
 /*
 	Browser Initializer for a List type.
 
@@ -50,24 +51,26 @@ BrowseData::BrowseData(const std::string &Path, const std::vector<std::string> &
 */
 BrowseData::BrowseData(const std::vector<std::string> &List) : ListEntries(List) { this->Type = BrowserType::List; };
 
+
 /*
 	Return, if a specific Name ends with an Extension.
 
 	const std::string &Name: The Filename to check.
 	const std::vector<std::string> &ExtList: The Extension list which to check.
 */
-bool BrowseData::NameEndsWith(const std::string &Name, const std::vector<std::string> &ExtList) {
+bool BrowseData::NameEndsWith(const std::string &Name, const std::vector<std::string> &ExtList) const {
 	if (Name.substr(0, 2) == "._") return false;
 	if (Name.size() == 0) return false;
 	if (ExtList.size() == 0) return true;
 
-	for(int Idx = 0; Idx < (int)ExtList.size(); Idx++) {
+	for(size_t Idx = 0; Idx < ExtList.size(); Idx++) {
 		const std::string Ext = ExtList.at(Idx);
 		if (strcasecmp(Name.c_str() + Name.size() - Ext.size(), Ext.c_str()) == 0) return true;
-	};
+	}
 
 	return false;
 };
+
 
 /*
 	Predict File Entries Alphabetically.
@@ -81,6 +84,7 @@ bool DirEntryPredicate(const BrowseData::DirEntry &First, const BrowseData::DirE
 
 	return strcasecmp(First.Name.c_str(), Second.Name.c_str()) < 0;
 };
+
 
 /*
 	Fetches Directory Contents.
@@ -105,26 +109,28 @@ void BrowseData::FetchDirectoryEntries(const std::vector<std::string> &ExtList) 
 
 			if (DEntry.Name.compare(".") != 0 && (DEntry.IsDirectory || this->NameEndsWith(DEntry.Name, (ExtList.empty() ? this->ExtensionList : ExtList)))) {
 				this->DirEntries.push_back(DEntry);
-			};
-		};
+			}
+		}
 
 		closedir(PDir);
-	};
+	}
 
 	std::sort(this->DirEntries.begin(), this->DirEntries.end(), DirEntryPredicate); // Sort this alphabetically.
 	if (this->CanDirBack()) this->DirEntries.insert(this->DirEntries.begin(), { "..", "", false }); // Push a ".." for going back.
 };
 
+
 /* Returns the Directory Entry Files as a vector of strings. */
-std::vector<std::string> BrowseData::GetFileList() {
+std::vector<std::string> BrowseData::GetFileList() const {
 	std::vector<std::string> TMP = { };
 
 	if (!this->DirEntries.empty()) {
-		for (int Idx = 0; Idx < (int)this->DirEntries.size(); Idx++) TMP.push_back(this->DirEntries[Idx].Name);
-	};
+		for (size_t Idx = 0; Idx < this->DirEntries.size(); Idx++) TMP.push_back(this->DirEntries[Idx].Name);
+	}
 
 	return TMP;
 };
+
 
 /* Up, Down, Left and Right Callbacks. */
 void BrowseData::Up() {
@@ -140,7 +146,7 @@ void BrowseData::Up() {
 			if (this->Selected > 0) this->Selected--;
 			else this->Selected = (int)this->ListEntries.size() - 1;
 			break;
-	};
+	}
 };
 
 void BrowseData::Down() {
@@ -156,7 +162,7 @@ void BrowseData::Down() {
 			if (this->Selected < (int)this->ListEntries.size() - 1) this->Selected++;
 			else this->Selected = 0;
 			break;
-	};
+	}
 };
 
 void BrowseData::Left(const int Amount) {
@@ -179,7 +185,7 @@ void BrowseData::Right(const int Amount) {
 			if (this->Selected + Amount < (int)this->ListEntries.size() - 1) this->Selected += Amount;
 			else this->Selected = (int)this->ListEntries.size() - 1;
 			break;
-	};
+	}
 };
 
 
@@ -196,10 +202,11 @@ bool BrowseData::OpenHandle() {
 
 		case BrowserType::List:
 			return false;
-	};
+	}
 
 	return false;
 };
+
 
 /* Return, if you can go a directory back or not. */
 bool BrowseData::CanDirBack() {
@@ -209,10 +216,11 @@ bool BrowseData::CanDirBack() {
 
 		/* Check for romfs, nitro, sdmc, /, sd and fat. */
 		if ((strcmp(Path, "romfs:/") == 0) || (strcmp(Path, "nitro:/") == 0) || strcmp(Path, "sdmc:/") == 0 || strcmp(Path, "/") == 0 || strcmp(Path, "sd:/") == 0 || (strcmp(Path, "fat:/") == 0)) return false;
-	};
+	}
 
 	return true;
 };
+
 
 /* Goes a directory back. */
 void BrowseData::GoDirBack() {
@@ -222,8 +230,9 @@ void BrowseData::GoDirBack() {
 		chdir("..");
 		this->FetchDirectoryEntries();
 		this->Selected = 0;
-	};
+	}
 };
+
 
 /* Goes a directory up. */
 void BrowseData::GoDirUp() {
@@ -236,6 +245,7 @@ void BrowseData::GoDirUp() {
 		this->Selected = 0;
 	}
 };
+
 
 /*
 	Set the Selected Selection.
@@ -260,12 +270,13 @@ bool BrowseData::SetSelection(const int Selection) {
 			if (Selection <= (int)this->ListEntries.size() - 1) {
 				this->Selected = Selection;
 				return true;
-			};
+			}
 			break;
-	};
+	}
 
 	return false;
 };
+
 
 /* Returns the current working directory. */
 std::string BrowseData::GetPath() const {
@@ -274,6 +285,7 @@ std::string BrowseData::GetPath() const {
 
 	return Path;
 };
+
 
 void BrowseData::RefreshList() {
 	this->FetchDirectoryEntries(this->ExtensionList);

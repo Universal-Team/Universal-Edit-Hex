@@ -27,6 +27,7 @@
 #include "Common.hpp"
 #include "EditBytes.hpp"
 
+
 void EditBytes::Draw() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
@@ -38,7 +39,7 @@ void EditBytes::Draw() {
 		for (uint8_t Idx = 0; Idx < 5; Idx++) {
 			Gui::Draw_Rect(this->Menu[Idx + 1].x - 2, this->Menu[Idx + 1].y - 2, this->Menu[Idx + 1].w + 4, this->Menu[Idx + 1].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 			Gui::Draw_Rect(this->Menu[Idx + 1].x, this->Menu[Idx + 1].y, this->Menu[Idx + 1].w, this->Menu[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
-		};
+		}
 
 		Gui::DrawStringCentered(-40, this->Menu[1].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), (this->HexMode ? Common::GetStr("HEX") : Common::GetStr("DECIMAL")));
 		Gui::DrawStringCentered(89, this->Menu[2].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), (this->Endian ? Common::GetStr("BIG_ENDIAN") : Common::GetStr("LITTLE_ENDIAN")));
@@ -53,9 +54,10 @@ void EditBytes::Draw() {
 			Gui::Draw_Rect(this->Menu[Idx + 6].x, this->Menu[Idx + 6].y, this->Menu[Idx + 6].w, this->Menu[Idx + 6].h, UniversalEdit::UE->TData->ButtonColor());
 
 			Gui::DrawString(this->Menu[Idx + 6].x + 6, this->Menu[Idx + 6].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), (UniversalEdit::UE->CurrentFile->ReadBitFromEditBuffer(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Idx) == 0 ? "0" : "1"));
-		};
-	};
+		}
+	}
 };
+
 
 void EditBytes::Handler() {
 	if (UniversalEdit::UE->Down & KEY_TOUCH) {
@@ -63,16 +65,18 @@ void EditBytes::Handler() {
 			if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 				this->Funcs[Idx]();
 				break;
-			};
-		};
-	};
+			}
+		}
+	}
 
 	if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) this->Back();
 };
 
+
 /* Hex / Decimal and Endian. */
 void EditBytes::ChangeInputMethod() { this->HexMode = !this->HexMode; };
 void EditBytes::ChangeEndian() { this->Endian = !this->Endian; };
+
 
 void EditBytes::SetU8() {
 	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->GetEditSize() > 0) {
@@ -84,8 +88,9 @@ void EditBytes::SetU8() {
 		UniversalEdit::UE->CurrentFile->EditData()[UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart()] = V;
 		UniversalEdit::UE->CurrentFile->GetChanges()[UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart()] = V;
 		UniversalEdit::UE->CurrentFile->UpdateDisplay();
-	};
+	}
 };
+
 
 void EditBytes::SetU16() {
 	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->GetEditSize() > 0) {
@@ -97,9 +102,10 @@ void EditBytes::SetU16() {
 
 			UniversalEdit::UE->CurrentFile->WriteToEditBuffer<uint16_t>(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), V, this->Endian);
 			UniversalEdit::UE->CurrentFile->UpdateDisplay();
-		};
-	};
+		}
+	}
 };
+
 
 void EditBytes::SetU32() {
 	if (FileHandler::Loaded) {
@@ -111,15 +117,16 @@ void EditBytes::SetU32() {
 
 			UniversalEdit::UE->CurrentFile->WriteToEditBuffer<uint32_t>(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), V, this->Endian);
 			UniversalEdit::UE->CurrentFile->UpdateDisplay();
-		};
-	};
+		}
+	}
 };
+
 
 void EditBytes::ToggleBit(const uint8_t Idx) {
 	if (FileHandler::Loaded) {
 		UniversalEdit::UE->CurrentFile->WriteBitToEditBuffer(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Idx, !UniversalEdit::UE->CurrentFile->ReadBitFromEditBuffer(UniversalEdit::UE->CurrentFile->GetOffs() * 0x10 + UniversalEdit::UE->CurrentFile->GetCursor() - UniversalEdit::UE->CurrentFile->EditStart(), Idx));
 		UniversalEdit::UE->CurrentFile->UpdateDisplay();
-	};
+	}
 };
 
 

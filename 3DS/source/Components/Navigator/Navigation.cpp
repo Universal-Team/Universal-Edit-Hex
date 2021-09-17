@@ -30,6 +30,7 @@
 
 Navigation::SubMode Navigation::Mode = Navigation::SubMode::Main;
 
+
 void Navigation::Draw() {
 	switch(Navigation::Mode) {
 		case Navigation::SubMode::Main: // Draw the main menu.
@@ -43,8 +44,8 @@ void Navigation::Draw() {
 					Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 
 					Gui::DrawStringCentered(24, this->Menu[Idx].y + 9, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[Idx]));
-				};
-			};
+				}
+			}
 			break;
 
 		case Navigation::SubMode::Search: // Search Mode.
@@ -54,8 +55,9 @@ void Navigation::Draw() {
 		case Navigation::SubMode::Reminsert: // Remove Insert.
 			this->RemInsert->Draw();
 			break;
-	};
+	}
 };
+
 
 void Navigation::Handler() {
 	switch(Navigation::Mode) {
@@ -66,10 +68,10 @@ void Navigation::Handler() {
 						if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 							this->Funcs[Idx]();
 							break;
-						};
-					};
-				};
-			};
+						}
+					}
+				}
+			}
 			break;
 
 		case Navigation::SubMode::Search: // Search Mode.
@@ -79,21 +81,17 @@ void Navigation::Handler() {
 		case Navigation::SubMode::Reminsert: // Remove Insert.
 			this->RemInsert->Handler();
 			break;
-	};
+	}
 };
 
 
-void Navigation::AccessSearch() {
-	Navigation::Mode = Navigation::SubMode::Search;
-};
+void Navigation::AccessSearch() { Navigation::Mode = Navigation::SubMode::Search; };
+void Navigation::AccessRemInsert() { Navigation::Mode = Navigation::SubMode::Reminsert; };
 
-void Navigation::AccessRemInsert() {
-	Navigation::Mode = Navigation::SubMode::Reminsert;
-};
 
 void Navigation::JumpTo() {
 	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile->GetSize() > 0) {
 		const uint32_t Offs = Common::HexPad(Common::GetStr("ENTER_OFFSET_IN_HEX"), (UniversalEdit::UE->CurrentFile->GetOffs() * 0x10) + UniversalEdit::UE->CurrentFile->GetCursor(), 0, UniversalEdit::UE->CurrentFile->GetSize() - 1, 10);
 		UniversalEdit::UE->CurrentFile->JumpOffs(Offs);
-	};
+	}
 };

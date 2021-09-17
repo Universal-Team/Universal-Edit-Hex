@@ -30,6 +30,7 @@
 
 #define ENTRIES_ON_LIST 6
 
+
 void JSONListSelector::Draw() {
 	C2D_TargetClear(Top, C2D_Color32(0, 0, 0, 0));
 	C2D_TargetClear(Bottom, C2D_Color32(0, 0, 0, 0));
@@ -49,7 +50,7 @@ void JSONListSelector::Draw() {
 		Gui::Draw_Rect(this->ListPos[Idx + 1].x, this->ListPos[Idx + 1].y, this->ListPos[Idx + 1].w, this->ListPos[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 		
 		Gui::DrawStringCentered(0, this->ListPos[Idx + 1].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), this->Content[this->SPos + Idx].first, 240);
-	};
+	}
 
 	C3D_FrameEnd(0);
 };
@@ -74,11 +75,11 @@ int JSONListSelector::Handler(const std::string &Text, const std::string &JSONFi
 		/* Read Data. */
 		for (auto Data = JSON.begin(); Data != JSON.end(); ++Data) {
 			if (JSON[Data.key()].is_number()) this->Content.push_back(std::make_pair(Data.key(), JSON[Data.key()]));
-		};
+		}
 
 	} else {
 		return -1; // File is nullptr.
-	};
+	}
 
 	while(aptMainLoop()) {
 		this->Draw();
@@ -92,22 +93,22 @@ int JSONListSelector::Handler(const std::string &Text, const std::string &JSONFi
 		if (Repeat & KEY_UP) {
 			if (this->Selection > 0) this->Selection--;
 			else this->Selection = this->Content.size() - 1;
-		};
+		}
 
 		if (Repeat & KEY_DOWN) {
 			if (this->Selection < (int)this->Content.size() - 1) this->Selection++;
 			else this->Selection = 0;
-		};
+		}
 
 		if (Repeat & KEY_LEFT) {
 			if (this->Selection > ENTRIES_ON_LIST) this->Selection -= ENTRIES_ON_LIST;
 			else this->Selection = 0;
-		};
+		}
 
 		if (Repeat & KEY_RIGHT) {
 			if (this->Selection + ENTRIES_ON_LIST < (int)this->Content.size() - 1) this->Selection += ENTRIES_ON_LIST;
 			else this->Selection = this->Content.size() - 1;
-		};
+		}
 
 
 		if (Down & KEY_A) return this->Content[this->Selection].second;
@@ -119,14 +120,14 @@ int JSONListSelector::Handler(const std::string &Text, const std::string &JSONFi
 			for (uint8_t Idx = 0; Idx < ENTRIES_ON_LIST; Idx++) {
 				if (this->SPos + Idx < (int)this->Content.size()) {
 					if (Common::Touching(T, this->ListPos[Idx + 1])) return this->Content[this->SPos + Idx].second;
-				};
-			};
-		};
+				}
+			}
+		}
 
 		/* Scroll. */
 		if (this->Selection < this->SPos) this->SPos = this->Selection;
 		else if (this->Selection > this->SPos + ENTRIES_ON_LIST - 1) this->SPos = this->Selection - ENTRIES_ON_LIST + 1;
-	};
+	}
 
 	return -1;
 };

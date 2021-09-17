@@ -31,6 +31,7 @@
 
 #define ENTRIES_ON_LIST 5
 
+
 void FileBrowser::Draw() {
 	C2D_TargetClear(Top, C2D_Color32(0, 0, 0, 0));
 	C2D_TargetClear(Bottom, C2D_Color32(0, 0, 0, 0));
@@ -55,7 +56,7 @@ void FileBrowser::Draw() {
 		Gui::Draw_Rect(this->FBPos[Idx + 1].x, this->FBPos[Idx + 1].y, this->FBPos[Idx + 1].w, this->FBPos[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 
 		Gui::DrawStringCentered(0, this->FBPos[Idx + 1].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), this->CurrentFileData[this->SPos + Idx], 240);
-	};
+	}
 
 	C3D_FrameEnd(0);
 };
@@ -91,7 +92,7 @@ std::string FileBrowser::Handler(const std::string &BasePath, const bool Limit, 
 					this->Browser->GoDirBack();
 					this->CurrentFileData = this->Browser->GetList();
 					this->SPos = 0;
-				};
+				}
 
 			} else { // Can go until the root.
 				if (this->Browser->CanDirBack()) {
@@ -101,9 +102,9 @@ std::string FileBrowser::Handler(const std::string &BasePath, const bool Limit, 
 
 				} else {
 					return "";
-				};
-			};
-		};
+				}
+			}
+		}
 
 		if (Down & KEY_A) {
 			if (!this->Browser->OpenHandle()) {
@@ -117,7 +118,7 @@ std::string FileBrowser::Handler(const std::string &BasePath, const bool Limit, 
 							this->Browser->GoDirBack();
 							this->CurrentFileData = this->Browser->GetList();
 							this->SPos = 0;
-						};
+						}
 
 					} else { // Can go until the root.
 						if (this->Browser->CanDirBack()) {
@@ -127,16 +128,16 @@ std::string FileBrowser::Handler(const std::string &BasePath, const bool Limit, 
 
 						} else {
 							return "";
-						};
-					};
-				};
+						}
+					}
+				}
 
 			} else { // We can go a directory up.
 				this->Browser->GoDirUp();
 				this->CurrentFileData = this->Browser->GetList();
 				this->SPos = 0;
-			};
-		}; 
+			}
+		}
 
 		if (Down & KEY_SELECT) {
 			if (this->Browser->GetPath().size() >= 5) {
@@ -149,11 +150,11 @@ std::string FileBrowser::Handler(const std::string &BasePath, const bool Limit, 
 							this->Browser->RefreshList();
 							this->CurrentFileData = this->Browser->GetList();
 							this->SPos = 0;
-						};
-					};
-				};
-			};
-		};
+						}
+					}
+				}
+			}
+		}
 
 		if (Down & KEY_TOUCH) {
 			if (Common::Touching(T, this->FBPos[0])) return "";
@@ -184,24 +185,24 @@ std::string FileBrowser::Handler(const std::string &BasePath, const bool Limit, 
 
 									} else {
 										return "";
-									};
-								};
-							};
+									}
+								}
+							}
 
 						} else {
 							this->Browser->GoDirUp();
 							this->CurrentFileData = this->Browser->GetList();
 							this->SPos = 0;
-						};
-					};
-				};
-			};
-		};
+						}
+					}
+				}
+			}
+		}
 
 		/* Scroll. */
 		if (this->Browser->GetSelectedIndex() < this->SPos) this->SPos = this->Browser->GetSelectedIndex();
 		else if (this->Browser->GetSelectedIndex() > this->SPos + ENTRIES_ON_LIST - 1) this->SPos = this->Browser->GetSelectedIndex() - ENTRIES_ON_LIST + 1;
-	};
+	}
 
 	return "";
 };

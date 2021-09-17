@@ -34,6 +34,7 @@
 
 Utils::SubMode Utils::Mode = Utils::SubMode::Main;
 
+
 void Utils::Draw() {
 	if (Utils::Mode == Utils::SubMode::Main) {
 		Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
@@ -46,13 +47,14 @@ void Utils::Draw() {
 				Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 
 				Gui::DrawStringCentered(24, this->Menu[Idx].y + 9, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[Idx]));
-			};
-		};
+			}
+		}
 
 	} else {
 		this->Conv->Draw();
-	};
+	}
 };
+
 
 void Utils::Handler() {
 	if (Utils::Mode == Utils::SubMode::Main) {
@@ -61,14 +63,15 @@ void Utils::Handler() {
 				if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 					this->Funcs[Idx]();
 					break;
-				};
-			};
-		};
+				}
+			}
+		}
 
 	} else {
 		this->Conv->Handler();
-	};
+	}
 };
+
 
 void Utils::Labels() {
 	if (FileHandler::Loaded) {
@@ -81,13 +84,13 @@ void Utils::Labels() {
 				const int Offs = Label->Handler(LBFile);
 
 				if (Offs != -1) UniversalEdit::UE->CurrentFile->JumpOffs((uint32_t)Offs);
-			};
+			}
 
 		} else {
 			std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
 			Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_SCROLLMODE"), -1);
-		};
-	};
+		}
+	}
 };
 
 
@@ -100,9 +103,10 @@ void Utils::Scripts() {
 		} else {
 			std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
 			Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_SCROLLMODE"), -1);
-		};
-	};
+		}
+	}
 };
+
 
 void Utils::Encoding() {
 	if (FileHandler::Loaded) {
@@ -113,7 +117,8 @@ void Utils::Encoding() {
 		const std::string EncodingFile = FB->Handler((Res ? "sdmc:/3ds/Universal-Edit-Hex/Encodings/" : "romfs:/encodings/"), true, "Select the Encoding you like to use.", { "json" });
 
 		if (EncodingFile != "") UniversalEdit::UE->CurrentFile->LoadEncoding(EncodingFile);
-	};
+	}
 };
+
 
 void Utils::AccessConverter() { Utils::Mode = Utils::SubMode::Converter; };

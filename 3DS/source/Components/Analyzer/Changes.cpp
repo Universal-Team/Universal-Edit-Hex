@@ -29,6 +29,7 @@
 
 #define CHANGES_PER_LIST 6
 
+
 void Changes::Draw() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
@@ -46,31 +47,33 @@ void Changes::Draw() {
 		
 			Gui::DrawStringCentered(24, this->Menu[Idx + 1].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint32_t>(IT->first) + " -> " + "0x" + Common::ToHex<uint8_t>(IT->second), 240);
 			IT++;
-		};
-	};
+		}
+	}
 };
+
 
 void Changes::Handler() {
 	if (UniversalEdit::UE->Down & KEY_TOUCH) {
 		if (Common::Touching(UniversalEdit::UE->T, this->Menu[0])) this->Back();
-	};
+	}
 
 	if (FileHandler::Loaded && UniversalEdit::UE->CurrentFile) {
 		if (UniversalEdit::UE->Repeat & KEY_DOWN) {
 			if (this->Selection < UniversalEdit::UE->CurrentFile->GetChanges().size() - 1) this->Selection++;
 			else this->Selection = 0;
-		};
+		}
 
 		if (UniversalEdit::UE->Repeat & KEY_UP) {
 			if (this->Selection > 0) this->Selection--;
 			else this->Selection = UniversalEdit::UE->CurrentFile->GetChanges().size() - 1;
-		};
-	};
+		}
+	}
 
 	/* Scroll. */
 	if (this->Selection < this->SPos) this->SPos = this->Selection;
 	else if (this->Selection > this->SPos + CHANGES_PER_LIST - 1) this->SPos = this->Selection - CHANGES_PER_LIST + 1;
 };
+
 
 void Changes::Back() {
 	this->SPos = 0, this->Selection = 0;

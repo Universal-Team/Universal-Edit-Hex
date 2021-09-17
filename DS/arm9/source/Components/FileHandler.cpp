@@ -30,6 +30,7 @@
 
 bool FileHandler::Loaded = false;
 
+
 void FileHandler::Draw() {
 
 };
@@ -39,19 +40,23 @@ void FileHandler::Handler() {
 		UniversalEdit::UE->CurrentFile = std::make_unique<HexData>();
 		UniversalEdit::UE->CurrentFile->Load("sd:/Test.bin", 10, 0x1000);
 		FileHandler::Loaded = true;
-	};
+	}
 };
+
 
 void FileHandler::LoadFile() {
 
 };
 
+
 void FileHandler::NewFile() {
 
 };
 
+
 void FileHandler::SaveFile() {
 
 };
+
 
 void FileHandler::SaveFileAs() { };

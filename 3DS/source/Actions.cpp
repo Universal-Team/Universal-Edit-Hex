@@ -76,7 +76,7 @@ void Actions::Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToI
 				DataToCopy.clear();
 
 				Common::ProgressMessage(Common::GetStr("INSERT_STEP_1") + "\n" + Common::ToHex<uint32_t>(SizeToInsert));
-			};
+			}
 
 			fclose(TEMPFILE);
 
@@ -95,7 +95,7 @@ void Actions::Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToI
 				DataToCopy.clear();
 
 				Common::ProgressMessage(Common::GetStr("INSERT_STEP_2") + "\n" + Common::ToHex<uint32_t>(SizeToInsert));
-			};
+			}
 
 			SizeToInsert = UniversalEdit::UE->CurrentFile->GetSize() - Offs; // Is that right?
 			Common::ProgressMessage(Common::GetStr("INSERT_STEP_3") + "\n" + Common::ToHex<uint32_t>(SizeToInsert));
@@ -112,7 +112,7 @@ void Actions::Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToI
 				DataToCopy.clear();
 
 				Common::ProgressMessage(Common::GetStr("INSERT_STEP_3") + "\n" + Common::ToHex<uint32_t>(SizeToInsert));
-			};
+			}
 
 			fclose(TEMPFILE);
 			aptSetSleepAllowed(true); // Re-Allow Sleep and HOME, since we are done.
@@ -123,12 +123,12 @@ void Actions::Insert(const uint32_t Offs, const uint32_t Size, const uint8_t ToI
 			std::remove(UniversalEdit::UE->CurrentFile->EditFile().c_str());
 			std::rename("sdmc:/3ds/Universal-Edit-Hex/Temp.bin", UniversalEdit::UE->CurrentFile->EditFile().c_str()); // Move.
 			UniversalEdit::UE->CurrentFile->Load(UniversalEdit::UE->CurrentFile->EditFile().c_str(), 0xD, 0x20000); // RELOAD.
-		};
+		}
 
 	} else {
 		std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
 		Msg->Handler(Common::GetStr("NOT_ENOUGH_SPACE_INSERT"), -1);
-	};
+	}
 };
 
 
@@ -172,7 +172,7 @@ void Actions::Remove(const uint32_t Offs, const uint32_t Size) {
 				DataToCopy.clear();
 
 				Common::ProgressMessage(Common::GetStr("REMOVE_STEP_1") + "\n" + Common::ToHex<uint32_t>(SizeToInsert));
-			};
+			}
 
 			fclose(TEMPFILE);
 
@@ -195,7 +195,7 @@ void Actions::Remove(const uint32_t Offs, const uint32_t Size) {
 
 				/* Update progress display. */
 				Common::ProgressMessage(Common::GetStr("REMOVE_STEP_2") + "\n" + Common::ToHex<uint32_t>(SizeToInsert));
-			};
+			}
 
 			fclose(TEMPFILE);
 			aptSetSleepAllowed(true); // Re-Allow Sleep and HOME, since we are done.
@@ -206,12 +206,12 @@ void Actions::Remove(const uint32_t Offs, const uint32_t Size) {
 			std::remove(UniversalEdit::UE->CurrentFile->EditFile().c_str());
 			std::rename("sdmc:/3ds/Universal-Edit-Hex/Temp.bin", UniversalEdit::UE->CurrentFile->EditFile().c_str()); // Move.
 			UniversalEdit::UE->CurrentFile->Load(UniversalEdit::UE->CurrentFile->EditFile().c_str(), 0xD, 0x20000); // RELOAD.
-		};
+		}
 
 	} else {
 		std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
 		Msg->Handler(Common::GetStr("NOT_ENOUGH_SPACE_REMOVE"), -1);
-	};
+	}
 };
 
 
@@ -236,14 +236,14 @@ bool Actions::Backup() {
 			case 2: { // Ask first.
 				std::unique_ptr<PromptMessage> PM = std::make_unique<PromptMessage>();
 				Cancelled = !PM->Handler(Common::GetStr("CREATE_BACKUP"));
-			};
-			break;
-		};
+				break;
+			}
+		}
 
 		if (Cancelled) {
 			UniversalEdit::UE->CurrentFile->SetWrite(true); // First write done.
 			return true;
-		};
+		}
 
 		if (!UniversalEdit::UE->CurrentFile->FirstWrite()) {
 			if (Common::GetFreeSpace() >= (UniversalEdit::UE->CurrentFile->GetSize() * 2)) {
@@ -251,7 +251,7 @@ bool Actions::Backup() {
 
 				if (UniversalEdit::UE->CData->BackupPath()[UniversalEdit::UE->CData->BackupPath().size() - 1] != '/') {
 					Path += "/"; // Add the trailing slash there.
-				};
+				}
 
 				const std::string FName = Common::Keyboard(Common::GetStr("ENTER_BACKUP_FILENAME"), "", 100);
 
@@ -278,23 +278,23 @@ bool Actions::Backup() {
 
 						/* Update. */
 						Common::ProgressMessage(Common::GetStr("BACKING_UP_FILE") + "\n" + Common::ToHex<uint32_t>(ToWrite));
-					};
+					}
 
 					fclose(Temp);
 					aptSetSleepAllowed(true); // Re-Allow Sleep and HOME, since we are done.
 					aptSetHomeAllowed(true);
-				};
+				}
 
 			} else {
 				UniversalEdit::UE->CurrentFile->SetWrite(true); // First write done.
 
 				std::unique_ptr<PromptMessage> Msg = std::make_unique<PromptMessage>();
 				if (!Msg->Handler(Common::GetStr("NOT_ENOUGH_SPACE_BACKUP"))) return false;
-			};
-		};
+			}
+		}
 
 		UniversalEdit::UE->CurrentFile->SetWrite(true); // First write done.
-	};
+	}
 
 	return true;
 };
@@ -339,7 +339,7 @@ bool Actions::SaveFileAs() {
 
 						/* Update. */
 						Common::ProgressMessage(Common::GetStr("SAVING_FILE") + "\n" + Common::ToHex<uint32_t>(ToWrite));
-					};
+					}
 
 					fclose(Temp);
 					aptSetSleepAllowed(true); // Re-Allow Sleep and HOME, since we are done.
@@ -351,10 +351,10 @@ bool Actions::SaveFileAs() {
 				} else {
 					std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
 					Msg->Handler(Common::GetStr("NOT_ENOUGH_SPACE_SAVE"), -1);
-				};
-			};
-		};
-	};
+				}
+			}
+		}
+	}
 
 	return false;
 };
@@ -376,12 +376,12 @@ bool Actions::NewFile() {
 			UniversalEdit::UE->CurrentFile->Load("sdmc:/3ds/Universal-Edit-Hex/Temp.bin", 0xD, 0x20000); // Load.
 
 			return true;
-		};
+		}
 
 	} else {
 		std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
 		Msg->Handler(Common::GetStr("NOT_ENOUGH_SPACE_NEW"), -1);
-	};
+	}
 
 	return false;
 };
@@ -413,20 +413,20 @@ std::vector<uint32_t> Actions::Search(const uint32_t StartOffs, const uint32_t S
 					if (UniversalEdit::UE->CurrentFile->Read<uint8_t>(StartOffs + Idx + Idx2, false) != Seq[Idx2]) {
 						Matched = false;
 						break;
-					};
+					}
 
 				} else { // Edit / Change Mode.
 					if (UniversalEdit::UE->CurrentFile->EditData()[(StartOffs - UniversalEdit::UE->CurrentFile->EditStart()) + Idx + Idx2] != Seq[Idx2]) {
 						Matched = false;
 						break;
-					};
-				};
+					}
+				}
 
 			} else { // Index too large.
 				Matched = false;
 				break;
-			};
-		};
+			}
+		}
 
 		if (Matched) {
 			try { // If can push, then do it, else we break it here.
@@ -434,10 +434,10 @@ std::vector<uint32_t> Actions::Search(const uint32_t StartOffs, const uint32_t S
 
 			} catch(...) {
 				break;
-			};
-		};
-	};
-
+			}
+		}
+	}
+	
 	return Res;
 };
 
@@ -493,16 +493,16 @@ std::vector<Actions::CompareStruct> Actions::CompareFiles(const std::string &Fil
 
 						} catch(...) {
 							break; // Can't push anymore due to out of resources or so.
-						};
-					};
-				};
+						}
+					}
+				}
 
 				fclose(F2);
-			};
+			}
 
 			fclose(F1);
-		};
-	};
+		}
+	}
 
 	return Results;
 };

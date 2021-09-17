@@ -31,6 +31,7 @@
 
 std::unique_ptr<UniversalEdit> UniversalEdit::UE = nullptr;
 
+
 UniversalEdit::UniversalEdit() {
 	gfxInitDefault();
 	romfsInit();
@@ -66,6 +67,7 @@ UniversalEdit::UniversalEdit() {
 	this->ThemeNames = this->TData->ThemeNames();
 };
 
+
 void UniversalEdit::DrawTop() {
 	UniversalEdit::GData->DrawTop();
 
@@ -73,11 +75,12 @@ void UniversalEdit::DrawTop() {
 		if (this->CurrentFile && this->CurrentFile->IsGood()) {
 			this->HE->DrawTop();
 			return;
-		};
-	};
+		}
+	}
 
 	Gui::DrawStringCentered(0, 1, 0.55f, this->TData->TextColor(), "Universal-Edit-Hex");
 };
+
 
 void UniversalEdit::DrawBottom(const bool OnlyTab) {
 	this->GData->DrawBottom();
@@ -104,7 +107,7 @@ void UniversalEdit::DrawBottom(const bool OnlyTab) {
 		case Tabs::Settings:
 			this->SE->Draw();
 			break;
-	};
+	}
 };
 
 
@@ -132,14 +135,14 @@ int UniversalEdit::Handler() {
 
 				if (Res) this->Exiting = true;
 			} else this->Exiting = true;
-		};
+		}
 
 		this->_Tab->Handler();
 		if (Navigation::Mode != Navigation::SubMode::Search || this->ActiveTab != Tabs::Navigator) {
 			if (Analyzer::Mode != Analyzer::SubMode::Changes || this->ActiveTab != Tabs::Analyzer) {
 				this->HE->Handler();
-			};
-		};
+			}
+		}
 
 		switch(this->ActiveTab) {
 			case Tabs::FileHandler:
@@ -161,8 +164,8 @@ int UniversalEdit::Handler() {
 			case Tabs::Settings:
 				this->SE->Handler();
 				break;
-		};
-	};
+		}
+	}
 
 	this->CData->Sav();
 	Gui::exit();
@@ -171,6 +174,7 @@ int UniversalEdit::Handler() {
 	romfsExit();
 	return 0;
 };
+
 
 int main() {
 	UniversalEdit::UE = std::make_unique<UniversalEdit>();

@@ -32,6 +32,7 @@
 
 Settings::SubMode Settings::Mode = Settings::SubMode::Main;
 
+
 void Settings::Draw() {
 	switch(Settings::Mode) {
 		case Settings::SubMode::Main:
@@ -45,8 +46,9 @@ void Settings::Draw() {
 		case Settings::SubMode::Settings:
 			this->DrawSettings();
 			break;
-	};
+	}
 };
+
 
 void Settings::Handler() {
 	switch(Settings::Mode) {
@@ -61,8 +63,9 @@ void Settings::Handler() {
 		case Settings::SubMode::Settings:
 			this->HandleSettings();
 			break;
-	};
+	}
 };
+
 
 /* Draws the Main Mode. */
 void Settings::DrawMain() {
@@ -74,8 +77,9 @@ void Settings::DrawMain() {
 		Gui::Draw_Rect(this->Menu[Idx].x - 2, this->Menu[Idx].y - 2, this->Menu[Idx].w + 4, this->Menu[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 		Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 		Gui::DrawStringCentered(24, this->Menu[Idx].y + 9, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[Idx]));
-	};
+	}
 };
+
 
 /* Handle Main Mode. */
 void Settings::HandleMain() {
@@ -84,9 +88,9 @@ void Settings::HandleMain() {
 			if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 				this->Funcs[Idx]();
 				break;
-			};
-		};
-	};
+			}
+		}
+	}
 };
 
 
@@ -102,7 +106,7 @@ void Settings::DrawSettings() {
 	for (uint8_t Idx = 0; Idx < 3; Idx++) {
 		if (Idx == UniversalEdit::UE->CData->Backup()) Gui::Draw_Rect(this->SMenu[Idx + 1].x - 2, this->SMenu[Idx + 1].y - 2, this->SMenu[Idx + 1].w + 4, this->SMenu[Idx + 1].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 		Gui::Draw_Rect(this->SMenu[Idx + 1].x, this->SMenu[Idx + 1].y, this->SMenu[Idx + 1].w, this->SMenu[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
-	};
+	}
 
 	Gui::DrawStringCentered(-56, this->SMenu[1].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("ALWAYS"));
 	Gui::DrawStringCentered(24, this->SMenu[2].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("NEVER"));
@@ -113,6 +117,7 @@ void Settings::DrawSettings() {
 	Gui::DrawStringCentered(24, 125, 0.38f, UniversalEdit::UE->TData->TextColor(), UniversalEdit::UE->CData->BackupPath(), 280);
 };
 
+
 /* Handle Settings Mode. */
 void Settings::HandleSettings() {
 	if (UniversalEdit::UE->Down & KEY_TOUCH) {
@@ -120,9 +125,9 @@ void Settings::HandleSettings() {
 			if (Common::Touching(UniversalEdit::UE->T, this->SMenu[Idx])) {
 				this->SFuncs[Idx]();
 				break;
-			};
-		};
-	};
+			}
+		}
+	}
 
 	if (UniversalEdit::UE->Down & KEY_X) this->SetBackupPath();
 };
@@ -147,16 +152,19 @@ void Settings::LanguageHandler() {
 
 		default:
 			break;
-	};
+	}
 };
+
 
 void Settings::ThemeHandler() {
 	std::unique_ptr<ThemeSelector> TSelector = std::make_unique<ThemeSelector>();
 	TSelector->Handler();
 };
 
+
 void Settings::AccessCredits() { Settings::Mode = Settings::SubMode::Credits; };
 void Settings::GotoSettings() { Settings::Mode = Settings::SubMode::Settings; };
+
 
 /*
 	Set the Backup State.
@@ -165,9 +173,8 @@ void Settings::GotoSettings() { Settings::Mode = Settings::SubMode::Settings; };
 	1: Do not.
 	2+: Do ask.
 */
-void Settings::SetBackup(const uint8_t V) {
-	UniversalEdit::UE->CData->Backup(V);
-};
+void Settings::SetBackup(const uint8_t V) { UniversalEdit::UE->CData->Backup(V); };
+
 
 /* Set the Backup path. */
 void Settings::SetBackupPath() {
@@ -176,5 +183,6 @@ void Settings::SetBackupPath() {
 
 	if (Dir != "") UniversalEdit::UE->CData->BackupPath(Dir);
 };
+
 
 void Settings::BackToMain() { Settings::Mode = Settings::SubMode::Main; };

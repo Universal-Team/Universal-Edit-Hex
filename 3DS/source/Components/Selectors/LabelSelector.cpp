@@ -30,6 +30,7 @@
 
 #define ENTRIES_ON_LIST 4
 
+
 void LabelSelector::Draw() {
 	C2D_TargetClear(Top, C2D_Color32(0, 0, 0, 0));
 	C2D_TargetClear(Bottom, C2D_Color32(0, 0, 0, 0));
@@ -51,7 +52,7 @@ void LabelSelector::Draw() {
 		Gui::DrawStringCentered(0, this->LPos[Idx + 1].y + 4, 0.5f, UniversalEdit::UE->TData->TextColor(), this->Labels[this->SPos + Idx].Title, 240);
 		Gui::DrawStringCentered(0, this->LPos[Idx + 1].y + 20, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("OFFSET") + this->Labels[this->SPos + Idx].Offset, 240);
 		Gui::DrawStringCentered(0, this->LPos[Idx + 1].y + 30, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SIZE") + std::to_string(this->Labels[this->SPos + Idx].Size), 240);
-	};
+	}
 
 	C3D_FrameEnd(0);
 };
@@ -73,7 +74,7 @@ int LabelSelector::Handler(const std::string &LabelJSON) {
 
 	} else {
 		return -1;
-	};
+	}
 
 	if (LData.is_discarded()) return -1; // Bad Label data.
 
@@ -87,7 +88,7 @@ int LabelSelector::Handler(const std::string &LabelJSON) {
 
 		if (LData[Data.key()].contains("ofs") && LData[Data.key()]["ofs"].is_string()) this->Labels[this->Labels.size() - 1].Offset = LData[Data.key()]["ofs"];
 		if (LData[Data.key()].contains("size") && LData[Data.key()]["size"].is_number()) this->Labels[this->Labels.size() - 1].Size = LData[Data.key()]["size"];
-	};
+	}
 
 	if (!this->Labels.empty()) { // Only do action if not empty.
 		while(aptMainLoop() && this->SelectionMode) {
@@ -102,22 +103,22 @@ int LabelSelector::Handler(const std::string &LabelJSON) {
 			if (Repeat & KEY_DOWN) {
 				if (this->Selection < (int)this->Labels.size() - 1) this->Selection++;
 				else this->Selection = 0;
-			};
+			}
 
 			if (Repeat & KEY_UP) {
 				if (this->Selection > 0) this->Selection--;
 				else this->Selection = this->Labels.size() - 1;
-			};
+			}
 
 			if (Repeat & KEY_LEFT) {
 				if (this->Selection - ENTRIES_ON_LIST >= 0) this->Selection -= ENTRIES_ON_LIST;
 				else this->Selection = 0;
-			};
+			}
 
 			if (Repeat & KEY_RIGHT) {
 				if (this->Selection + ENTRIES_ON_LIST < (int)this->Labels.size()) this->Selection += ENTRIES_ON_LIST;
 				else this->Selection = this->Labels.size() - 1;
-			};
+			}
 
 			if (Down & KEY_A) this->SelectionMode = false;
 			if (Down & KEY_B) return -1;
@@ -131,21 +132,21 @@ int LabelSelector::Handler(const std::string &LabelJSON) {
 							this->Selection = this->SPos + Idx;
 							this->SelectionMode = false;
 							break;
-						};
-					};
-				};
-			};
+						}
+					}
+				}
+			}
 
 			if (this->Selection < this->SPos) this->SPos = this->Selection;
 			else if (this->Selection > this->SPos + ENTRIES_ON_LIST - 1) this->SPos = this->Selection - ENTRIES_ON_LIST + 1;
-		};
-	};
+		}
+	}
 
 	if (this->Labels[this->Selection].Offset != "" && this->Labels[this->Selection].Offset.size() > 2) {
 		if (Labels[this->Selection].Offset.substr(0, 2) == "0x") {
 			Offset = std::strtoll(this->Labels[this->Selection].Offset.c_str(), nullptr, 16);
-		};
-	};
+		}
+	}
 
 	return Offset;
 };

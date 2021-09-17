@@ -32,6 +32,7 @@
 
 std::unique_ptr<UniversalEdit> UniversalEdit::UE = nullptr;
 
+
 UniversalEdit::UniversalEdit() {
 	keysSetRepeat(25, 2);
 	defaultExceptionHandler();
@@ -44,12 +45,14 @@ UniversalEdit::UniversalEdit() {
 	this->_Tab = std::make_unique<Tab>();
 };
 
+
 void UniversalEdit::DrawTop() {
 	this->GData->DrawTop();
 
 	if (FileHandler::Loaded) this->HE->DrawTop();
 	else printf("Universal-Edit");
 };
+
 
 void UniversalEdit::DrawBottom() {
 	this->GData->DrawBottom();
@@ -65,8 +68,9 @@ void UniversalEdit::DrawBottom() {
 		case UniversalEdit::Tabs::Utils:
 		case UniversalEdit::Tabs::Settings:
 			break;
-	};
+	}
 };
+
 
 int UniversalEdit::Handler() {
 	while(!this->Exiting) {
@@ -95,8 +99,8 @@ int UniversalEdit::Handler() {
 			case UniversalEdit::Tabs::Utils:
 			case UniversalEdit::Tabs::Settings:
 				break;
-		};
-	};
+		}
+	}
 
 	return 0;
 };
@@ -112,8 +116,8 @@ int main(int argc, char **argv) {
 			scanKeys();
 			if (keysDown() & KEY_START) return 0;
 			swiWaitForVBlank();
-		};
-	};
+		}
+	}
 
 	/* Create base folders if missing. */
 	mkdir("sd:/_nds", 0777);

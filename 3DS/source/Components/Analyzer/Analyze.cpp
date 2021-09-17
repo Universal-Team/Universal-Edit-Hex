@@ -27,6 +27,7 @@
 #include "Analyze.hpp"
 #include "Common.hpp"
 
+
 void Analyze::Draw() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
@@ -37,12 +38,13 @@ void Analyze::Draw() {
 		/* Draw Selection Size. */
 		Gui::DrawString(60, this->Menu[1].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SELECTION_SIZE"));
 		Gui::DrawString(this->Menu[3].x + 30, this->Menu[1].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("BYTES"));
+
 		for (uint8_t Idx = 0; Idx < 3; Idx++) {
 			if (UniversalEdit::UE->CurrentFile->GetSelectionSize() == 1 << Idx) Gui::Draw_Rect(this->Menu[Idx + 1].x - 2, this->Menu[Idx + 1].y - 2, this->Menu[Idx + 1].w + 4, this->Menu[Idx + 1].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 
 			Gui::Draw_Rect(this->Menu[Idx + 1].x, this->Menu[Idx + 1].y, this->Menu[Idx + 1].w, this->Menu[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
 			Gui::DrawString(this->Menu[Idx + 1].x + 5, this->Menu[Idx + 1].y + 4, 0.4f, UniversalEdit::UE->TData->TextColor(), std::to_string(1 << Idx));
-		};
+		}
 
 		/* Draw Endian and Hex/Dec buttons. */
 		Gui::Draw_Rect(this->Menu[4].x, this->Menu[4].y, this->Menu[4].w, this->Menu[4].h, UniversalEdit::UE->TData->ButtonColor()); // LE / BE.
@@ -62,13 +64,13 @@ void Analyze::Draw() {
 		if (this->Endian) { // Big Endian.
 			for (int Idx = 0; Idx < UniversalEdit::UE->CurrentFile->GetSelectionSize() && UniversalEdit::UE->CurrentFile->GetCursor() + Idx < UniversalEdit::UE->CurrentFile->GetDisplaySize(); Idx++) {
 				Val.U32 |= *(UniversalEdit::UE->CurrentFile->DisplayData() + UniversalEdit::UE->CurrentFile->GetCursor() + Idx) << (UniversalEdit::UE->CurrentFile->GetSelectionSize() - 1 - Idx) * 8;
-			};
+			}
 
 		} else { // LITTLE ENDIAAAAAAN.
 			for (int Idx = 0; Idx < UniversalEdit::UE->CurrentFile->GetSelectionSize() && UniversalEdit::UE->CurrentFile->GetCursor() + Idx < UniversalEdit::UE->CurrentFile->GetDisplaySize(); Idx++) {
 				Val.U32 |= *(UniversalEdit::UE->CurrentFile->DisplayData() + UniversalEdit::UE->CurrentFile->GetCursor() + Idx) << Idx * 8;
-			};
-		};
+			}
+		}
 
 		char Str[32] = { 0 };
 
@@ -88,7 +90,7 @@ void Analyze::Draw() {
 		for (uint8_t Idx = 0; Idx < UniversalEdit::UE->CurrentFile->GetSelectionSize() * 9; Idx++) {
 			if (Idx % 9 == 8) Str[Idx] = ' ';
 			else Str[Idx] = ((Val.U32 & (1 << Idx)) >> Idx) ? '1' : '0';
-		};
+		}
 
 		Str[UniversalEdit::UE->CurrentFile->GetSelectionSize() * 9] = 0;
 		Gui::DrawString(60, this->Menu[9].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("BINARY") + Str, 260);
@@ -97,24 +99,27 @@ void Analyze::Draw() {
 		memcpy(Str, UniversalEdit::UE->CurrentFile->DisplayData() + UniversalEdit::UE->CurrentFile->GetCursor(), std::min((uint32_t)UniversalEdit::UE->CurrentFile->GetSelectionSize(), UniversalEdit::UE->CurrentFile->GetDisplaySize() - UniversalEdit::UE->CurrentFile->GetCursor()));
 		for (uint8_t Idx = 0; Idx < UniversalEdit::UE->CurrentFile->GetSelectionSize(); Idx++) {
 			if (Str[Idx] == 0) Str[Idx] = '.';
-		};
+		}
 
 		Str[std::min((uint32_t)UniversalEdit::UE->CurrentFile->GetSelectionSize(), UniversalEdit::UE->CurrentFile->GetDisplaySize() - UniversalEdit::UE->CurrentFile->GetCursor())] = 0;
 		Gui::DrawString(60, this->Menu[10].y + 3, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("UTF_8") + Str);
-	};
+	}
 };
+
 
 void Analyze::SwitchByteSize(const uint8_t Size) {
 	if (FileHandler::Loaded) {
 		/* Ensure size is within range. */
 		if (UniversalEdit::UE->CurrentFile->GetCursor() + Size - 1 < UniversalEdit::UE->CurrentFile->GetDisplaySize()) {
 			UniversalEdit::UE->CurrentFile->SetSelectionSize(Size);
-		};
-	};
+		}
+	}
 };
+
 
 void Analyze::ToggleEndian() { this->Endian = !this->Endian; };
 void Analyze::ToggleHex() { this->Hex = !this->Hex; };
+
 
 void Analyze::Handler() {
 	if (FileHandler::Loaded) {
@@ -123,10 +128,11 @@ void Analyze::Handler() {
 				if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 					this->Funcs[Idx]();
 					break;
-				};
-			};
-		};
-	};
+				}
+			}
+		}
+	}
 };
+
 
 void Analyze::Back() { Analyzer::Mode = Analyzer::SubMode::Main; };

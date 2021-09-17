@@ -31,6 +31,7 @@
 static nlohmann::json AppJSON = nullptr;
 static std::string IfNotFound = "";
 
+
 /*
 	Gets a translated string from the JSON.
 
@@ -53,9 +54,9 @@ void Common::LoadLanguage() {
 			if (UniversalEdit::UE->CData->Lang()[Idx] == '/') { // Contains a '/' and hence breaks.
 				Good = false;
 				break;
-			};
-		};
-	};
+			}
+		}
+	}
 
 	if (Good) {
 		if (access(std::string(std::string("nitro:/lang/") + UniversalEdit::UE->CData->Lang()).c_str(), F_OK) == 0) { // Ensure access is ok.
@@ -64,9 +65,9 @@ void Common::LoadLanguage() {
 				if (In)	AppJSON = nlohmann::json::parse(In, nullptr, false);
 				fclose(In);
 				return;
-			};
-		};
-	};
+			}
+		}
+	}
 
 	Good = false;
 
@@ -76,5 +77,5 @@ void Common::LoadLanguage() {
 		if (In)	AppJSON = nlohmann::json::parse(In, nullptr, false);
 		fclose(In);
 		UniversalEdit::UE->CData->Lang("en"); // Set back to english too.
-	};
+	}
 };

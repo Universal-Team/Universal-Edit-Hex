@@ -30,6 +30,7 @@
 
 #define ENTRIES_PER_LIST 6
 
+
 void FileCompare::Handler() {
 	/* The Compare File Selector here. */
 	std::unique_ptr<FileBrowser> FB = std::make_unique<FileBrowser>();
@@ -45,11 +46,11 @@ void FileCompare::Handler() {
 
 		} else {
 			Good = false;
-		};
+		}
 
 	} else {
 		Good = false;
-	};
+	}
 	
 	gspWaitForVBlank();
 	hidScanInput();
@@ -74,7 +75,7 @@ void FileCompare::Handler() {
 					Gui::Draw_Rect(this->XPos[0] - 2, this->YPos[Idx] - 2, 40 + 4, 30 + 4, UniversalEdit::UE->TData->ButtonSelected());
 					Gui::Draw_Rect(this->XPos[1] - 2, this->YPos[Idx] - 2, 120 + 4, 30 + 4, UniversalEdit::UE->TData->ButtonSelected());
 					Gui::Draw_Rect(this->XPos[2] - 2, this->YPos[Idx] - 2, 40 + 4, 30 + 4, UniversalEdit::UE->TData->ButtonSelected());
-				};
+				}
 
 				Gui::Draw_Rect(this->XPos[0], this->YPos[Idx], 40, 30, UniversalEdit::UE->TData->ButtonColor());
 				Gui::Draw_Rect(this->XPos[1], this->YPos[Idx], 120, 30, UniversalEdit::UE->TData->ButtonColor());
@@ -84,7 +85,7 @@ void FileCompare::Handler() {
 				Gui::DrawStringCentered(-105, this->YPos[Idx] + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint8_t>(this->Changes[this->SPos + Idx].File1), 40);
 				Gui::DrawStringCentered(0, this->YPos[Idx] + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint32_t>(this->Changes[this->SPos + Idx].Offs), 120);
 				Gui::DrawStringCentered(105, this->YPos[Idx] + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint8_t>(this->Changes[this->SPos + Idx].File2), 40);
-			};
+			}
 
 			C3D_FrameEnd(0);
 			uint32_t Down = 0, Repeat = 0;
@@ -97,33 +98,33 @@ void FileCompare::Handler() {
 
 			if (Down & KEY_TOUCH) {
 				if (Common::Touching(T, this->Back)) this->Confirmed = true;
-			};
+			}
 
 			if (Down & KEY_B) this->Confirmed = true;
 
 			if (this->Changes.size() > 0) {
 				if (Repeat & KEY_DOWN) {
 					if (this->Selection < this->Changes.size() - 1) this->Selection++;
-				};
+				}
 
 				if (Repeat & KEY_UP) {
 					if (this->Selection > 0) this->Selection--;
-				};
+				}
 
 				if (Repeat & KEY_LEFT) {
 					if (this->Selection > ENTRIES_PER_LIST) this->Selection -= ENTRIES_PER_LIST;
 					else this->Selection = 0;
-				};
+				}
 
 				if (Repeat & KEY_RIGHT) {
 					if (this->Selection + ENTRIES_PER_LIST < this->Changes.size() - 1) this->Selection += ENTRIES_PER_LIST;
 					else this->Selection = this->Changes.size() - 1;
-				};
+				}
 
 				/* Scroll. */
 				if (this->Selection < this->SPos) this->SPos = this->Selection;
 				else if (this->Selection > this->SPos + ENTRIES_PER_LIST - 1) this->SPos = this->Selection - ENTRIES_PER_LIST + 1;
-			};
-		};
-	};
+			}
+		}
+	}
 };

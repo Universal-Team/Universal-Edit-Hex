@@ -38,7 +38,7 @@ namespace Common {
 		for (int Idx = sizeof(T) * 2 - 1; Idx >= 0; Idx--) {
 			Buffer[Idx] = ((Value & 0xF) >= 0xA ? 'A' + (Value & 0xF) - 0xA : '0' + (Value & 0xF));
 			Value >>= 4;
-		};
+		}
 
 		return Buffer;
 	};

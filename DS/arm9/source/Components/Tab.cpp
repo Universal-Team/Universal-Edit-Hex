@@ -27,15 +27,18 @@
 #include "Common.hpp"
 #include "Tab.hpp"
 
+
 void Tab::Draw() {
 
 };
+
 
 static void SwitchTab(const UniversalEdit::Tabs T) {
 	if (T == UniversalEdit::UE->ActiveTab) return;
 	
 	UniversalEdit::UE->ActiveTab = T;
 };
+
 
 void Tab::Handler() {
 

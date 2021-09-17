@@ -27,11 +27,12 @@
 #include "Common.hpp"
 #include "Tab.hpp"
 
+
 void Tab::Draw() {
 	for (uint8_t Idx = 0; Idx < 5; Idx++) {
 		if (Idx == (uint8_t)UniversalEdit::UE->ActiveTab) Gui::Draw_Rect(this->Tabs[Idx].x, this->Tabs[Idx].y, this->Tabs[Idx].w, this->Tabs[Idx].h, UniversalEdit::UE->TData->SidebarSelected());
 		else Gui::Draw_Rect(this->Tabs[Idx].x, this->Tabs[Idx].y, this->Tabs[Idx].w, this->Tabs[Idx].h, UniversalEdit::UE->TData->SidebarColor());
-	};
+	}
 
 	UniversalEdit::UE->GData->SpriteBlend(sprites_filehandler_idx, this->Tabs[0].x, this->Tabs[0].y, UniversalEdit::UE->TData->SidebarIconColor(), 1.0f);
 
@@ -39,11 +40,13 @@ void Tab::Draw() {
 	Gui::Draw_Rect(48, 0, 1, 240, UniversalEdit::UE->TData->BarOutline());
 };
 
+
 static void SwitchTab(const UniversalEdit::Tabs T) {
 	if (T == UniversalEdit::UE->ActiveTab) return;
 	
 	UniversalEdit::UE->ActiveTab = T;
 };
+
 
 void Tab::Handler() {
 	if (UniversalEdit::UE->Down & KEY_TOUCH) {
@@ -51,7 +54,7 @@ void Tab::Handler() {
 			if (Common::Touching(UniversalEdit::UE->T, this->Tabs[Idx])) {
 				SwitchTab((UniversalEdit::Tabs)Idx);
 				break;
-			};
-		};
-	};
+			}
+		}
+	}
 };

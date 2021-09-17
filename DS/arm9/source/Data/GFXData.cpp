@@ -27,17 +27,21 @@
 #include "Common.hpp"
 #include "GFXData.hpp"
 
+
 GFXData::GFXData() {
 
 };
+
 
 GFXData::~GFXData() {
 	
 };
 
+
 void GFXData::DrawTop() {
 
 };
+
 
 void GFXData::DrawBottom() {
 

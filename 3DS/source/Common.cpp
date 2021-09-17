@@ -28,9 +28,11 @@
 #include <sys/statvfs.h>
 #include <unistd.h>
 
+
 bool Common::Touching(const touchPosition T, const Structs::ButtonPos P) {
 	return (T.px >= P.x && T.px <= (P.x + P.w) && T.py >= P.y && T.py <= (P.y + P.h));
 };
+
 
 uint32_t Common::Numpad(const std::string &Text, const uint32_t CurVal, const uint32_t MinVal, const uint32_t MaxVal, const int Length) {
 	/* Display one frame on top of what should be entered. */
@@ -42,7 +44,6 @@ uint32_t Common::Numpad(const std::string &Text, const uint32_t CurVal, const ui
 	Gui::DrawStringCentered(0, 50, 0.6f, UniversalEdit::UE->TData->TextColor(), Text, 395, 100, nullptr, C2D_WordWrap);
 	UniversalEdit::UE->GData->DrawBottom();
 	C3D_FrameEnd(0);
-
 
 	SwkbdState State;
 	swkbdInit(&State, SWKBD_TYPE_NUMPAD, 2, Length);
@@ -61,6 +62,7 @@ uint32_t Common::Numpad(const std::string &Text, const uint32_t CurVal, const ui
 	
 	return (Ret == SWKBD_BUTTON_CONFIRM ? Res : CurVal);
 };
+
 
 uint32_t Common::HexPad(const std::string &Text, const uint32_t CurVal, const uint32_t MinVal, const uint32_t MaxVal, const int Length) {
 	uint32_t Res = CurVal;
@@ -98,23 +100,23 @@ uint32_t Common::HexPad(const std::string &Text, const uint32_t CurVal, const ui
 					for (size_t Idx2 = 0; Idx2 < Valid.size(); Idx2++) {
 						if (Input[Idx] == Valid[Idx2]) IsGood = true;
 						if (IsGood) break;
-					};
+					}
 
 					if (!IsGood) { // Not valid!
 						*CallbackMsg = Common::GetStr("NOT_VALID_HEX_INPUT").c_str();
 						return SWKBD_CALLBACK_CONTINUE;
-					};
-				};
+					}
+				}
 
 			} else {
 				*CallbackMsg = Common::GetStr("HEX_IDENTIFIER_MISSING").c_str();
 				return SWKBD_CALLBACK_CONTINUE;
-			};
+			}
 
 		} else { // Input smaller as 0x3.
 			*CallbackMsg = Common::GetStr("HEX_INPUT_TOO_SMALL").c_str();
 			return SWKBD_CALLBACK_CONTINUE;
-		};
+		}
 
 		return SWKBD_CALLBACK_OK;
 	}, nullptr);
@@ -128,11 +130,12 @@ uint32_t Common::HexPad(const std::string &Text, const uint32_t CurVal, const ui
 		if (Input[0] != '\0') {
 			Res = (uint32_t)std::min(std::stoul(Input, nullptr, 16), MaxVal);
 			if (Res < MinVal) Res = MinVal; // If smaller than MinVal, set to MinVal.
-		};
-	};
+		}
+	}
 	
 	return Res;
 };
+
 
 std::string Common::Keyboard(const std::string &Text, const std::string &CurStr, const int Length) {
 	/* Display one frame on top of what should be entered. */
@@ -145,7 +148,6 @@ std::string Common::Keyboard(const std::string &Text, const std::string &CurStr,
 	UniversalEdit::UE->GData->DrawBottom();
 	C3D_FrameEnd(0);
 
-
 	SwkbdState State;
 	swkbdInit(&State, SWKBD_TYPE_NORMAL, 2, Length);
 	swkbdSetHintText(&State, Text.c_str());
@@ -157,6 +159,7 @@ std::string Common::Keyboard(const std::string &Text, const std::string &CurStr,
 	Input[Length] = '\0';
 	return (Ret == SWKBD_BUTTON_CONFIRM ? Input : CurStr);
 };
+
 
 void Common::ProgressMessage(const std::string &Msg) {
 	C2D_TargetClear(Top, C2D_Color32(0, 0, 0, 0));
@@ -177,6 +180,7 @@ void Common::ProgressMessage(const std::string &Msg) {
 
 static nlohmann::json AppJSON;
 static std::string IfNotFound = "";
+
 
 /*
 	Gets a translated string from the JSON.
@@ -200,9 +204,9 @@ void Common::LoadLanguage() {
 			if (UniversalEdit::UE->CData->Lang()[Idx] == '/') { // Contains a '/' and hence breaks.
 				Good = false;
 				break;
-			};
-		};
-	};
+			}
+		}
+	}
 
 	if (Good) {
 		if (access(std::string(std::string("romfs:/lang/") + UniversalEdit::UE->CData->Lang()).c_str(), F_OK) == 0) { // Ensure access is ok.
@@ -211,9 +215,9 @@ void Common::LoadLanguage() {
 				if (In)	AppJSON = nlohmann::json::parse(In, nullptr, false);
 				fclose(In);
 				return;
-			};
-		};
-	};
+			}
+		}
+	}
 
 	Good = false;
 
@@ -223,8 +227,9 @@ void Common::LoadLanguage() {
 		if (In)	AppJSON = nlohmann::json::parse(In, nullptr, false);
 		fclose(In);
 		UniversalEdit::UE->CData->Lang("en"); // Set back to english too.
-	};
+	}
 };
+
 
 /* Code borrowed from GodMode9i:
 	https://github.com/DS-Homebrew/GodMode9i/blob/d68ac105e68b4a1fc2c706a08c7a394255c325c2/arm9/source/driveOperations.cpp#L166-L170

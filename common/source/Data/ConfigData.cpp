@@ -80,7 +80,7 @@ std::string ConfigData::SysLang(void) {
 
 		case 11:
 			return "zh-TW"; // Chinese (Traditional).
-	};
+	}
 };
 
 /* Loads the Configuration file. */
@@ -100,7 +100,7 @@ void ConfigData::Load() {
 		this->DefaultHexView(this->Get<nlohmann::json::number_integer_t>("DefaultHexView", this->DefaultHexView()));
 		this->Lang(this->Get<std::string>("Lang", this->Lang()));
 		this->Theme(this->Get<std::string>("Theme", this->Theme()));
-	};
+	}
 };
 
 /* Initializes the Configuration file properly as a JSON. */
@@ -137,5 +137,5 @@ void ConfigData::Sav() {
 		const std::string Dump = this->CFG.dump(1, '\t');
 		fwrite(Dump.c_str(), 1, Dump.size(), Out);
 		fclose(Out);
-	};
+	}
 };

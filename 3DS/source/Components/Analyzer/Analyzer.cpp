@@ -30,6 +30,7 @@
 
 Analyzer::SubMode Analyzer::Mode = Analyzer::SubMode::Main;
 
+
 void Analyzer::Draw() {
 	switch(Analyzer::Mode) {
 		case Analyzer::SubMode::Main:
@@ -43,8 +44,8 @@ void Analyzer::Draw() {
 					Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 
 					Gui::DrawStringCentered(24, this->Menu[Idx].y + 9, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[Idx]));
-				};
-			};
+				}
+			}
 			break;
 
 		case Analyzer::SubMode::Analyze:
@@ -58,17 +59,22 @@ void Analyzer::Draw() {
 		case Analyzer::SubMode::Changes:
 			this->CH->Draw();
 			break;
-	};
+	}
 };
 
+
 void Analyzer::AccessAnalyze() { Analyzer::Mode = Analyzer::SubMode::Analyze; };
+
+
 void Analyzer::AccessEdit() {
 	if (UniversalEdit::UE->CurrentFile->GetCurMode() != HexData::EditMode::Scroll) Analyzer::Mode = Analyzer::SubMode::Edit;
 	else {
 		std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
 		Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_EDITMODE"), -1);
-	};
+	}
 };
+
+
 void Analyzer::AccessChanges() { Analyzer::Mode = Analyzer::SubMode::Changes; };
 
 
@@ -81,10 +87,10 @@ void Analyzer::Handler() {
 						if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 							this->Funcs[Idx]();
 							break;
-						};
-					};
-				};
-			};
+						}
+					}
+				}
+			}
 			break;
 
 		case Analyzer::SubMode::Analyze:
@@ -98,5 +104,5 @@ void Analyzer::Handler() {
 		case Analyzer::SubMode::Changes:
 			this->CH->Handler();
 			break;
-	};
+	}
 };

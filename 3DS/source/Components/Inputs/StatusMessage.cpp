@@ -27,6 +27,7 @@
 #include "Common.hpp"
 #include "StatusMessage.hpp"
 
+
 void StatusMessage::Handler(const std::string &Msg, const int Res) {
 	this->Msg = Msg;
 	this->Res = Res;
@@ -63,8 +64,8 @@ void StatusMessage::Handler(const std::string &Msg, const int Res) {
 
 		if (Down & KEY_TOUCH) {
 			if (Common::Touching(T, this->OK)) break;
-		};
+		}
 
 		if (Down & KEY_A) break;
-	};
+	}
 };

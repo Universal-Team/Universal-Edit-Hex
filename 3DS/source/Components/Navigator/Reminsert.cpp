@@ -30,6 +30,7 @@
 #include "StatusMessage.hpp"
 #include "PromptMessage.hpp"
 
+
 void Reminsert::Draw() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
@@ -42,7 +43,7 @@ void Reminsert::Draw() {
 		for (uint8_t Idx = 0; Idx < 5; Idx++) {
 			Gui::Draw_Rect(this->Menu[Idx].x - 2, this->Menu[Idx].y - 2, this->Menu[Idx].w + 4, this->Menu[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 			Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
-		};
+		}
 
 		Gui::DrawStringCentered(26, this->Menu[0].y + 8, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("OFFSET") + "0x" + Common::ToHex<uint32_t>(this->Offset));
 		Gui::DrawStringCentered(26, this->Menu[1].y + 8, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SIZE") + "0x" + Common::ToHex<uint32_t>(this->Size));
@@ -51,8 +52,9 @@ void Reminsert::Draw() {
 		/* Draw Remove, then Insert. */
 		Gui::DrawStringCentered(-40, this->Menu[3].y + 8, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[0]));
 		Gui::DrawStringCentered(87, this->Menu[4].y + 8, 0.45f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[1]));
-	};
+	}
 };
+
 
 void Reminsert::Handler() {
 	if (UniversalEdit::UE->Down & KEY_TOUCH) {
@@ -60,40 +62,45 @@ void Reminsert::Handler() {
 			if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 				this->Funcs[Idx]();
 				break;
-			};
-		};
-	};
+			}
+		}
+	}
 };
 
 
 void Reminsert::SetOffs() {
 	if (FileHandler::Loaded) {
 		this->Offset = Common::HexPad(Common::GetStr("ENTER_OFFSET_IN_HEX"), this->Offset, 0x0, UniversalEdit::UE->CurrentFile->GetSize(), 10);
-	};
+	}
 };
+
 
 void Reminsert::SetSize() {
 	if (FileHandler::Loaded) {
 		this->Size = Common::HexPad(Common::GetStr("ENTER_SIZE_IN_HEX"), this->Size, 0x0, 0xFFFFFFFF, 10);
-	};
+	}
 };
+
 
 void Reminsert::SetVal() {
 	if (FileHandler::Loaded) {
 		this->ValueToInsert = Common::HexPad(Common::GetStr("ENTER_VALUE_TO_INSERT_IN_HEX"), this->ValueToInsert, 0x0, 0xFF, 4);
-	};
+	}
 };
+
 
 void Reminsert::Insert() {
 	if (FileHandler::Loaded && this->Size > 0 && this->Offset <= UniversalEdit::UE->CurrentFile->GetSize()) {
 		Actions::Insert(this->Offset, this->Size, this->ValueToInsert);
-	};
+	}
 };
+
 
 void Reminsert::Remove() {
 	if (FileHandler::Loaded && this->Size > 0 && this->Offset + this->Size <= UniversalEdit::UE->CurrentFile->GetSize()) {
 		Actions::Remove(this->Offset, this->Size);
-	};
+	}
 };
+
 
 void Reminsert::Back() { Navigation::Mode = Navigation::SubMode::Main; };

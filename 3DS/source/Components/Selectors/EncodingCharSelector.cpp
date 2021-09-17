@@ -27,6 +27,7 @@
 #include "Common.hpp"
 #include "EncodingCharSelector.hpp"
 
+
 uint8_t EncodingCharSelector::Handler(const uint8_t Old) {
 	this->Selection = Old;
 
@@ -43,13 +44,12 @@ uint8_t EncodingCharSelector::Handler(const uint8_t Old) {
 		UniversalEdit::UE->GData->SpriteBlend(sprites_arrow_idx, 0, 0, UniversalEdit::UE->TData->BackArrowColor(), 1.0f);
 		Gui::DrawStringCentered(0, 2, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SELECT_ENCODING_CHAR"), 310);
 
-
 		for (size_t Idx = 0; Idx < 256; Idx++) { // Encoding characters.
 			if (Idx == this->Selection) Gui::Draw_Rect(this->XPos[Idx % 0x10], this->YPos[Idx / 0x10], 18, 12, UniversalEdit::UE->TData->SelectedByte());
 			else Gui::Draw_Rect(this->XPos[Idx % 0x10], this->YPos[Idx / 0x10], 18, 12, UniversalEdit::UE->TData->BarColor());
 
 			Gui::DrawString(this->XPos[Idx % 0x10] + 4, this->YPos[Idx / 0x10], 0.4f, UniversalEdit::UE->TData->TextColor(), UniversalEdit::UE->CurrentFile->GetEncodingChar(Idx));
-		};
+		}
 
 		C3D_FrameEnd(0);
 
@@ -62,27 +62,27 @@ uint8_t EncodingCharSelector::Handler(const uint8_t Old) {
 
 		if (Repeat & KEY_UP) {
 			if (this->Selection > 0xF) this->Selection -= 0x10;
-		};
+		}
 
 		if (Repeat & KEY_DOWN) {
 			if (this->Selection < 0xF0) this->Selection += 0x10;
-		};
+		}
 
 		if (Repeat & KEY_LEFT) {
 			if (this->Selection > 0) this->Selection--;
-		};
+		}
 
 		if (Repeat & KEY_RIGHT) {
 			if (this->Selection < 255) this->Selection++;
-		};
+		}
 
 		if (Down & KEY_TOUCH) {
 			if (Common::Touching(T, this->Back)) return Old;
-		};
+		}
 
 		if (Down & KEY_A) return this->Selection;
 		if (Down & KEY_B) return Old;
-	};
+	}
 
 	return Old;
 };

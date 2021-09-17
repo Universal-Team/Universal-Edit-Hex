@@ -35,6 +35,7 @@
 
 bool FileHandler::Loaded = false;
 
+
 void FileHandler::Draw() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
@@ -45,15 +46,16 @@ void FileHandler::Draw() {
 		Gui::Draw_Rect(this->Menu[Idx].x, this->Menu[Idx].y, this->Menu[Idx].w, this->Menu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 
 		Gui::DrawStringCentered(24, this->Menu[Idx].y + 9, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[Idx]));
-	};
+	}
 
 	if (FileHandler::Loaded) { // Save file as.. however is only visible if loaded.
 		Gui::Draw_Rect(this->Menu[3].x - 2, this->Menu[3].y - 2, this->Menu[3].w + 4, this->Menu[3].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 		Gui::Draw_Rect(this->Menu[3].x, this->Menu[3].y, this->Menu[3].w, this->Menu[3].h, UniversalEdit::UE->TData->ButtonColor());
 
 		Gui::DrawStringCentered(24, this->Menu[3].y + 9, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr(this->MenuOptions[3]));
-	};
+	}
 };
+
 
 void FileHandler::Handler() {
 	if (UniversalEdit::UE->Down & KEY_TOUCH) {
@@ -61,9 +63,9 @@ void FileHandler::Handler() {
 			if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 				this->Funcs[Idx]();
 				break;
-			};
-		};
-	};
+			}
+		}
+	}
 };
 
 
@@ -79,13 +81,14 @@ void FileHandler::LoadFile() {
 			if (!UniversalEdit::UE->CurrentFile) UniversalEdit::UE->CurrentFile = std::make_unique<HexData>();
 			UniversalEdit::UE->CurrentFile->Load(EditFile, 0xD, 0x2000);
 			FileHandler::Loaded = true;
-		};
+		}
 
 	} else {
 		std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
 		Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_SCROLLMODE"), -1);
-	};
+	}
 };
+
 
 void FileHandler::NewFile() {
 	if (UniversalEdit::UE->CurrentFile->GetCurMode() == HexData::EditMode::Scroll) {
@@ -94,8 +97,9 @@ void FileHandler::NewFile() {
 	} else {
 		std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
 		Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_SCROLLMODE"), -1);
-	};
+	}
 };
+
 
 void FileHandler::SaveFileAs() {
 	if (FileHandler::Loaded) {
@@ -105,9 +109,10 @@ void FileHandler::SaveFileAs() {
 		} else {
 			std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
 			Msg->Handler(Common::GetStr("ONLY_ACCESS_IN_SCROLLMODE"), -1);
-		};
-	};
+		}
+	}
 };
+
 
 void FileHandler::CompareFiles() {
 	std::unique_ptr<FileCompare> FC = std::make_unique<FileCompare>();

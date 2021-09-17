@@ -66,11 +66,11 @@ static int Read(lua_State *LState) {
 				lua_pushinteger(LState, Idx);
 				lua_pushinteger(LState, Res[Idx]);
 				lua_settable(LState, StackTop);
-			};
+			}
 
 		} else {
 			return luaL_error(LState, Common::GetStr("OUT_OF_SPACE").c_str());
-		};
+		}
 
 	} else if (Type == "uint16_t" || Type == "u16") {
 		if (Offs + (Elm * 0x2) - 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
@@ -85,11 +85,11 @@ static int Read(lua_State *LState) {
 				lua_pushinteger(LState, Idx);
 				lua_pushinteger(LState, Res[Idx]);
 				lua_settable(LState, StackTop);
-			};
+			}
 
 		} else {
 			return luaL_error(LState, Common::GetStr("OUT_OF_SPACE").c_str());
-		};
+		}
 
 	} else if (Type == "uint32_t" || Type == "u32") {
 		if (Offs + (Elm * 0x4) - 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
@@ -104,11 +104,11 @@ static int Read(lua_State *LState) {
 				lua_pushinteger(LState, Idx);
 				lua_pushinteger(LState, Res[Idx]);
 				lua_settable(LState, StackTop);
-			};
+			}
 
 		} else {
 			return luaL_error(LState, Common::GetStr("OUT_OF_SPACE").c_str());
-		};
+		}
 
 	} else return luaL_error(LState, Common::GetStr("NOT_A_VALID_TYPE").c_str());
 
@@ -193,11 +193,11 @@ static int Write(lua_State *LState) {
 				} catch(...) {
 					/* Cannot allocate anymore, it's better to have this check in place or it will cause bad behaviour. */
 					return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
-				};
+				}
 
 				lua_pop(LState, 1);
-			};
-		};
+			}
+		}
 
 		DT.shrink_to_fit(); // Shrink the vector size to only the size we need.
 		if (Offs + DT.size() >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
@@ -217,11 +217,11 @@ static int Write(lua_State *LState) {
 				} catch(...) {
 					/* Cannot allocate anymore, it's better to have this check in place or it will cause bad behaviour. */
 					return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
-				};
+				}
 
 				lua_pop(LState, 1);
-			};
-		};
+			}
+		}
 
 		DT.shrink_to_fit(); // Shrink the vector size to only the size we need.
 		if (Offs + (DT.size() * 2) - 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
@@ -241,11 +241,11 @@ static int Write(lua_State *LState) {
 				} catch(...) {
 					/* Cannot allocate anymore, it's better to have this check in place or it will cause bad behaviour. */
 					return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
-				};
+				}
 
 				lua_pop(LState, 1);
-			};
-		};
+			}
+		}
 
 		DT.shrink_to_fit(); // Shrink the vector size to only the size we need.
 		if (Offs + (DT.size() * 4) - 1 >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
@@ -433,8 +433,8 @@ static int DumpBytes(lua_State *LState) { // TODO.
 	if (Offs + Size >= UniversalEdit::UE->CurrentFile->GetSize()) return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
 	const std::string File = (std::string)(luaL_checkstring(LState, 3));
 
-
 	FILE *Out = fopen(File.c_str(), "wb");
+
 	if (Out) {
 		try {
 			std::vector<uint8_t> DT = UniversalEdit::UE->CurrentFile->ReadScript<uint8_t>(Offs, Size);
@@ -443,10 +443,10 @@ static int DumpBytes(lua_State *LState) { // TODO.
 		} catch(...) {
 			fclose(Out);
 			return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
-		};
+		}
 		
 		fclose(Out);
-	};
+	}
 
 	return 0;
 };
@@ -470,10 +470,11 @@ static int InjectFile(lua_State *LState) {
 		char Buffer[200] = { 0 };
 		snprintf(Buffer, sizeof(Buffer), Common::GetStr("DOES_NOT_EXIST").c_str(), File.c_str());
 		return luaL_error(LState, Buffer);
-	};
+	}
 
 	/* Do the Injection. */
 	FILE *F = fopen(File.c_str(), "r");
+
 	if (F) {
 		fseek(F, 0, SEEK_END);
 		const uint32_t Size = ftell(F);
@@ -482,7 +483,7 @@ static int InjectFile(lua_State *LState) {
 		if (Offs + Size >= UniversalEdit::UE->CurrentFile->GetSize()) {
 			fclose(F);
 			return luaL_error(LState, Common::GetStr("OUT_OF_BOUNDS").c_str());
-		};
+		}
 
 		
 		try { // Ensure it works fine.
@@ -493,11 +494,10 @@ static int InjectFile(lua_State *LState) {
 		} catch(...) {
 			fclose(F);
 			return luaL_error(LState, Common::GetStr("CANNOT_ALLOCATE_SPACE").c_str());
-		};
-
+		}
 
 		fclose(F);
-	};
+	}
 
 	return 0;
 };
@@ -534,6 +534,7 @@ static int FileSize(lua_State *LState) {
 		const std::string F = (std::string)(luaL_checkstring(LState, 1));
 
 		FILE *In = fopen(F.c_str(), "rb");
+
 		if (In) {
 			fseek(In, 0, SEEK_END);
 			lua_pushinteger(LState, ftell(In));
@@ -543,8 +544,8 @@ static int FileSize(lua_State *LState) {
 		} else { // If not good, return -1 as the size.
 			lua_pushinteger(LState, -1);
 			return 1;
-		};
-	};
+		}
+	}
 
 
 	lua_pushinteger(LState, UniversalEdit::UE->CurrentFile->GetSize());
@@ -658,7 +659,7 @@ void LUAHelper::RunScript() {
 	if (Status.first) { // 1+, an error occured.
 		Status.second = lua_tostring(LUAScript, -1); // Return error message.
 		lua_pop(LUAScript, 1); // Remove error message from LUA Script.
-	};
+	}
 
 	lua_close(LUAScript);
 	UniversalEdit::UE->CurrentFile->UpdateDisplay(); // Refresh, cause of new changes.

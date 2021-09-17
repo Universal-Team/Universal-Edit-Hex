@@ -29,6 +29,7 @@
 
 #define CHANGES_PER_LIST 4
 
+
 void ChangesPrompt::Handler() {
 	gspWaitForVBlank();
 	hidScanInput();
@@ -53,7 +54,7 @@ void ChangesPrompt::Handler() {
 			Gui::Draw_Rect(this->Buttons[Idx].x, this->Buttons[Idx].y, this->Buttons[Idx].w, this->Buttons[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 
 			Gui::DrawStringCentered((Idx ? 60 : -60), this->Buttons[Idx].y + 3, 0.6f, UniversalEdit::UE->TData->TextColor(), (Idx ? Common::GetStr("CONFIRM") : Common::GetStr("CANCEL")));
-		};
+		}
 
 		for (size_t Idx = 0; Idx < CHANGES_PER_LIST && Idx < UniversalEdit::UE->CurrentFile->GetChanges().size(); Idx++) {
 			if (this->SPos + Idx == this->Selection) Gui::Draw_Rect(this->Menu[Idx].x - 2, this->Menu[Idx].y - 2, this->Menu[Idx].w + 4, this->Menu[Idx].h + 4, UniversalEdit::UE->TData->ButtonSelected());
@@ -61,7 +62,7 @@ void ChangesPrompt::Handler() {
 		
 			Gui::DrawStringCentered(0, this->Menu[Idx].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint32_t>(IT->first) + " -> " + "0x" + Common::ToHex<uint8_t>(IT->second), 240);
 			IT++;
-		};
+		}
 
 		C3D_FrameEnd(0);
 		uint32_t Down = 0, Repeat = 0;
@@ -75,17 +76,17 @@ void ChangesPrompt::Handler() {
 		if (Down & KEY_LEFT || Down & KEY_RIGHT) this->Res = !this->Res;
 		if (Down & KEY_A) {
 			this->Confirmed = true;
-		};
+		}
 
 		if (Repeat & KEY_DOWN) {
 			if (this->Selection < UniversalEdit::UE->CurrentFile->GetChanges().size() - 1) this->Selection++;
 			else this->Selection = 0;
-		};
+		}
 
 		if (Repeat & KEY_UP) {
 			if (this->Selection > 0) this->Selection--;
 			else this->Selection = UniversalEdit::UE->CurrentFile->GetChanges().size() - 1;
-		};
+		}
 
 		if (Down & KEY_TOUCH) {
 			for (uint8_t Idx = 0; Idx < 2; Idx++) {
@@ -93,14 +94,14 @@ void ChangesPrompt::Handler() {
 					this->Res = Idx;
 					this->Confirmed = true;
 					break;
-				};
-			};
-		};
+				}
+			}
+		}
 
 		/* Scroll. */
 		if (this->Selection < this->SPos) this->SPos = this->Selection;
 		else if (this->Selection > this->SPos + CHANGES_PER_LIST - 1) this->SPos = this->Selection - CHANGES_PER_LIST + 1;
-	};
+	}
 
 	UniversalEdit::UE->CurrentFile->WriteChanges(this->Res);
 };

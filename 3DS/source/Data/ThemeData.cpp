@@ -40,14 +40,16 @@
 
 ThemeData::ThemeData(const std::string &ThemeJSON) {
 	FILE *File = fopen(ThemeJSON.c_str(), "rt");
+
 	if (File) {
 		this->TJson = nlohmann::json::parse(File, nullptr, false);
 		fclose(File);
-	};
+	}
 
 	if (!File || this->TJson.is_discarded()) this->TJson = this->InitWithDefaultColors();
 	this->Loaded = true;
 };
+
 
 nlohmann::json ThemeData::InitWithDefaultColors(const std::string &ThemePath) {
 	nlohmann::json JS = {
@@ -72,9 +74,12 @@ nlohmann::json ThemeData::InitWithDefaultColors(const std::string &ThemePath) {
 	};
 
 	FILE *Out = fopen(ThemePath.c_str(), "w");
-	const std::string Dump = JS.dump(1, '\t');
-	fwrite(Dump.c_str(), 1, JS.dump(1, '\t').size(), Out);
-	fclose(Out);
+
+	if (Out) {
+		const std::string Dump = JS.dump(1, '\t');
+		fwrite(Dump.c_str(), 1, JS.dump(1, '\t').size(), Out);
+		fclose(Out);
+	}
 
 	return JS;
 };
@@ -101,11 +106,13 @@ void ThemeData::LoadTheme(const std::string &ThemeName) {
 	if (this->TJson.contains(ThemeName) && this->TJson[ThemeName].is_object() && this->TJson[ThemeName].contains("HexRowColor") && this->TJson[ThemeName]["HexRowColor"].is_array()) {
 		for (size_t Idx = 0; Idx < this->TJson[ThemeName]["HexRowColor"].size(); Idx++) {
 			this->vHexRowColors.push_back(this->GetArrayColor(ThemeName, "HexRowColor", Idx, RGBA8(240, 240, 240, 255)));
-		};
+		}
+
 	} else {
 		this->vHexRowColors = { 0xF0F0F0 };
 	}
 };
+
 
 std::vector<std::pair<std::string, std::string>> ThemeData::ThemeNames() {
 	std::vector<std::pair<std::string, std::string>> Temp = { };
@@ -117,9 +124,9 @@ std::vector<std::pair<std::string, std::string>> ThemeData::ThemeNames() {
 
 			} else {
 				Temp.push_back(std::make_pair(IT.key(), IT.key()));
-			};
-		};
-	};
+			}
+		}
+	}
 
 	return Temp;
 };
@@ -130,16 +137,17 @@ uint32_t ThemeData::GetThemeColor(const std::string &ThemeName, const std::strin
 		const std::string CLRString = this->TJson[ThemeName][Key].get_ref<const std::string &>();
 		if (CLRString.length() < 7 || std::regex_search(CLRString.substr(1), std::regex("[^0-9A-Fa-f]"))) { // invalid color.
 			return DefaultColor;
-		};
+		}
 
 		const int R = std::stoi(CLRString.substr(1, 2), nullptr, 16);
 		const int G = std::stoi(CLRString.substr(3, 2), nullptr, 16);
 		const int B = std::stoi(CLRString.substr(5, 2), nullptr, 16);
 		return RGBA8(R, G, B, 0xFF);
-	};
+	}
 
 	return DefaultColor;
 };
+
 
 uint32_t ThemeData::GetArrayColor(const std::string &ThemeName, const std::string &Key, const size_t Idx, const uint32_t DefaultColor) {
 	if (this->TJson.contains(ThemeName) && this->TJson[ThemeName].is_object() && this->TJson[ThemeName].contains(Key) && this->TJson[ThemeName][Key].is_array()) {
@@ -147,14 +155,14 @@ uint32_t ThemeData::GetArrayColor(const std::string &ThemeName, const std::strin
 			const std::string CLRString = this->TJson[ThemeName][Key][Idx].get_ref<const std::string &>();
 			if (CLRString.length() < 7 || std::regex_search(CLRString.substr(1), std::regex("[^0-9A-Fa-f]"))) { // invalid color.
 				return DefaultColor;
-			};
+			}
 
 			const int R = std::stoi(CLRString.substr(1, 2), nullptr, 16);
 			const int G = std::stoi(CLRString.substr(3, 2), nullptr, 16);
 			const int B = std::stoi(CLRString.substr(5, 2), nullptr, 16);
 			return RGBA8(R, G, B, 0xFF);
-		};
-	};
+		}
+	}
 
 	return DefaultColor;
 };

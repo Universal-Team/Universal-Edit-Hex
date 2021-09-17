@@ -34,14 +34,16 @@
 
 #define ByteGroupSize UniversalEdit::UE->CData->ByteGroup()
 
+
 void HexEditor::DrawHexOnly() {
 
 };
 
+
 void HexEditor::DrawTop() {
 	if (UniversalEdit::UE->CurrentFile && UniversalEdit::UE->CurrentFile->IsGood()) {
 		this->DrawHexOnly();
-	};
+	}
 };
 
 
@@ -53,18 +55,18 @@ void HexEditor::Handler() {
 		if (UniversalEdit::UE->Repeat & KEY_RIGHT) UniversalEdit::UE->CurrentFile->RIGHT();
 		if (UniversalEdit::UE->Down & KEY_B) UniversalEdit::UE->CurrentFile->BPress();
 		if (UniversalEdit::UE->Down & KEY_A) UniversalEdit::UE->CurrentFile->APress();
-	};
+	}
 		
 	if (UniversalEdit::UE->Down & KEY_R) {
 		if (UniversalEdit::UE->CData->DefaultHexView() < 2) UniversalEdit::UE->CData->DefaultHexView(UniversalEdit::UE->CData->DefaultHexView() + 1);
-	};
+	}
 
 	if (UniversalEdit::UE->Down & KEY_L) {
 		if (UniversalEdit::UE->CData->DefaultHexView() > 0) UniversalEdit::UE->CData->DefaultHexView(UniversalEdit::UE->CData->DefaultHexView() - 1);
-	};
+	}
 
 	if (UniversalEdit::UE->Down & KEY_SELECT) {
 		if (ByteGroupSize < 4) UniversalEdit::UE->CData->ByteGroup(ByteGroupSize + 1);
 		else UniversalEdit::UE->CData->ByteGroup(0);
-	};
+	}
 };

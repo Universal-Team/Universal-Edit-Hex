@@ -34,6 +34,7 @@
 #define RESULTS_PER_LIST 6 // 6 Results per list.
 #define SEQUENCE_PER_LIST 5 // 5 Sequences per list.
 
+
 void Search::Draw() {
 	switch(this->Mode) {
 		case Search::DisplayMode::Main:
@@ -46,13 +47,13 @@ void Search::Draw() {
 				for (uint8_t Idx = 0; Idx < 4; Idx++) {
 					Gui::Draw_Rect(this->Menu[Idx + 1].x - 2, this->Menu[Idx + 1].y - 2, this->Menu[Idx + 1].w + 4, this->Menu[Idx + 1].h + 4, UniversalEdit::UE->TData->ButtonSelected());
 					Gui::Draw_Rect(this->Menu[Idx + 1].x, this->Menu[Idx + 1].y, this->Menu[Idx + 1].w, this->Menu[Idx + 1].h, UniversalEdit::UE->TData->ButtonColor());
-				};
+				}
 
 				Gui::DrawStringCentered(24, this->Menu[1].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("OFFSET") + "0x" + Common::ToHex<uint32_t>(this->Offs), 135);
 				Gui::DrawStringCentered(24, this->Menu[2].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SIZE") + "0x" + Common::ToHex<uint32_t>(this->Size), 135);
 				Gui::DrawStringCentered(24, this->Menu[3].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SEQUENCES"), 135);
 				Gui::DrawStringCentered(24, this->Menu[4].y + 8, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("SEARCH"), 135);
-			};
+			}
 			break;
 
 		case Search::DisplayMode::Sequence:
@@ -62,8 +63,9 @@ void Search::Draw() {
 		case Search::DisplayMode::Results:
 			this->DrawResultList();
 			break;
-	};
+	}
 };
+
 
 void Search::Handler() {
 	switch(this->Mode) {
@@ -73,9 +75,9 @@ void Search::Handler() {
 					if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 						this->FuncsMain[Idx]();
 						break;
-					};
-				};
-			};
+					}
+				}
+			}
 
 			this->SyncSettings();
 			break;
@@ -87,7 +89,7 @@ void Search::Handler() {
 		case Search::DisplayMode::Results:
 			this->ResultHandler();
 			break;
-	};
+	}
 };
 
 
@@ -98,9 +100,10 @@ void Search::EnterOffs() {
 
 		} else {
 			this->Offs = Common::HexPad(Common::GetStr("ENTER_OFFSET_IN_HEX"), this->Offs, UniversalEdit::UE->CurrentFile->EditStart(), UniversalEdit::UE->CurrentFile->EditStart() + UniversalEdit::UE->CurrentFile->GetEditSize(), 10);
-		};
-	};
+		}
+	}
 };
+
 
 void Search::EnterSize() {
 	if (FileHandler::Loaded) {
@@ -109,9 +112,10 @@ void Search::EnterSize() {
 
 		} else {
 			this->Size = Common::HexPad(Common::GetStr("ENTER_SIZE_IN_HEX"), this->Size, 0x0, (UniversalEdit::UE->CurrentFile->EditStart() + UniversalEdit::UE->CurrentFile->GetEditSize()) - this->Offs, 10);
-		};
-	};
+		}
+	}
 };
+
 
 /* Sync Offs + Size for validateness. */
 void Search::SyncSettings() {
@@ -123,9 +127,10 @@ void Search::SyncSettings() {
 		} else {
 			if (this->Offs < UniversalEdit::UE->CurrentFile->EditStart() || this->Offs > UniversalEdit::UE->CurrentFile->EditStart() + UniversalEdit::UE->CurrentFile->GetEditSize()) this->Offs = UniversalEdit::UE->CurrentFile->EditStart();
 			if (this->Size > (UniversalEdit::UE->CurrentFile->EditStart() + UniversalEdit::UE->CurrentFile->GetEditSize()) - this->Offs) this->Size = 0x0;
-		};
-	};
+		}
+	}
 };
+
 
 void Search::AccessSequence() {
 	if (FileHandler::Loaded) this->Mode = Search::DisplayMode::Sequence;
@@ -150,7 +155,7 @@ void Search::DrawSequenceList() {
 
 			/* Display Remove button next to sequence. */
 			Gui::Draw_Rect(this->SeqMenu[Idx + 6].x, this->SeqMenu[Idx + 6].y, this->SeqMenu[Idx + 6].w, this->SeqMenu[Idx + 6].h, UniversalEdit::UE->TData->ButtonColor());
-		};
+		}
 
 		/* Draw add and clear buttons. */
 		Gui::Draw_Rect(this->SeqMenu[11].x, this->SeqMenu[11].y, this->SeqMenu[11].w, this->SeqMenu[11].h, UniversalEdit::UE->TData->ButtonColor());
@@ -158,8 +163,9 @@ void Search::DrawSequenceList() {
 
 		Gui::Draw_Rect(this->SeqMenu[12].x, this->SeqMenu[12].y, this->SeqMenu[12].w, this->SeqMenu[12].h, UniversalEdit::UE->TData->ButtonColor());
 		Gui::DrawString(this->SeqMenu[12].x + 3, this->SeqMenu[12].y + 3, 0.4f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("CLEAR"));
-	};
+	}
 };
+
 
 /*
 	TODO: Handle this. Not sure what's the best way.
@@ -169,8 +175,9 @@ void Search::DrawSequenceList() {
 void Search::EditSequence(const size_t Idx) {
 	if (FileHandler::Loaded) {
 
-	};
+	}
 };
+
 
 /* Remove Sequence. */
 void Search::RemoveSequence(const size_t Idx) {
@@ -186,23 +193,25 @@ void Search::RemoveSequence(const size_t Idx) {
 			} else {
 				this->SPos = 0;
 			}
-		};
-	};
+		}
+	}
 };
 
 
 void Search::AddHexValue() {
 	if (FileHandler::Loaded) {
 		this->Sequences.push_back((uint8_t)Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), 0x0, 0x0, 0xFF, 4));
-	};
+	}
 };
+
 
 void Search::AddEncodingGrid() {
 	if (FileHandler::Loaded) {
 		std::unique_ptr<EncodingCharSelector> ENCCHar = std::make_unique<EncodingCharSelector>();
 		this->Sequences.push_back(ENCCHar->Handler());
-	};
+	}
 };
+
 
 void Search::AddEncodingString() {
 	if (FileHandler::Loaded) {
@@ -222,31 +231,34 @@ void Search::AddEncodingString() {
 						Match = true;
 						IdxToPush = Idx;
 						break;
-					};
-				};
+					}
+				}
 
 				if (Match) this->Sequences.push_back(IdxToPush);
-			};
-		};
-	};
+			}
+		}
+	}
 };
+
 
 void Search::AddUTF8String() {
 	if (FileHandler::Loaded) {
 
-	};
+	}
 };
+
 
 void Search::AddUTF16LEString() {
 	if (FileHandler::Loaded) {
 
-	};
+	}
 };
+
 
 void Search::AddUTF16BEString() {
 	if (FileHandler::Loaded) {
 
-	};
+	}
 };
 
 
@@ -289,14 +301,14 @@ void Search::AddSequence() {
 							case 3: // UTF-16 BE.
 								this->AddUTF16BEString();
 								break;
-						};
-					};
-				};
+						}
+					}
+				}
 
 				break;
-			};
-		};
-	};
+			}
+		}
+	}
 };
 
 
@@ -305,8 +317,9 @@ void Search::ClearSequence() {
 	if (FileHandler::Loaded) {
 		this->Sequences.clear();
 		this->Selection = 0;
-	};
+	}
 };
+
 
 /* Handle of the Sequence List. */
 void Search::SequenceHandler() {
@@ -314,23 +327,23 @@ void Search::SequenceHandler() {
 		if (this->Sequences.size() > 0) {
 			if (UniversalEdit::UE->Repeat & KEY_UP) {
 				if (this->Selection > 0) this->Selection--;
-			};
+			}
 
 			if (UniversalEdit::UE->Repeat & KEY_DOWN) {
 				if (this->Selection < this->Sequences.size() - 1) this->Selection++;
 				else this->Selection = this->Sequences.size() - 1;
-			};
+			}
 
 			if (UniversalEdit::UE->Repeat & KEY_LEFT) {
 				if (this->Selection > SEQUENCE_PER_LIST) this->Selection -= SEQUENCE_PER_LIST;
 				else this->Selection = 0;
-			};
+			}
 
 			if (UniversalEdit::UE->Repeat & KEY_RIGHT) {
 				if (this->Selection + SEQUENCE_PER_LIST < this->Sequences.size() - 1) this->Selection += SEQUENCE_PER_LIST;
 				else this->Selection = this->Sequences.size() - 1;
-			};
-		};
+			}
+		}
 
 		if (UniversalEdit::UE->Down & KEY_A) this->EditSequence(this->Selection); // A: Edit.
 		if (UniversalEdit::UE->Down & KEY_X) this->RemoveSequence(this->Selection); // X: Remove.
@@ -341,7 +354,7 @@ void Search::SequenceHandler() {
 			if (Common::Touching(UniversalEdit::UE->T, this->SeqMenu[0])) {
 				this->Back();
 				return;
-			};
+			}
 
 			bool Touched = false;
 
@@ -351,9 +364,9 @@ void Search::SequenceHandler() {
 						this->EditSequence(this->SPos + Idx);
 						Touched = true;
 						break;
-					};
-				};
-			};
+					}
+				}
+			}
 
 			if (!Touched) {
 				for (uint8_t Idx = 0; Idx < SEQUENCE_PER_LIST; Idx++) { // Remove click.
@@ -362,21 +375,21 @@ void Search::SequenceHandler() {
 							this->RemoveSequence(this->SPos + Idx);
 							Touched = true;
 							break;
-						};
-					};
-				};
-			};
+						}
+					}
+				}
+			}
 
 			if (!Touched) {
 				for (uint8_t Idx = 0; Idx < 2; Idx++) { // Add, Search and Clear.
 					if (Common::Touching(UniversalEdit::UE->T, this->SeqMenu[Idx + 11])) {
 						this->Funcs[Idx]();
 						break;
-					};
-				};
-			};
-		};
-	};
+					}
+				}
+			}
+		}
+	}
 
 
 	/* Scroll. */
@@ -398,8 +411,8 @@ void Search::DrawResultList() {
 			Gui::Draw_Rect(this->ResMenu[Idx].x, this->ResMenu[Idx].y, this->ResMenu[Idx].w, this->ResMenu[Idx].h, UniversalEdit::UE->TData->ButtonColor());
 		
 			Gui::DrawStringCentered(24, this->ResMenu[Idx].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint32_t>(this->FoundResults[this->SPos + Idx]), 240);
-		};
-	};
+		}
+	}
 };
 
 
@@ -412,11 +425,11 @@ void Search::SearchAction() {
 			std::unique_ptr<StatusMessage> Msg = std::make_unique<StatusMessage>();
 			Msg->Handler(Common::GetStr("NO_RESULTS_FOUND"), -1);
 			return;
-		};
+		}
 
 		this->Mode = Search::DisplayMode::Results;
 		this->SPos = 0, this->Selection = 0;
-	};
+	}
 };
 
 
@@ -426,28 +439,29 @@ void Search::JumpToSelected(const uint32_t Selected) {
 
 		/* Jump to the selected offset. */
 		if (Offs < UniversalEdit::UE->CurrentFile->GetSize()) UniversalEdit::UE->CurrentFile->JumpOffs(Offs);
-	};
+	}
 };
+
 
 void Search::ResultHandler() {
 	if (FileHandler::Loaded) {
 		if (UniversalEdit::UE->Repeat & KEY_UP) {
 			if (this->Selection > 0) this->Selection--;
-		};
+		}
 
 		if (UniversalEdit::UE->Repeat & KEY_DOWN) {
 			if (this->Selection < this->FoundResults.size() - 1) this->Selection++;
-		};
+		}
 
 		if (UniversalEdit::UE->Repeat & KEY_LEFT) {
 			if (this->Selection > RESULTS_PER_LIST) this->Selection -= RESULTS_PER_LIST;
 			else this->Selection = 0;
-		};
+		}
 
 		if (UniversalEdit::UE->Repeat & KEY_RIGHT) {
 			if (this->Selection + RESULTS_PER_LIST < this->FoundResults.size() - 1) this->Selection += RESULTS_PER_LIST;
 			else this->Selection = this->FoundResults.size() - 1;
-		};
+		}
 
 
 		if (UniversalEdit::UE->Down & KEY_A) this->JumpToSelected(this->Selection);
@@ -457,18 +471,18 @@ void Search::ResultHandler() {
 			if (Common::Touching(UniversalEdit::UE->T, this->SeqMenu[0])) {
 				this->Back();
 				return;
-			};
+			}
 
 			for (uint8_t Idx = 0; Idx < RESULTS_PER_LIST; Idx++) {
 				if (this->SPos + Idx < this->FoundResults.size()) {
 					if (Common::Touching(UniversalEdit::UE->T, this->ResMenu[Idx])) {
 						this->JumpToSelected(this->SPos + Idx);
 						break;
-					};
-				};
-			};
-		};
-	};
+					}
+				}
+			}
+		}
+	}
 
 	/* Scroll. */
 	if (this->Selection < this->SPos) this->SPos = this->Selection;
@@ -483,5 +497,5 @@ void Search::Back() {
 		this->FoundResults.clear();
 		this->SPos = 0, this->Selection = 0;
 		this->Mode = Search::DisplayMode::Main;
-	};
+	}
 };

@@ -47,8 +47,9 @@ void Credits::Draw() {
 	Gui::DrawStringCentered(24, 222, 0.5f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("CURRENT_VERSION") + V_SHA, 280, 0);
 };
 
+
 void Credits::Handler() {
 	if (UniversalEdit::UE->Down & KEY_TOUCH) {
 		if (Common::Touching(UniversalEdit::UE->T, this->BackArrow)) Settings::Mode = Settings::SubMode::Main;
-	};
+	}
 };

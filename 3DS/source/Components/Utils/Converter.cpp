@@ -27,6 +27,7 @@
 #include "Common.hpp"
 #include "Converter.hpp"
 
+
 void Converter::Draw() {
 	Gui::Draw_Rect(49, 0, 271, 20, UniversalEdit::UE->TData->BarColor());
 	Gui::Draw_Rect(49, 20, 271, 1, UniversalEdit::UE->TData->BarOutline());
@@ -45,13 +46,14 @@ void Converter::Draw() {
 
 	} else { // all over uint16_t.
 		Gui::DrawStringCentered(24, this->Menu[1].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), "0x" + Common::ToHex<uint32_t>(this->Val));
-	};
+	}
 
 	/* Decimal. */
 	Gui::Draw_Rect(this->Menu[2].x, this->Menu[2].y, this->Menu[2].w, this->Menu[2].h, UniversalEdit::UE->TData->ButtonColor());
 	Gui::DrawStringCentered(24, this->Menu[2].y - 20, 0.6f, UniversalEdit::UE->TData->TextColor(), Common::GetStr("DECIMAL"));
 	Gui::DrawStringCentered(24, this->Menu[2].y + 7, 0.5f, UniversalEdit::UE->TData->TextColor(), std::to_string(this->Val));
 };
+
 
 void Converter::Handler() {
 	if (FileHandler::Loaded) {
@@ -60,22 +62,25 @@ void Converter::Handler() {
 				if (Common::Touching(UniversalEdit::UE->T, this->Menu[Idx])) {
 					this->Funcs[Idx]();
 					break;
-				};
-			};
-		};
-	};
+				}
+			}
+		}
+	}
 };
 
+
 void Converter::Back() { Utils::Mode = Utils::SubMode::Main; };
+
 
 void Converter::EnterHex() {
 	if (FileHandler::Loaded) {
 		this->Val = Common::HexPad(Common::GetStr("ENTER_VALUE_IN_HEX"), this->Val, 0, 0xFFFFFFFF, 10);
-	};
+	}
 };
+
 
 void Converter::EnterDecimal() {
 	if (FileHandler::Loaded) {
 		this->Val = Common::Numpad(Common::GetStr("ENTER_VALUE_IN_DEC"), this->Val, 0, 0xFFFFFFFF, 10);
-	};
+	}
 };

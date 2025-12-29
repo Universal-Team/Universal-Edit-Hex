@@ -45,29 +45,30 @@ BANNERTOOL 	?= bannertool
 endif
 
 # If on a tagged commit, use just the tag
+GIT_TAG := $(shell git describe --abbrev=0 --tags --exclude git)
 ifneq ($(shell echo $(shell git tag -l --points-at HEAD) | head -c 1),)
-GIT_VER := $(shell git tag -l --points-at HEAD)
+GIT_VER := $(GIT_TAG)
 else
-GIT_VER := $(shell git describe --abbrev=0 --tags)-$(shell git rev-parse --short=7 HEAD)
+GIT_VER := $(GIT_TAG)-$(shell git rev-parse --short=7 HEAD)
 endif
 
 #---------------------------------------------------------------------------------
 # Version number
 #---------------------------------------------------------------------------------
-ifneq ($(shell echo $(shell git describe --tags) | head -c 2 | tail -c 1),)
-VERSION_MAJOR := $(shell echo $(shell git describe --tags) | head -c 2 | tail -c 1)
+ifneq ($(shell echo $(GIT_TAG) | head -c 2 | tail -c 1),)
+VERSION_MAJOR := $(shell echo $(GIT_TAG) | head -c 2 | tail -c 1)
 else
 VERSION_MAJOR := 0
 endif
 
-ifneq ($(shell echo $(shell git describe --tags) | head -c 4 | tail -c 1),)
-VERSION_MINOR := $(shell echo $(shell git describe --tags) | head -c 4 | tail -c 1)
+ifneq ($(shell echo $(GIT_TAG) | head -c 4 | tail -c 1),)
+VERSION_MINOR := $(shell echo $(GIT_TAG) | head -c 4 | tail -c 1)
 else
 VERSION_MINOR := 1
 endif
 
-ifneq ($(shell echo $(shell git describe --tags) | head -c 6 | tail -c 1),)
-VERSION_MICRO := $(shell echo $(shell git describe --tags) | head -c 6 | tail -c 1)
+ifneq ($(shell echo $(GIT_TAG) | head -c 6 | tail -c 1),)
+VERSION_MICRO := $(shell echo $(GIT_TAG) | head -c 6 | tail -c 1)
 else
 VERSION_MICRO := 0
 endif
@@ -111,7 +112,7 @@ CFLAGS	:=	-g -Wall -Wno-psabi -O2 -mword-relocations \
 			-fomit-frame-pointer -ffunction-sections \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -D_GNU_SOURCE=1
+CFLAGS	+=	$(INCLUDE) -D__3DS__ -D_GNU_SOURCE=1
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -std=gnu++20
 

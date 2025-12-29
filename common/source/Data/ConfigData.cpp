@@ -28,7 +28,7 @@
 #include "ConfigData.hpp"
 #include <unistd.h>
 
-#ifdef _3DS
+#ifdef __3DS__
 	#define CONFIG_PATH "sdmc:/3ds/Universal-Edit/Config.json"
 #else
 	#define CONFIG_PATH "sd:/_nds/Universal-Edit/Config.json"
@@ -37,7 +37,7 @@
 /* Detects system language and is used later to set app language to system language. */
 std::string ConfigData::SysLang(void) {
 	uint8_t Language = 1;
-	#ifdef _3DS // 3DS only, does set english on NDS.
+	#ifdef __3DS__ // 3DS only, does set english on NDS.
 		CFGU_GetSystemLanguage(&Language);
 	#endif
 
